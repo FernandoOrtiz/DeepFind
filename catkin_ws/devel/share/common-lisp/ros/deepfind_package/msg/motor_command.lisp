@@ -10,13 +10,13 @@
   ((leftMotorPower
     :reader leftMotorPower
     :initarg :leftMotorPower
-    :type cl:float
-    :initform 0.0)
+    :type cl:integer
+    :initform 0)
    (rightMotorPower
     :reader rightMotorPower
     :initarg :rightMotorPower
-    :type cl:float
-    :initform 0.0)
+    :type cl:integer
+    :initform 0)
    (leftMotorDirection
     :reader leftMotorDirection
     :initarg :leftMotorDirection
@@ -58,24 +58,18 @@
   (rightMotorDirection m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <motor_command>) ostream)
   "Serializes a message object of type '<motor_command>"
-  (cl:let ((bits (roslisp-utils:encode-double-float-bits (cl:slot-value msg 'leftMotorPower))))
-    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 32) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 40) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 48) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 56) bits) ostream))
-  (cl:let ((bits (roslisp-utils:encode-double-float-bits (cl:slot-value msg 'rightMotorPower))))
-    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 32) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 40) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 48) bits) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 56) bits) ostream))
+  (cl:let* ((signed (cl:slot-value msg 'leftMotorPower)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    )
+  (cl:let* ((signed (cl:slot-value msg 'rightMotorPower)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    )
   (cl:let* ((signed (cl:slot-value msg 'leftMotorDirection)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
     (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
@@ -91,26 +85,18 @@
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <motor_command>) istream)
   "Deserializes a message object of type '<motor_command>"
-    (cl:let ((bits 0))
-      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 32) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 40) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 48) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 56) bits) (cl:read-byte istream))
-    (cl:setf (cl:slot-value msg 'leftMotorPower) (roslisp-utils:decode-double-float-bits bits)))
-    (cl:let ((bits 0))
-      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 32) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 40) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 48) bits) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 56) bits) (cl:read-byte istream))
-    (cl:setf (cl:slot-value msg 'rightMotorPower) (roslisp-utils:decode-double-float-bits bits)))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'leftMotorPower) (cl:if (cl:< unsigned 2147483648) unsigned (cl:- unsigned 4294967296))))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'rightMotorPower) (cl:if (cl:< unsigned 2147483648) unsigned (cl:- unsigned 4294967296))))
     (cl:let ((unsigned 0))
       (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
@@ -133,20 +119,20 @@
   "deepfind_package/motor_command")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<motor_command>)))
   "Returns md5sum for a message object of type '<motor_command>"
-  "1317423ed0a6985045d450b042cb3a95")
+  "382ef61c60c451a76309a7978532675c")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'motor_command)))
   "Returns md5sum for a message object of type 'motor_command"
-  "1317423ed0a6985045d450b042cb3a95")
+  "382ef61c60c451a76309a7978532675c")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<motor_command>)))
   "Returns full string definition for message of type '<motor_command>"
-  (cl:format cl:nil "float64 leftMotorPower~%float64 rightMotorPower~%int32 leftMotorDirection~%int32 rightMotorDirection~%~%~%"))
+  (cl:format cl:nil "int32 leftMotorPower~%int32 rightMotorPower~%int32 leftMotorDirection~%int32 rightMotorDirection~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'motor_command)))
   "Returns full string definition for message of type 'motor_command"
-  (cl:format cl:nil "float64 leftMotorPower~%float64 rightMotorPower~%int32 leftMotorDirection~%int32 rightMotorDirection~%~%~%"))
+  (cl:format cl:nil "int32 leftMotorPower~%int32 rightMotorPower~%int32 leftMotorDirection~%int32 rightMotorDirection~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <motor_command>))
   (cl:+ 0
-     8
-     8
+     4
+     4
      4
      4
 ))

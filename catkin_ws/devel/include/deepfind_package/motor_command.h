@@ -24,14 +24,14 @@ struct motor_command_
   typedef motor_command_<ContainerAllocator> Type;
 
   motor_command_()
-    : leftMotorPower(0.0)
-    , rightMotorPower(0.0)
+    : leftMotorPower(0)
+    , rightMotorPower(0)
     , leftMotorDirection(0)
     , rightMotorDirection(0)  {
     }
   motor_command_(const ContainerAllocator& _alloc)
-    : leftMotorPower(0.0)
-    , rightMotorPower(0.0)
+    : leftMotorPower(0)
+    , rightMotorPower(0)
     , leftMotorDirection(0)
     , rightMotorDirection(0)  {
   (void)_alloc;
@@ -39,10 +39,10 @@ struct motor_command_
 
 
 
-   typedef double _leftMotorPower_type;
+   typedef int32_t _leftMotorPower_type;
   _leftMotorPower_type leftMotorPower;
 
-   typedef double _rightMotorPower_type;
+   typedef int32_t _rightMotorPower_type;
   _rightMotorPower_type rightMotorPower;
 
    typedef int32_t _leftMotorDirection_type;
@@ -85,7 +85,7 @@ namespace message_traits
 
 
 // BOOLTRAITS {'IsFixedSize': True, 'IsMessage': True, 'HasHeader': False}
-// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/giova/DeepFind/catkin_ws/src/deepfind_package/msg']}
+// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/nvidia/DeepFind/catkin_ws/src/deepfind_package/msg']}
 
 // !!!!!!!!!!! ['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_parsed_fields', 'constants', 'fields', 'full_name', 'has_header', 'header_present', 'names', 'package', 'parsed_fields', 'short_name', 'text', 'types']
 
@@ -128,12 +128,12 @@ struct MD5Sum< ::deepfind_package::motor_command_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "1317423ed0a6985045d450b042cb3a95";
+    return "382ef61c60c451a76309a7978532675c";
   }
 
   static const char* value(const ::deepfind_package::motor_command_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x1317423ed0a69850ULL;
-  static const uint64_t static_value2 = 0x45d450b042cb3a95ULL;
+  static const uint64_t static_value1 = 0x382ef61c60c451a7ULL;
+  static const uint64_t static_value2 = 0x6309a7978532675cULL;
 };
 
 template<class ContainerAllocator>
@@ -152,8 +152,8 @@ struct Definition< ::deepfind_package::motor_command_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float64 leftMotorPower\n\
-float64 rightMotorPower\n\
+    return "int32 leftMotorPower\n\
+int32 rightMotorPower\n\
 int32 leftMotorDirection\n\
 int32 rightMotorDirection\n\
 ";
@@ -197,9 +197,9 @@ struct Printer< ::deepfind_package::motor_command_<ContainerAllocator> >
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::deepfind_package::motor_command_<ContainerAllocator>& v)
   {
     s << indent << "leftMotorPower: ";
-    Printer<double>::stream(s, indent + "  ", v.leftMotorPower);
+    Printer<int32_t>::stream(s, indent + "  ", v.leftMotorPower);
     s << indent << "rightMotorPower: ";
-    Printer<double>::stream(s, indent + "  ", v.rightMotorPower);
+    Printer<int32_t>::stream(s, indent + "  ", v.rightMotorPower);
     s << indent << "leftMotorDirection: ";
     Printer<int32_t>::stream(s, indent + "  ", v.leftMotorDirection);
     s << indent << "rightMotorDirection: ";
