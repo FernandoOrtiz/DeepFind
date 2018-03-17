@@ -1,4 +1,4 @@
-float64 leftMotorPower
-float64 rightMotorPower
+int32 leftMotorPower
+int32 rightMotorPower
 int32 leftMotorDirection
 int32 rightMotorDirection
