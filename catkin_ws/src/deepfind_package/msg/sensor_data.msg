@@ -1,3 +1,3 @@
 imu_data imu
-LaserScan lidar
+sensor_msgs/LaserScan lidar
 encoders_data encoder

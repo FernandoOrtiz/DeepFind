@@ -1,0 +1,4 @@
+<launch>
+	<node pkg = "deepfind_package" name = "main" type = "SystemCommunication"/>
+</launch>
+
