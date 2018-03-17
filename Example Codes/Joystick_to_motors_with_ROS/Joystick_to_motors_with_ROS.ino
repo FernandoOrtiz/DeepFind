@@ -36,7 +36,7 @@
 
 //motor pwm pin
 #define LEFT_PWM_PIN 6
-#define RIGHT_MOTOR_PIN 2
+#define RIGHT_PWM_PIN 2
 
 //motor direction pin
 #define LEFT_DIRECTION_PIN 9
@@ -73,8 +73,8 @@ void motorSpeedCallback(const deepfind_package::motor_command& message){
 
   setMotorDirection(message.leftMotorDirection, LEFT_DIRECTION_PIN);
   setMotorDirection(message.rightMotorDirection, RIGHT_DIRECTION_PIN);
-  setMotorSpeed(message.leftMotorPower, LEFT_MOTOR_PIN);
-  setMotorSpeed(message.rightMotorPower, RIGHT_MOTOR_PIN);
+  setMotorSpeed(message.leftMotorPower, LEFT_PWM_PIN);
+  setMotorSpeed(message.rightMotorPower, RIGHT_PWM_PIN);
 
 }
 ros::Subscriber<deepfind_package::motor_command> sub("motor_speed", motorSpeedCallback);
@@ -82,10 +82,10 @@ ros::Subscriber<deepfind_package::motor_command> sub("motor_speed", motorSpeedCa
 
 void setup() { 
   //Encoder as input
-   pinMode (OUTPUTA1,INPUT);
-   pinMode (OUTPUTB1,INPUT);
-   pinMode (OUTPUTA2,INPUT);
-   pinMode (OUTPUTB2,INPUT);
+   pinMode (OUTPUT_A1,INPUT);
+   pinMode (OUTPUT_B1,INPUT);
+   pinMode (OUTPUT_A2,INPUT);
+   pinMode (OUTPUT_B2,INPUT);
    //motor as output
    pinMode(LEFT_PWM_PIN, OUTPUT);
    pinMode(RIGHT_PWM_PIN, OUTPUT);
@@ -93,8 +93,8 @@ void setup() {
    pinMode(RIGHT_DIRECTION_PIN, OUTPUT);
    
    // Reads the initial state of the outputA
-   aLastState1 = digitalRead(OUTPUTA1); 
-   aLastState2 = digitalRead(OUTPUTA2);
+   aLastState1 = digitalRead(OUTPUT_A1); 
+   aLastState2 = digitalRead(OUTPUT_A2);
  
    //ROS  initialization
    nh.initNode();
