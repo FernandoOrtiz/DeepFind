@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythonS
 
 import rospy
 from std_msgs.msg import *
@@ -20,7 +20,6 @@ def sendCommnand(command):
 #----------------------Subscriber---------------------------#
 def getSensorData():
 	sensorData = sensor_data()
-    
     sensorData.imu = rospy.wait_for_message('imu', imu_data)
     sensorData.lidar = rospy.wait_for_message('lidar', LaserScan)
     sensorData.encoder = rospy.wait_for_message('encoder', String)
