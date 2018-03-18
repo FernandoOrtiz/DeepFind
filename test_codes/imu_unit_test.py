@@ -20,5 +20,5 @@ class imu_unit_test(unittest.TestCase):
     def test_average(self):
         self.assertAlmostEqual(init_val, avg_value)
 
-        if __name__ == '__main__':
-            unittest.main()
+    if __name__ == '__main__':
+        unittest.main()
