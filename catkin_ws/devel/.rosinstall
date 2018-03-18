@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /home/nvidia/DeepFind/catkin_ws/devel/setup.sh
+    local-name: /home/giova/DeepFind/catkin_ws/devel/setup.sh

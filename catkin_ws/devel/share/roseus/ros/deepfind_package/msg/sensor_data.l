@@ -85,7 +85,7 @@
    self)
   )
 
-(setf (get deepfind_package::sensor_data :md5sum-) "607c2e43fa35473ad64e71758a520fd3")
+(setf (get deepfind_package::sensor_data :md5sum-) "9fccc7b309d5bf5d740dd999ac988ed8")
 (setf (get deepfind_package::sensor_data :datatype-) "deepfind_package/sensor_data")
 (setf (get deepfind_package::sensor_data :definition-)
       "imu_data imu
@@ -161,12 +161,12 @@ float32[] intensities    # intensity data [device-specific units].  If your
 
 ================================================================================
 MSG: deepfind_package/encoders_data
-string help
-
+int32 leftMotor
+int32 rightMotor
 ")
 
 
 
-(provide :deepfind_package/sensor_data "607c2e43fa35473ad64e71758a520fd3")
+(provide :deepfind_package/sensor_data "9fccc7b309d5bf5d740dd999ac988ed8")
 
 

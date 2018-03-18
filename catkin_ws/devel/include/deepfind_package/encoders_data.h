@@ -24,17 +24,22 @@ struct encoders_data_
   typedef encoders_data_<ContainerAllocator> Type;
 
   encoders_data_()
-    : help()  {
+    : leftMotor(0)
+    , rightMotor(0)  {
     }
   encoders_data_(const ContainerAllocator& _alloc)
-    : help(_alloc)  {
+    : leftMotor(0)
+    , rightMotor(0)  {
   (void)_alloc;
     }
 
 
 
-   typedef std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other >  _help_type;
-  _help_type help;
+   typedef int32_t _leftMotor_type;
+  _leftMotor_type leftMotor;
+
+   typedef int32_t _rightMotor_type;
+  _rightMotor_type rightMotor;
 
 
 
@@ -69,8 +74,8 @@ namespace message_traits
 
 
 
-// BOOLTRAITS {'IsFixedSize': False, 'IsMessage': True, 'HasHeader': False}
-// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/nvidia/DeepFind/catkin_ws/src/deepfind_package/msg']}
+// BOOLTRAITS {'IsFixedSize': True, 'IsMessage': True, 'HasHeader': False}
+// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/giova/DeepFind/catkin_ws/src/deepfind_package/msg']}
 
 // !!!!!!!!!!! ['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_parsed_fields', 'constants', 'fields', 'full_name', 'has_header', 'header_present', 'names', 'package', 'parsed_fields', 'short_name', 'text', 'types']
 
@@ -79,12 +84,12 @@ namespace message_traits
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::deepfind_package::encoders_data_<ContainerAllocator> >
-  : FalseType
+  : TrueType
   { };
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::deepfind_package::encoders_data_<ContainerAllocator> const>
-  : FalseType
+  : TrueType
   { };
 
 template <class ContainerAllocator>
@@ -113,12 +118,12 @@ struct MD5Sum< ::deepfind_package::encoders_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "6ded41f8a691465b353a1de637830f92";
+    return "40c59515e060d941dde4c816f719e5bb";
   }
 
   static const char* value(const ::deepfind_package::encoders_data_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x6ded41f8a691465bULL;
-  static const uint64_t static_value2 = 0x353a1de637830f92ULL;
+  static const uint64_t static_value1 = 0x40c59515e060d941ULL;
+  static const uint64_t static_value2 = 0xdde4c816f719e5bbULL;
 };
 
 template<class ContainerAllocator>
@@ -137,7 +142,8 @@ struct Definition< ::deepfind_package::encoders_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "string help\n\
+    return "int32 leftMotor\n\
+int32 rightMotor\n\
 ";
   }
 
@@ -156,7 +162,8 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.help);
+      stream.next(m.leftMotor);
+      stream.next(m.rightMotor);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -175,8 +182,10 @@ struct Printer< ::deepfind_package::encoders_data_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::deepfind_package::encoders_data_<ContainerAllocator>& v)
   {
-    s << indent << "help: ";
-    Printer<std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other > >::stream(s, indent + "  ", v.help);
+    s << indent << "leftMotor: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.leftMotor);
+    s << indent << "rightMotor: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.rightMotor);
   }
 };
 

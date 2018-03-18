@@ -83,7 +83,7 @@ namespace message_traits
 
 
 // BOOLTRAITS {'IsFixedSize': False, 'IsMessage': True, 'HasHeader': False}
-// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/nvidia/DeepFind/catkin_ws/src/deepfind_package/msg']}
+// {'std_msgs': ['/opt/ros/kinetic/share/std_msgs/cmake/../msg'], 'geometry_msgs': ['/opt/ros/kinetic/share/geometry_msgs/cmake/../msg'], 'sensor_msgs': ['/opt/ros/kinetic/share/sensor_msgs/cmake/../msg'], 'deepfind_package': ['/home/giova/DeepFind/catkin_ws/src/deepfind_package/msg']}
 
 // !!!!!!!!!!! ['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_parsed_fields', 'constants', 'fields', 'full_name', 'has_header', 'header_present', 'names', 'package', 'parsed_fields', 'short_name', 'text', 'types']
 
@@ -126,12 +126,12 @@ struct MD5Sum< ::deepfind_package::sensor_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "607c2e43fa35473ad64e71758a520fd3";
+    return "9fccc7b309d5bf5d740dd999ac988ed8";
   }
 
   static const char* value(const ::deepfind_package::sensor_data_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x607c2e43fa35473aULL;
-  static const uint64_t static_value2 = 0xd64e71758a520fd3ULL;
+  static const uint64_t static_value1 = 0x9fccc7b309d5bf5dULL;
+  static const uint64_t static_value2 = 0x740dd999ac988ed8ULL;
 };
 
 template<class ContainerAllocator>
@@ -223,7 +223,8 @@ float32[] intensities    # intensity data [device-specific units].  If your\n\
 \n\
 ================================================================================\n\
 MSG: deepfind_package/encoders_data\n\
-string help\n\
+int32 leftMotor\n\
+int32 rightMotor\n\
 ";
   }
 

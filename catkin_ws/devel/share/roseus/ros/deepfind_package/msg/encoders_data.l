@@ -14,50 +14,61 @@
 
 (defclass deepfind_package::encoders_data
   :super ros::object
-  :slots (_help ))
+  :slots (_leftMotor _rightMotor ))
 
 (defmethod deepfind_package::encoders_data
   (:init
    (&key
-    ((:help __help) "")
+    ((:leftMotor __leftMotor) 0)
+    ((:rightMotor __rightMotor) 0)
     )
    (send-super :init)
-   (setq _help (string __help))
+   (setq _leftMotor (round __leftMotor))
+   (setq _rightMotor (round __rightMotor))
    self)
-  (:help
-   (&optional __help)
-   (if __help (setq _help __help)) _help)
+  (:leftMotor
+   (&optional __leftMotor)
+   (if __leftMotor (setq _leftMotor __leftMotor)) _leftMotor)
+  (:rightMotor
+   (&optional __rightMotor)
+   (if __rightMotor (setq _rightMotor __rightMotor)) _rightMotor)
   (:serialization-length
    ()
    (+
-    ;; string _help
-    4 (length _help)
+    ;; int32 _leftMotor
+    4
+    ;; int32 _rightMotor
+    4
     ))
   (:serialize
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; string _help
-       (write-long (length _help) s) (princ _help s)
+     ;; int32 _leftMotor
+       (write-long _leftMotor s)
+     ;; int32 _rightMotor
+       (write-long _rightMotor s)
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; string _help
-     (let (n) (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4) (setq _help (subseq buf ptr- (+ ptr- n))) (incf ptr- n))
+   ;; int32 _leftMotor
+     (setq _leftMotor (sys::peek buf ptr- :integer)) (incf ptr- 4)
+   ;; int32 _rightMotor
+     (setq _rightMotor (sys::peek buf ptr- :integer)) (incf ptr- 4)
    ;;
    self)
   )
 
-(setf (get deepfind_package::encoders_data :md5sum-) "6ded41f8a691465b353a1de637830f92")
+(setf (get deepfind_package::encoders_data :md5sum-) "40c59515e060d941dde4c816f719e5bb")
 (setf (get deepfind_package::encoders_data :datatype-) "deepfind_package/encoders_data")
 (setf (get deepfind_package::encoders_data :definition-)
-      "string help
-
+      "int32 leftMotor
+int32 rightMotor
 ")
 
 
 
-(provide :deepfind_package/encoders_data "6ded41f8a691465b353a1de637830f92")
+(provide :deepfind_package/encoders_data "40c59515e060d941dde4c816f719e5bb")
 
 

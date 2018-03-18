@@ -75,8 +75,7 @@ class sensor_data {
     let length = 0;
     length += imu_data.getMessageSize(object.imu);
     length += sensor_msgs.msg.LaserScan.getMessageSize(object.lidar);
-    length += encoders_data.getMessageSize(object.encoder);
-    return length;
+    return length + 8;
   }
 
   static datatype() {
@@ -86,7 +85,7 @@ class sensor_data {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '607c2e43fa35473ad64e71758a520fd3';
+    return '9fccc7b309d5bf5d740dd999ac988ed8';
   }
 
   static messageDefinition() {
@@ -165,8 +164,8 @@ class sensor_data {
     
     ================================================================================
     MSG: deepfind_package/encoders_data
-    string help
-    
+    int32 leftMotor
+    int32 rightMotor
     `;
   }
 
