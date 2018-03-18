@@ -19,14 +19,14 @@
 (defmethod deepfind_package::motor_command
   (:init
    (&key
-    ((:leftMotorPower __leftMotorPower) 0.0)
-    ((:rightMotorPower __rightMotorPower) 0.0)
+    ((:leftMotorPower __leftMotorPower) 0)
+    ((:rightMotorPower __rightMotorPower) 0)
     ((:leftMotorDirection __leftMotorDirection) 0)
     ((:rightMotorDirection __rightMotorDirection) 0)
     )
    (send-super :init)
-   (setq _leftMotorPower (float __leftMotorPower))
-   (setq _rightMotorPower (float __rightMotorPower))
+   (setq _leftMotorPower (round __leftMotorPower))
+   (setq _rightMotorPower (round __rightMotorPower))
    (setq _leftMotorDirection (round __leftMotorDirection))
    (setq _rightMotorDirection (round __rightMotorDirection))
    self)
@@ -45,10 +45,10 @@
   (:serialization-length
    ()
    (+
-    ;; float64 _leftMotorPower
-    8
-    ;; float64 _rightMotorPower
-    8
+    ;; int32 _leftMotorPower
+    4
+    ;; int32 _rightMotorPower
+    4
     ;; int32 _leftMotorDirection
     4
     ;; int32 _rightMotorDirection
@@ -58,10 +58,10 @@
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; float64 _leftMotorPower
-       (sys::poke _leftMotorPower (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
-     ;; float64 _rightMotorPower
-       (sys::poke _rightMotorPower (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
+     ;; int32 _leftMotorPower
+       (write-long _leftMotorPower s)
+     ;; int32 _rightMotorPower
+       (write-long _rightMotorPower s)
      ;; int32 _leftMotorDirection
        (write-long _leftMotorDirection s)
      ;; int32 _rightMotorDirection
@@ -70,10 +70,10 @@
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; float64 _leftMotorPower
-     (setq _leftMotorPower (sys::peek buf ptr- :double)) (incf ptr- 8)
-   ;; float64 _rightMotorPower
-     (setq _rightMotorPower (sys::peek buf ptr- :double)) (incf ptr- 8)
+   ;; int32 _leftMotorPower
+     (setq _leftMotorPower (sys::peek buf ptr- :integer)) (incf ptr- 4)
+   ;; int32 _rightMotorPower
+     (setq _rightMotorPower (sys::peek buf ptr- :integer)) (incf ptr- 4)
    ;; int32 _leftMotorDirection
      (setq _leftMotorDirection (sys::peek buf ptr- :integer)) (incf ptr- 4)
    ;; int32 _rightMotorDirection
@@ -82,11 +82,11 @@
    self)
   )
 
-(setf (get deepfind_package::motor_command :md5sum-) "1317423ed0a6985045d450b042cb3a95")
+(setf (get deepfind_package::motor_command :md5sum-) "382ef61c60c451a76309a7978532675c")
 (setf (get deepfind_package::motor_command :datatype-) "deepfind_package/motor_command")
 (setf (get deepfind_package::motor_command :definition-)
-      "float64 leftMotorPower
-float64 rightMotorPower
+      "int32 leftMotorPower
+int32 rightMotorPower
 int32 leftMotorDirection
 int32 rightMotorDirection
 
@@ -94,6 +94,6 @@ int32 rightMotorDirection
 
 
 
-(provide :deepfind_package/motor_command "1317423ed0a6985045d450b042cb3a95")
+(provide :deepfind_package/motor_command "382ef61c60c451a76309a7978532675c")
 
 

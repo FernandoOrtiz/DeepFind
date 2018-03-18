@@ -28,13 +28,13 @@ class motor_command {
         this.leftMotorPower = initObj.leftMotorPower
       }
       else {
-        this.leftMotorPower = 0.0;
+        this.leftMotorPower = 0;
       }
       if (initObj.hasOwnProperty('rightMotorPower')) {
         this.rightMotorPower = initObj.rightMotorPower
       }
       else {
-        this.rightMotorPower = 0.0;
+        this.rightMotorPower = 0;
       }
       if (initObj.hasOwnProperty('leftMotorDirection')) {
         this.leftMotorDirection = initObj.leftMotorDirection
@@ -54,9 +54,9 @@ class motor_command {
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type motor_command
     // Serialize message field [leftMotorPower]
-    bufferOffset = _serializer.float64(obj.leftMotorPower, buffer, bufferOffset);
+    bufferOffset = _serializer.int32(obj.leftMotorPower, buffer, bufferOffset);
     // Serialize message field [rightMotorPower]
-    bufferOffset = _serializer.float64(obj.rightMotorPower, buffer, bufferOffset);
+    bufferOffset = _serializer.int32(obj.rightMotorPower, buffer, bufferOffset);
     // Serialize message field [leftMotorDirection]
     bufferOffset = _serializer.int32(obj.leftMotorDirection, buffer, bufferOffset);
     // Serialize message field [rightMotorDirection]
@@ -69,9 +69,9 @@ class motor_command {
     let len;
     let data = new motor_command(null);
     // Deserialize message field [leftMotorPower]
-    data.leftMotorPower = _deserializer.float64(buffer, bufferOffset);
+    data.leftMotorPower = _deserializer.int32(buffer, bufferOffset);
     // Deserialize message field [rightMotorPower]
-    data.rightMotorPower = _deserializer.float64(buffer, bufferOffset);
+    data.rightMotorPower = _deserializer.int32(buffer, bufferOffset);
     // Deserialize message field [leftMotorDirection]
     data.leftMotorDirection = _deserializer.int32(buffer, bufferOffset);
     // Deserialize message field [rightMotorDirection]
@@ -80,7 +80,7 @@ class motor_command {
   }
 
   static getMessageSize(object) {
-    return 24;
+    return 16;
   }
 
   static datatype() {
@@ -90,14 +90,14 @@ class motor_command {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '1317423ed0a6985045d450b042cb3a95';
+    return '382ef61c60c451a76309a7978532675c';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    float64 leftMotorPower
-    float64 rightMotorPower
+    int32 leftMotorPower
+    int32 rightMotorPower
     int32 leftMotorDirection
     int32 rightMotorDirection
     
@@ -114,14 +114,14 @@ class motor_command {
       resolved.leftMotorPower = msg.leftMotorPower;
     }
     else {
-      resolved.leftMotorPower = 0.0
+      resolved.leftMotorPower = 0
     }
 
     if (msg.rightMotorPower !== undefined) {
       resolved.rightMotorPower = msg.rightMotorPower;
     }
     else {
-      resolved.rightMotorPower = 0.0
+      resolved.rightMotorPower = 0
     }
 
     if (msg.leftMotorDirection !== undefined) {
