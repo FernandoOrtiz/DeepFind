@@ -4,7 +4,16 @@ Make sure you have python 3 installed
 Then run:
 sudo python3 setup.py install
 
+you will then need YAML
+http://pyyaml.org/wiki/PyYAMLDocumentation
+or
+sudo apt-get install python3-yaml
 
+
+sudo apt-get install python3-pip
+sudo pip3 install rospkg
+sudo pip3 install catkin_pkg
+sudo pip3 install pymorse
 
 ************ Error1 ************
 Problem:
