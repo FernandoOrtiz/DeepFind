@@ -7,11 +7,16 @@
 ;//! \htmlinclude encoders_data.msg.html
 
 (cl:defclass <encoders_data> (roslisp-msg-protocol:ros-message)
-  ((help
-    :reader help
-    :initarg :help
-    :type cl:string
-    :initform ""))
+  ((leftMotor
+    :reader leftMotor
+    :initarg :leftMotor
+    :type cl:integer
+    :initform 0)
+   (rightMotor
+    :reader rightMotor
+    :initarg :rightMotor
+    :type cl:integer
+    :initform 0))
 )
 
 (cl:defclass encoders_data (<encoders_data>)
@@ -22,29 +27,44 @@
   (cl:unless (cl:typep m 'encoders_data)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name deepfind_package-msg:<encoders_data> is deprecated: use deepfind_package-msg:encoders_data instead.")))
 
-(cl:ensure-generic-function 'help-val :lambda-list '(m))
-(cl:defmethod help-val ((m <encoders_data>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader deepfind_package-msg:help-val is deprecated.  Use deepfind_package-msg:help instead.")
-  (help m))
+(cl:ensure-generic-function 'leftMotor-val :lambda-list '(m))
+(cl:defmethod leftMotor-val ((m <encoders_data>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader deepfind_package-msg:leftMotor-val is deprecated.  Use deepfind_package-msg:leftMotor instead.")
+  (leftMotor m))
+
+(cl:ensure-generic-function 'rightMotor-val :lambda-list '(m))
+(cl:defmethod rightMotor-val ((m <encoders_data>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader deepfind_package-msg:rightMotor-val is deprecated.  Use deepfind_package-msg:rightMotor instead.")
+  (rightMotor m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <encoders_data>) ostream)
   "Serializes a message object of type '<encoders_data>"
-  (cl:let ((__ros_str_len (cl:length (cl:slot-value msg 'help))))
-    (cl:write-byte (cl:ldb (cl:byte 8 0) __ros_str_len) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 8) __ros_str_len) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 16) __ros_str_len) ostream)
-    (cl:write-byte (cl:ldb (cl:byte 8 24) __ros_str_len) ostream))
-  (cl:map cl:nil #'(cl:lambda (c) (cl:write-byte (cl:char-code c) ostream)) (cl:slot-value msg 'help))
+  (cl:let* ((signed (cl:slot-value msg 'leftMotor)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    )
+  (cl:let* ((signed (cl:slot-value msg 'rightMotor)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    )
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <encoders_data>) istream)
   "Deserializes a message object of type '<encoders_data>"
-    (cl:let ((__ros_str_len 0))
-      (cl:setf (cl:ldb (cl:byte 8 0) __ros_str_len) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 8) __ros_str_len) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 16) __ros_str_len) (cl:read-byte istream))
-      (cl:setf (cl:ldb (cl:byte 8 24) __ros_str_len) (cl:read-byte istream))
-      (cl:setf (cl:slot-value msg 'help) (cl:make-string __ros_str_len))
-      (cl:dotimes (__ros_str_idx __ros_str_len msg)
-        (cl:setf (cl:char (cl:slot-value msg 'help) __ros_str_idx) (cl:code-char (cl:read-byte istream)))))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'leftMotor) (cl:if (cl:< unsigned 2147483648) unsigned (cl:- unsigned 4294967296))))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'rightMotor) (cl:if (cl:< unsigned 2147483648) unsigned (cl:- unsigned 4294967296))))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<encoders_data>)))
@@ -55,22 +75,24 @@
   "deepfind_package/encoders_data")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<encoders_data>)))
   "Returns md5sum for a message object of type '<encoders_data>"
-  "6ded41f8a691465b353a1de637830f92")
+  "40c59515e060d941dde4c816f719e5bb")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'encoders_data)))
   "Returns md5sum for a message object of type 'encoders_data"
-  "6ded41f8a691465b353a1de637830f92")
+  "40c59515e060d941dde4c816f719e5bb")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<encoders_data>)))
   "Returns full string definition for message of type '<encoders_data>"
-  (cl:format cl:nil "string help~%~%~%"))
+  (cl:format cl:nil "int32 leftMotor~%int32 rightMotor~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'encoders_data)))
   "Returns full string definition for message of type 'encoders_data"
-  (cl:format cl:nil "string help~%~%~%"))
+  (cl:format cl:nil "int32 leftMotor~%int32 rightMotor~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <encoders_data>))
   (cl:+ 0
-     4 (cl:length (cl:slot-value msg 'help))
+     4
+     4
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <encoders_data>))
   "Converts a ROS message object to a list"
   (cl:list 'encoders_data
-    (cl:cons ':help (help msg))
+    (cl:cons ':leftMotor (leftMotor msg))
+    (cl:cons ':rightMotor (rightMotor msg))
 ))

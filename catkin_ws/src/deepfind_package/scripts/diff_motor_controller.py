@@ -10,8 +10,8 @@ dict = {'MOTOR_CAP': 40, 'FOWARD': 0, 'BACKWARD': 1}
 
 def diffControlCallback(twistData):
   command = motor_command()
-  command.leftMotorPower = int((twistData.linear.x - twistData.angular.z) * dict['MOTOR_CAP'])
-  command.rightMotorPower = int((twistData.linear.x + twistData.angular.z) * dict['MOTOR_CAP'])
+  command.leftMotorPower = int((twistData.linear.x + twistData.angular.z) * dict['MOTOR_CAP'])
+  command.rightMotorPower = int((twistData.linear.x - twistData.angular.z) * dict['MOTOR_CAP'])
 
   if command.leftMotorPower > 0:
   	command.leftMotorDirection = dict['FOWARD']
@@ -31,7 +31,7 @@ def diffControlCallback(twistData):
 
 
 def diffControllerListener():
-  rospy.init_node('android_listener')
+  rospy.init_node('DifferentialController')
   rospy.Subscriber('cmd_vel', Twist, diffControlCallback)
   rospy.spin()
 

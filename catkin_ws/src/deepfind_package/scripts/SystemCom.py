@@ -7,9 +7,9 @@ from sensor_msgs.msg import LaserScan
 
 #----------------------Communication Set Up-----------------#
 def initConnections():
-	rospy.init_node('SystemCommunication', anonymous = True)
+	rospy.init_node('SystemCommunication')
 	global controlPub
-	controlPub = rospy.Publisher('control', String, queue_size = 10)
+	controlPub = rospy.Publisher('cmd_vel', String, queue_size = 10)
 
 #----------------------Publisher----------------------------#
 
@@ -19,11 +19,9 @@ def sendCommnand(command):
 
 #----------------------Subscriber---------------------------#
 def getSensorData():
+	sensorData = sensor_data()
     
-    imuData = rospy.wait_for_message('imu', imu_data)
-    lidarData = rospy.wait_for_message('lidar', LaserScan)
-    encoderData = rospy.wait_for_message('encoder', String)
-    sensorData.imu = imuData
-    sensorData.lidar = lidarData
-    sensorData.encoder = encoderData
+    sensorData.imu = rospy.wait_for_message('imu', imu_data)
+    sensorData.lidar = rospy.wait_for_message('lidar', LaserScan)
+    sensorData.encoder = rospy.wait_for_message('encoder', String)
     return sensorData

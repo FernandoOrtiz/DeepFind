@@ -18,22 +18,31 @@ class encoders_data {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.help = null;
+      this.leftMotor = null;
+      this.rightMotor = null;
     }
     else {
-      if (initObj.hasOwnProperty('help')) {
-        this.help = initObj.help
+      if (initObj.hasOwnProperty('leftMotor')) {
+        this.leftMotor = initObj.leftMotor
       }
       else {
-        this.help = '';
+        this.leftMotor = 0;
+      }
+      if (initObj.hasOwnProperty('rightMotor')) {
+        this.rightMotor = initObj.rightMotor
+      }
+      else {
+        this.rightMotor = 0;
       }
     }
   }
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type encoders_data
-    // Serialize message field [help]
-    bufferOffset = _serializer.string(obj.help, buffer, bufferOffset);
+    // Serialize message field [leftMotor]
+    bufferOffset = _serializer.int32(obj.leftMotor, buffer, bufferOffset);
+    // Serialize message field [rightMotor]
+    bufferOffset = _serializer.int32(obj.rightMotor, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -41,15 +50,15 @@ class encoders_data {
     //deserializes a message object of type encoders_data
     let len;
     let data = new encoders_data(null);
-    // Deserialize message field [help]
-    data.help = _deserializer.string(buffer, bufferOffset);
+    // Deserialize message field [leftMotor]
+    data.leftMotor = _deserializer.int32(buffer, bufferOffset);
+    // Deserialize message field [rightMotor]
+    data.rightMotor = _deserializer.int32(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
-    let length = 0;
-    length += object.help.length;
-    return length + 4;
+    return 8;
   }
 
   static datatype() {
@@ -59,14 +68,14 @@ class encoders_data {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '6ded41f8a691465b353a1de637830f92';
+    return '40c59515e060d941dde4c816f719e5bb';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    string help
-    
+    int32 leftMotor
+    int32 rightMotor
     `;
   }
 
@@ -76,11 +85,18 @@ class encoders_data {
       msg = {};
     }
     const resolved = new encoders_data(null);
-    if (msg.help !== undefined) {
-      resolved.help = msg.help;
+    if (msg.leftMotor !== undefined) {
+      resolved.leftMotor = msg.leftMotor;
     }
     else {
-      resolved.help = ''
+      resolved.leftMotor = 0
+    }
+
+    if (msg.rightMotor !== undefined) {
+      resolved.rightMotor = msg.rightMotor;
+    }
+    else {
+      resolved.rightMotor = 0
     }
 
     return resolved;
