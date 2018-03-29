@@ -27,6 +27,7 @@
 
 #include <ros.h>
 #include <deepfind_package/motor_command.h>
+#include <deepfind_package/encoders_data.h>
 
 //encoder output variables
 #define OUTPUT_A1 3 
@@ -61,50 +62,123 @@ int pulses = 0;
 //ROS variables and methods
 ros::NodeHandle nh;
 
-
 //callback function
 void setMotorSpeed(int speed, int motorPin){
   analogWrite(motorPin, 255/100*speed);
 }
-void setMotorDirection(int direction, int motorPin){
-  digitalWrite(direction, motorPin); 
-}
-void motorSpeedCallback(const deepfind_package::motor_command& message){
 
+void setMotorDirection(int direction, int motorPin){
+  digitalWrite(motorPin, direction); 
+}
+
+void motorSpeedCallback(const deepfind_package::motor_command& message){
   setMotorDirection(message.leftMotorDirection, LEFT_DIRECTION_PIN);
   setMotorDirection(message.rightMotorDirection, RIGHT_DIRECTION_PIN);
   setMotorSpeed(message.leftMotorPower, LEFT_PWM_PIN);
   setMotorSpeed(message.rightMotorPower, RIGHT_PWM_PIN);
-
 }
+
+deepfind_package::encoders_data encoders;
+ros::Publisher encoderPb("encoder", &encoders);
 ros::Subscriber<deepfind_package::motor_command> sub("motor_speed", motorSpeedCallback);
 
 
 void setup() { 
   //Encoder as input
-   pinMode (OUTPUT_A1,INPUT);
-   pinMode (OUTPUT_B1,INPUT);
-   pinMode (OUTPUT_A2,INPUT);
-   pinMode (OUTPUT_B2,INPUT);
+   pinMode(OUTPUT_A1,INPUT);
+   pinMode(OUTPUT_B1,INPUT);
+   pinMode(OUTPUT_A2,INPUT);
+   pinMode(OUTPUT_B2,INPUT);
+   
    //motor as output
    pinMode(LEFT_PWM_PIN, OUTPUT);
    pinMode(RIGHT_PWM_PIN, OUTPUT);
    pinMode(LEFT_DIRECTION_PIN, OUTPUT);
    pinMode(RIGHT_DIRECTION_PIN, OUTPUT);
-   
+
    // Reads the initial state of the outputA
    aLastState1 = digitalRead(OUTPUT_A1); 
    aLastState2 = digitalRead(OUTPUT_A2);
  
    //ROS  initialization
    nh.initNode();
-   nh.subscribe(sub);  
- 
+   nh.subscribe(sub);
+   nh.advertise(encoderPb);
 } 
 
 
 
  void loop() { 
-  nh.spinOnce();
-  delay(1);
+  aState1 = digitalRead(OUTPUT_A1); // Reads the "current" state of the outputA
+  aState2 = digitalRead(OUTPUT_A2); // Reads the "current" state of the outputA
+  //MOTOR 1 
+  // If the previous and the current state of the outputA are different, that means a Pulse has occured
+   if (aState1 != aLastState1){     
+     // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
+     if (digitalRead(OUTPUT_B1) != aState1) { 
+       counter1 ++;
+       //if 1000 milliseconds have passed
+       if(tstart - tend >= 20){
+         //calculate angular velocity
+         pulses = counter1;
+         Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
+       }
+       //pass current time to en time 
+       tend = tstart;  
+     } else {
+      //start time lapse for velocity calculation
+      //tstart = millis();
+      counter1 --;
+      
+      //if 1000 milliseconds have passed
+      if(tstart - tend >= 1000) {
+        //calculate angular velocity
+        pulses = counter1;
+        Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
+       }
+      //pass current time to en time 
+      tend = tstart;
+     }
+  
+   //MOTOR2
+   // If the previous and the current state of the outputA are different, that means a Pulse has occured
+   if (aState2 != aLastState2){     
+     // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
+     if (digitalRead(OUTPUT_B2) != aState2) { 
+       counter2 ++;
+       //if 1000 milliseconds have passed
+       if(tstart - tend >= 20){
+         //calculate angular velocity
+         pulses = counter2;
+         Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
+       }
+       //pass current time to en time 
+       tend = tstart;
+      } else {
+        //start time lapse for velocity calculation
+        //tstart = millis();
+        counter2 --;
+      
+        //if 1000 milliseconds have passed
+        if(tstart - tend >= 1000){
+          
+        //calculate angular velocity
+        pulses = counter1;
+        Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
+        }  
+        //pass current time to en time 
+        tend = tstart;
+      }
+    }
+   } 
+   aLastState1 = aState1; // Updates the previous state of the outputA with the current state
+   aLastState2 = aState2; // Updates the previous state of the outputA with the current state
+
+   //Get data to motor_encoder message and publish
+   encoders.leftMotor = counter2;
+   encoders.rightMotor = counter1;
+   encoderPb.publish(&encoders);
+   
+   nh.spinOnce();
+   delay(1);
  }
