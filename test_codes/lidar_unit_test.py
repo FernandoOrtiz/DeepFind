@@ -4,7 +4,7 @@ init_val = 0.0
 avg_value = 0.0
 l_values = []
 
-class imu_unit_test(unittest.TestCase):
+class lidar_unit_test(unittest.TestCase):
     #read from imu & save it to init_val
 
     for i in range(0,10):
@@ -20,5 +20,5 @@ class imu_unit_test(unittest.TestCase):
     def test_average(self):
         self.assertAlmostEqual(init_val, avg_value)
 
-        if __name__ == '__main__':
-            unittest.main()
+    if __name__ == '__main__':
+        unittest.main()
