@@ -1,0 +1,12 @@
+<!-- DeepFind Robot Launch File -->
+<launch>
+  <include file="$(find learning_joy)/launch/turtle_joy.launch" />
+
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
+            <param name="port" value="/dev/ttyACM0"/>
+            <param name="baud" value="57600" />
+   </node>
+
+   <node name="diff_node" pkg="deepfind_package" type="diff_motor_controller.py">
+   </node>
+</launch>
