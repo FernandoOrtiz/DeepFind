@@ -117,60 +117,21 @@ void setup() {
      // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
      if (digitalRead(OUTPUT_B1) != aState1) { 
        counter1 ++;
-       //if 1000 milliseconds have passed
-       if(tstart - tend >= 20){
-         //calculate angular velocity
-         pulses = counter1;
-         Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
-       }
-       //pass current time to en time 
-       tend = tstart;  
-     } else {
-      //start time lapse for velocity calculation
-      //tstart = millis();
+    } else {
       counter1 --;
-      
-      //if 1000 milliseconds have passed
-      if(tstart - tend >= 1000) {
-        //calculate angular velocity
-        pulses = counter1;
-        Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
-       }
-      //pass current time to en time 
-      tend = tstart;
-     }
-  
+    }
+   }
+
    //MOTOR2
    // If the previous and the current state of the outputA are different, that means a Pulse has occured
    if (aState2 != aLastState2){     
      // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
      if (digitalRead(OUTPUT_B2) != aState2) { 
        counter2 ++;
-       //if 1000 milliseconds have passed
-       if(tstart - tend >= 20){
-         //calculate angular velocity
-         pulses = counter2;
-         Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
-       }
-       //pass current time to en time 
-       tend = tstart;
-      } else {
-        //start time lapse for velocity calculation
-        //tstart = millis();
-        counter2 --;
-      
-        //if 1000 milliseconds have passed
-        if(tstart - tend >= 1000){
-          
-        //calculate angular velocity
-        pulses = counter1;
-        Mspeed = (2*3.14*pulses)/(663*(tstart-tend));
-        }  
-        //pass current time to en time 
-        tend = tstart;
-      }
-    }
-   } 
+     } else {
+       counter2 --;
+     }
+   }
    aLastState1 = aState1; // Updates the previous state of the outputA with the current state
    aLastState2 = aState2; // Updates the previous state of the outputA with the current state
 

@@ -5,7 +5,7 @@ from deepfind_package.msg import motor_command
 from geometry_msgs.msg import Twist
 
 global dict
-dict = {'MOTOR_CAP': 40, 'FOWARD': 0, 'BACKWARD': 1}
+dict = {'MOTOR_CAP': 40, 'FORWARD': 0, 'BACKWARD': 1}
 
 
 def diffControlCallback(twistData):
@@ -14,12 +14,12 @@ def diffControlCallback(twistData):
   command.rightMotorPower = int((twistData.linear.x - twistData.angular.z) * dict['MOTOR_CAP'])
 
   if command.leftMotorPower > 0:
-  	command.leftMotorDirection = dict['FOWARD']
+  	command.leftMotorDirection = dict['FORWARD']
   else:
     command.leftMotorDirection = dict['BACKWARD']
   
   if command.rightMotorPower > 0:
-    command.rightMotorDirection = dict['FOWARD']
+    command.rightMotorDirection = dict['FORWARD']
   else:
     command.rightMotorDirection = dict['BACKWARD']
 
