@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+sudo apt-get install git -y
+
+
+
+
+#Install git workspace
+cd ~
+git clone https://github.com/ortizfer/DeepFind.git
+
+
+#Install Ardiuno
+sudo apt-get install arduino -y
+
+
+#Install ROS
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+
+sudo apt-get update
+
+sudo apt-get install ros-kinetic-desktop-full
+
+sudo rosdep init
+rosdep update
+
+echo "source ~/DeepFind/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+
+
+
+#Install VN100 Dependancies
+sudo apt-get install python3-dev -y
+sudo apt-get install python3-yaml -y
+sudo apt-get install python3-pip -y
+sudo pip3 install rospkg -y 
+sudo pip3 install catkin_pkg -y 
+sudo pip3 install pymorse -y
+
+
+cd ~/DeepFind/libraries/vnproglib-1.1/python
+sudo python3 setup.py install
+
+
+
+cd ~/DeepFind/catkin_ws/
+catkin_make
