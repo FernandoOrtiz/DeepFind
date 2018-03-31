@@ -5,8 +5,8 @@
  *  Vcc Red- 5V Arduino
  *  GND Black Arduino
  *  Motor PWM - Digital Pin 2 - Motor Driver PWM1
- *  Encoder - Output A(blue wire) - Digital pin 3 Arduino
- *            Output B(orange wire) - Digital pin 4 Arduino
+ *  Encoder - Output A(blue wire) - Digital pin 2 Arduino
+ *            Output B(orange wire) - Digital pin 3 Arduino
  *            M+ - M1A Motor Driver
  *            M- - M1B Motor Driver
  *  Orientation - Digital pin 5 Arduino
@@ -30,14 +30,14 @@
 #include <deepfind_package/encoders_data.h>
 
 //encoder output variables
-#define OUTPUT_A1 3 
-#define OUTPUT_B1 4
-#define OUTPUT_A2 7
-#define OUTPUT_B2 8
+#define OUTPUT_A1 2 
+#define OUTPUT_B1 3
+#define OUTPUT_A2 20
+#define OUTPUT_B2 21
 
 //motor pwm pin
 #define LEFT_PWM_PIN 6
-#define RIGHT_PWM_PIN 2
+#define RIGHT_PWM_PIN 4
 
 //motor direction pin
 #define LEFT_DIRECTION_PIN 9
@@ -88,6 +88,9 @@ void setup() {
   digitalWrite(OUTPUT_B2, HIGH);       // turn on pull-up resistor
   
   attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
+  attachInterrupt(1, doEncoder, CHANGE);  // encoder pin on interrupt 1 - pin 3
+  attachInterrupt(2, doEncoder2, CHANGE);  // encoder pin on interrupt 2 - pin 20
+  attachInterrupt(3, doEncoder2, CHANGE);  // encoder pin on interrupt 3 - pin 21
 
    
    //motor as output
@@ -104,17 +107,17 @@ void setup() {
 } 
 
 void doEncoder() {
-  /* If pinA and pinB are both high or both low, it is spinning
-     forward. If they're different, it's going backward.
-
-     For more information on speeding up this process, see
-     [Reference/PortManipulation], specifically the PIND register.
-  */
+ 
   if (digitalRead(OUTPUT_A1) == digitalRead(OUTPUT_B1)) {
     counter1++;
   } else {
     counter1--;
   }
+ 
+}
+
+void doEncoder2() {
+ 
 
  if (digitalRead(OUTPUT_A2) == digitalRead(OUTPUT_B2)) {
     counter2++;
@@ -123,6 +126,7 @@ void doEncoder() {
   }
  
 }
+
 
 
  void loop() { 
