@@ -8,7 +8,7 @@ global dict
 dict = {'MOTOR_CAP': 40, 'FORWARD': 0, 'BACKWARD': 1}
 
 
-def diffControlCallback(twistData):
+def diff_control_callback(twistData):
   command = motor_command()
   command.leftMotorPower = int((twistData.linear.x + twistData.angular.z) * dict['MOTOR_CAP'])
   command.rightMotorPower = int((twistData.linear.x - twistData.angular.z) * dict['MOTOR_CAP'])
@@ -30,13 +30,13 @@ def diffControlCallback(twistData):
   pub.publish(command)
 
 
-def diffControllerListener():
-  rospy.init_node('DifferentialController')
-  rospy.Subscriber('cmd_vel', Twist, diffControlCallback)
+def diff_controller_listener():
+  rospy.init_node('differential_controller')
+  rospy.Subscriber('cmd_vel', Twist, diff_control_callback)
   rospy.spin()
 
 if __name__ == '__main__':
-    diffControllerListener()
+    diff_controller_listener()
 
 #export ROS_MASTER_URI=http://192.168.43.212:11311
 
