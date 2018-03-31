@@ -36,9 +36,9 @@ source ~/.bashrc
 sudo apt-get install python3-dev -y
 sudo apt-get install python3-yaml -y
 sudo apt-get install python3-pip -y
-sudo pip3 install rospkg -y 
-sudo pip3 install catkin_pkg -y 
-sudo pip3 install pymorse -y
+sudo pip3 install rospkg
+sudo pip3 install catkin_pkg
+sudo pip3 install pymorse 
 
 
 cd ~/DeepFind/libraries/vnproglib-1.1/python
@@ -47,4 +47,6 @@ sudo python3 setup.py install
 
 
 cd ~/DeepFind/catkin_ws/
+
+#Could not catkin make
 catkin_make
