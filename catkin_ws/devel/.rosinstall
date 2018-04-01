@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /root/DeepFind/catkin_ws/devel/setup.sh
+    local-name: /home/jose-montes1/DeepFind/catkin_ws/devel/setup.sh
