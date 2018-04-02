@@ -50,7 +50,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  imu_data.msg
   encoders_data.msg
   sensor_data.msg
   motor_command.msg
