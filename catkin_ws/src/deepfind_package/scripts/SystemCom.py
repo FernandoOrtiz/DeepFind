@@ -20,7 +20,7 @@ def send_commnand(command):
 #----------------------Subscriber---------------------------#
 def get_sensor_data():
 	sensorData = sensor_data()
-    sensorData.imu = rospy.wait_for_message('vn100_yaw', Imu)
+    sensorData.imu = rospy.wait_for_message('vn100_yaw', imu_data)
     sensorData.lidar = rospy.wait_for_message('scan', LaserScan)
     sensorData.encoder = rospy.wait_for_message('encoder', encoders_data)
     return sensorData
