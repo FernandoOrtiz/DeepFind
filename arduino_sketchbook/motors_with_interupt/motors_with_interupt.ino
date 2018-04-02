@@ -43,6 +43,10 @@
 #define LEFT_DIRECTION_PIN 9
 #define RIGHT_DIRECTION_PIN 5
 
+//scale factor fix encoders
+#define SCALE_FACTOR_LEFT 1.31
+#define SCALE_FACTOR_RIGHT 0.81
+
 //Variables for counting encoder pulses
 int counter1 = 0; 
 int counter2 = 0;  
@@ -99,6 +103,7 @@ void setup() {
    nh.initNode();
    nh.subscribe(sub);
    nh.advertise(encoderPb);
+   
 } 
 
 void doEncoder() {
@@ -119,7 +124,6 @@ void doEncoder2() {
   } else {
     counter2--;
   }
- 
 }
 
 
@@ -127,8 +131,8 @@ void doEncoder2() {
  void loop() { 
 
    //Get data to motor_encoder message and publish
-   encoders.leftMotor = counter2;
-   encoders.rightMotor = counter1;
+   encoders.leftMotor = counter2*SCALE_FACTOR_LEFT;
+   encoders.rightMotor = counter1*SCALE_FACTOR_RIGHT;
    encoderPb.publish(&encoders);
    
    nh.spinOnce();
