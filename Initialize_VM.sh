@@ -1,14 +1,9 @@
 #!/bin/bash
 
-#Install Git
-sudo apt-get install git -y
-
-#Install git workspace
-cd ~
-git clone https://github.com/ortizfer/DeepFind.git
-
 #Install Ardiuno
 sudo apt-get install arduino -y
+sudo apt-get install ros-kinetic-rosserial-arduino -y
+sudo apt-get install ros-kinetic-rosserial -y
 
 #Install ROS
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -19,6 +14,7 @@ sudo rosdep init
 rosdep update
 echo "source ~/DeepFind/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
+sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool build-essential -y
 
 #Install VN100 Dependancies
 sudo apt-get install python3-dev -y
@@ -40,9 +36,8 @@ sudo apt-get install xboxdrv -y
 sudo apt-get install jstest-gtk -y
 
 #Install Rosserial and Hector_SLAM
+sudo apt-get install ros-kinetic-hector-slam
 cd ~/DeepFind/catkin_ws/src
-git clone  https://github.com/tu-darmstadt-ros-pkg/hector_slam
-git clone https://github.com/ros-drivers/rosserial.git
 
 cd ~/DeepFind/catkin_ws/
 catkin_make
