@@ -44,11 +44,8 @@
 #define RIGHT_DIRECTION_PIN 5
 
 //Variables for counting encoder pulses
-volatile unsigned int counter1 = 0; 
-
-volatile unsigned int counter2 = 0;  
-
-
+int counter1 = 0; 
+int counter2 = 0;  
 
 
 //ROS variables and methods
@@ -88,9 +85,7 @@ void setup() {
   digitalWrite(OUTPUT_B2, HIGH);       // turn on pull-up resistor
   
   attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
-  attachInterrupt(1, doEncoder, CHANGE);  // encoder pin on interrupt 1 - pin 3
   attachInterrupt(2, doEncoder2, CHANGE);  // encoder pin on interrupt 2 - pin 20
-  attachInterrupt(3, doEncoder2, CHANGE);  // encoder pin on interrupt 3 - pin 21
 
    
    //motor as output
