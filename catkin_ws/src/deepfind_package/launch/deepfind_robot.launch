@@ -9,6 +9,4 @@
    <node name="diff_node" pkg="deepfind_package" type="diff_motor_controller.py">
    </node>
 
-   <node name="vn100_node" pkg="deepfind_package" type="vn100_full.py">
-   </node>
 </launch>
