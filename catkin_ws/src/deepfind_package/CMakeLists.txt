@@ -53,6 +53,7 @@ add_message_files(
   encoders_data.msg
   sensor_data.msg
   motor_command.msg
+  imu_data.msg
 )
 
 ## Generate services in the 'srv' folder

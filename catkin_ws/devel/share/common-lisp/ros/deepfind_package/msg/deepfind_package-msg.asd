@@ -10,8 +10,6 @@
     (:file "_package_encoders_data" :depends-on ("_package"))
     (:file "imu_data" :depends-on ("_package_imu_data"))
     (:file "_package_imu_data" :depends-on ("_package"))
-    (:file "lidar_data" :depends-on ("_package_lidar_data"))
-    (:file "_package_lidar_data" :depends-on ("_package"))
     (:file "motor_command" :depends-on ("_package_motor_command"))
     (:file "_package_motor_command" :depends-on ("_package"))
     (:file "sensor_data" :depends-on ("_package_sensor_data"))
