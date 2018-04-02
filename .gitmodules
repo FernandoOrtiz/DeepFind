@@ -1,3 +1,6 @@
 [submodule "catkin_ws/src/hector_slam"]
 	path = catkin_ws/src/hector_slam
 	url = https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
+[submodule "catkin_ws/src/rosserial"]
+	path = catkin_ws/src/rosserial
+	url = https://github.com/ros-drivers/rosserial.git
