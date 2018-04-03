@@ -4,7 +4,7 @@
  * M1(Right Motor Looking From the Front):
  *  Vcc Red- 5V Arduino
  *  GND Black Arduino
- *  Motor PWM - Digital Pin 2 - Motor Driver PWM1
+ *  Motor PWM - Digital Pin 4 - Motor Driver PWM1
  *  Encoder - Output A(blue wire) - Digital pin 2 Arduino
  *            Output B(orange wire) - Digital pin 3 Arduino
  *            M+ - M1A Motor Driver
@@ -16,8 +16,8 @@
  *  Vcc Red- 5V Arduino
  *  GND Black Arduino
  *  Motor PWM - Digital Pin 6 - Motor Driver PWM2
- *  Encoder - Output A(blue wire) - Digital pin 7 Arduino
- *            Output B(orange wire) - Digital pin 8 Arduino
+ *  Encoder - Output A(blue wire) - Digital pin 20 Arduino
+ *            Output B(orange wire) - Digital pin 21 Arduino
  *            M+ - M2B Motor Driver
  *            M- - M2A Motor Driver
  *  Orientation - Digital pin 9 Arduino
