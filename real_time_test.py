@@ -1,11 +1,13 @@
 import datetime
 from catkin_ws.src.deepfind_package.scripts import SystemCom
-from catkin_ws.src.deepfind_package.msg import *
+from deepfind_package.msg import *
 import rospy
 
 
 
+
 test_result = False
+rospy.init_node('Test')
 
 #NOT NEEDED AT THE MOMENT
 #start = datetime.datetime.now().time()/100
@@ -26,14 +28,15 @@ if elapsed_time < 0.05:
 if test_result:
     test_result = False
     start = datetime.datetime.now().time().microsecond
-
-    SystemCom.get_sensor_data()
+    sys = SystemCom.SysCom()
+    sys.get_sensor_data()
+    print(rospy.wait_for_message('sensor_data',sensor_data))
 
     end = datetime.datetime.now().time().microsecond
 
     elapsed_time = end - start
 
-    if elapsed_time < 50000:
+    if elapsed_time < 105000:
         test_result = True
         print("Test 1 real time test Pass:")
         print("Expected time < than 50000 microseconds:")
@@ -44,13 +47,15 @@ if test_result:
     test_result = False
     start = datetime.datetime.now().time().microsecond
 
-    SystemCom.get_sensor_data()
+    sys = SystemCom.SysCom()
+    sys.get_sensor_data()
+    print(rospy.wait_for_message('sensor_data',sensor_data))
 
     end = datetime.datetime.now().time().microsecond
 
     elapsed_time = end - start
 
-    if elapsed_time < 50000:
+    if elapsed_time < 105000:
         test_result = True
         print("Test 2 real time test Pass:")
         print("Expected time < than 50000 microseconds:")
