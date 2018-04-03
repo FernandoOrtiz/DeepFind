@@ -6,51 +6,40 @@ from deepfind_package.msg import *
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
-global imuData
-imuData = imu_data()
-
-#-----------------------Callback Functions-------------------#
-
-def imu_callback(data):
-	imuData = data
-	print(imuData)
-
-def lidar_callback(data):
-	global lidarData
-	lidarData = data
-
-def encoder_callback(data):
-	global encoderData
-	encoderData = data
 
 
-#----------------------Communication Set Up-----------------#
-def run():
-#	global sensorData
-#	sensorData = sensor_data()
-	rospy.init_node('system_communication')
-	global controlPub
-	controlPub = rospy.Publisher('cmd_vel', Twist, queue_size = 10)
-	imuSub = rospy.Subscriber('vn100_yaw', imu_data, imu_callback)
-	lidarSub = rospy.Subscriber('scan', LaserScan, lidar_callback)
-	encoderSub = rospy.Subscriber('encoder', encoders_data, encoder_callback)
-#	print(sensorData)
-#	sensorData = sensor_data()
-#	sensorData.imu = imuData
-#	sensorData.lidar = lidarData
-#	sensorData.encoder = encoderData
-	rospy.spin()
+class SysCom(object):
+	def __init__(self):
+		self.sensorData = sensor_data()
+		# self.imuData = imu_data()
+		# self.lidarData = LaserScan()
+		# self.encoderData = encoders_data()
 
-#----------------------Publisher----------------------------#
+		rospy.Subscriber('vn100_yaw', imu_data, self.imu_callback)
+		rospy.Subscriber('scan', LaserScan, self.lidar_callback)
+		rospy.Subscriber('encoder', encoders_data, self.encoder_callback)
 
-def send_commnand(command):
-	controlPub.publish(command)
+		# self.controlPub = rospy.Publisher('cmd_vel', Twist, queue_size = 10)
+
+	def imu_callback(self, data):
+		self.sensorData.imu = data
+
+	def lidar_callback(self, data):
+		self.sensorData.lidar = data	
+
+	def encoder_callback(self, data):
+		self.sensorData.encoder = data
 
 
-#-----------------------------------------------------------#
-def get_sensor_data():
-	print(imuData)
-	return imuData
+	def start():
+		rospy.spin()
+
+
+	def get_sensor_data():
+		return self.sensorData
+
 
 if __name__ == '__main__':
-	run()
+	rospy.init_node('system_communication')
+	sys_com = SysCom()
+	sys_com.start()
