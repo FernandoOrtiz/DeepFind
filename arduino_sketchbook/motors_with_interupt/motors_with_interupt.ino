@@ -102,7 +102,7 @@ void setup() {
    //ROS  initialization
    nh.initNode();
    nh.subscribe(sub);
-   nh.advertise(encoderPb);
+   //nh.advertise(encoderPb);
    
 } 
 
@@ -133,7 +133,7 @@ void doEncoder2() {
    //Get data to motor_encoder message and publish
    encoders.leftMotor = counter2*SCALE_FACTOR_LEFT;
    encoders.rightMotor = counter1*SCALE_FACTOR_RIGHT;
-   encoderPb.publish(&encoders);
+   //encoderPb.publish(&encoders);
    
    nh.spinOnce();
    delay(1);
