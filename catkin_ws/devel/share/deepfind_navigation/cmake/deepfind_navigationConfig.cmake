@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(deepfind_navigation_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT " " STREQUAL " ")
+if(NOT "/home/resorte/DeepFind/catkin_ws/devel/include " STREQUAL " ")
   set(deepfind_navigation_INCLUDE_DIRS "")
-  set(_include_dirs "")
+  set(_include_dirs "/home/resorte/DeepFind/catkin_ws/devel/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -129,7 +129,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/resorte/DeepFind/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
+    foreach(path /home/resorte/DeepFind/catkin_ws/devel/lib;/home/resorte/DeepFind/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -152,7 +152,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(deepfind_navigation_EXPORTED_TARGETS "")
+set(deepfind_navigation_EXPORTED_TARGETS "deepfind_navigation_generate_messages_cpp;deepfind_navigation_generate_messages_eus;deepfind_navigation_generate_messages_lisp;deepfind_navigation_generate_messages_nodejs;deepfind_navigation_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${deepfind_navigation_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -160,7 +160,7 @@ foreach(t ${deepfind_navigation_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "")
+set(depends "message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
@@ -189,7 +189,7 @@ foreach(depend ${depends})
   list(APPEND deepfind_navigation_EXPORTED_TARGETS ${${deepfind_navigation_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "deepfind_navigation-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${deepfind_navigation_DIR}/${extra})
