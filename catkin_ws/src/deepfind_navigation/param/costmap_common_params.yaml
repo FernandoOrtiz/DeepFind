@@ -4,6 +4,9 @@ footprint: [[0.138,0.17], [0.138,-0.17],[-0.138,0.17], [-0.138,-0.17]]
 #robot_radius: 0.1778
 inflation_radius: 0.4
 
+#Set the tolerance we're willing to have for tf transforms
+transform_tolerance: 0.3
+
 
 observation_sources: laser_scan_sensor #point_cloud_sensor
 
