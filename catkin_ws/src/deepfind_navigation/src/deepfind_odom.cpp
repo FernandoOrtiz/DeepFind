@@ -14,6 +14,7 @@ int left, right;
 void encodersCallback(const deepfind_navigation::encoders_data& msg) {
   left = msg.leftMotor;
   right = msg.rightMotor;
+  ROS_INFO("Left motor: %d, Right motor: %d", left, right);
 }
 
 

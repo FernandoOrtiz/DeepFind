@@ -53,7 +53,7 @@ int counter2 = 0;
 
 
 //ROS variables and methods
-ros::NodeHandle nh;
+ros::NodeHandle_<ArduinoHardware, 2, 2, 80,105> nh;
 
 //callback function
 void setMotorSpeed(int speed, int motorPin){
@@ -72,11 +72,8 @@ void motorSpeedCallback(const deepfind_package::motor_command& message){
 }
 
 deepfind_package::encoders_data encoders;
-deepfing_navigation::encoders_data nav_encoders;
-ros::Publisher encoderPb("encoder", &encoders);
-ros::Publisher encoderPb("Odometry", &nav_encoders);
+ros::Publisher pub("encoder", &encoders);
 ros::Subscriber<deepfind_package::motor_command> sub("motor_speed", motorSpeedCallback);
-
 
 void setup() { 
   //Encoder as interupt
@@ -104,7 +101,7 @@ void setup() {
    //ROS  initialization
    nh.initNode();
    nh.subscribe(sub);
-   //nh.advertise(encoderPb);
+   nh.advertise(pub);
    
 } 
 
@@ -135,7 +132,7 @@ void doEncoder2() {
    //Get data to motor_encoder message and publish
    encoders.leftMotor = counter2*SCALE_FACTOR_LEFT;
    encoders.rightMotor = counter1*SCALE_FACTOR_RIGHT;
-   //encoderPb.publish(&encoders);
+   pub.publish(&encoders);
    
    nh.spinOnce();
    delay(1);
