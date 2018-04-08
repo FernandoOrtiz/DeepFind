@@ -6,6 +6,8 @@
                :std_msgs-msg
 )
   :components ((:file "_package")
+    (:file "distance_traveled" :depends-on ("_package_distance_traveled"))
+    (:file "_package_distance_traveled" :depends-on ("_package"))
     (:file "encoders_data" :depends-on ("_package_encoders_data"))
     (:file "_package_encoders_data" :depends-on ("_package"))
     (:file "imu_data" :depends-on ("_package_imu_data"))

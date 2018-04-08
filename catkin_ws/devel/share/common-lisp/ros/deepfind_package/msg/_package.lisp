@@ -1,6 +1,8 @@
 (cl:defpackage deepfind_package-msg
   (:use )
   (:export
+   "<DISTANCE_TRAVELED>"
+   "DISTANCE_TRAVELED"
    "<ENCODERS_DATA>"
    "ENCODERS_DATA"
    "<IMU_DATA>"

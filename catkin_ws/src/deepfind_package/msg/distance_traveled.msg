@@ -1,0 +1,2 @@
+float distance_origin
+float distance_traveled
