@@ -72,7 +72,9 @@ void motorSpeedCallback(const deepfind_package::motor_command& message){
 }
 
 deepfind_package::encoders_data encoders;
+deepfing_navigation::encoders_data nav_encoders;
 ros::Publisher encoderPb("encoder", &encoders);
+ros::Publisher encoderPb("Odometry", &nav_encoders);
 ros::Subscriber<deepfind_package::motor_command> sub("motor_speed", motorSpeedCallback);
 
 
