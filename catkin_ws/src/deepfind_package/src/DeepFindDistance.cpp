@@ -76,7 +76,7 @@ void DeepFindDistance::update(const geometry_msgs::PoseStamped& msg1, const geom
 	msg1.pose.orientation.w = msg2->pose.orientation.w;
 }
 
-float DeepFindDistance::calculateDistance() {
+double DeepFindDistance::calculateDistance() {
 	//Calculate distance from origin to current position
 	distanceOrigin = std::sqrt(pow(origin.position.x - landmark1.position.x, 2) + pow(origin.position.y - landmark1.position.y, 2));
 

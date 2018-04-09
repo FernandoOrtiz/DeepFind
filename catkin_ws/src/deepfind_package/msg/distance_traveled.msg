@@ -1,2 +1,2 @@
-float distance_origin
-float distance_traveled
+float64 distance_origin
+float64 distance_traveled

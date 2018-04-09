@@ -9,7 +9,7 @@ class DeepFindDistance {
 		void timerCallback(const ros::TimerEvent& timer);
 
 		void update(const geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2);
-		float calculateDistance();
+		double calculateDistance();
 		void setLandmark();
 
 	private:
@@ -17,8 +17,8 @@ class DeepFindDistance {
 		geometry_msgs::Pose landmark2;
 		geometry_msgs::Pose origin;
 		bool initial_pose;
-		float distanceOrigin;
-		float distanceTraveled;
+		double distanceOrigin;
+		double distanceTraveled;
 
 		ros::NodeHandle node_;
 
@@ -34,6 +34,6 @@ class DeepFindDistance {
 		ros::Publisher distancePublisher_;
 
 		//Parameters
-		float still_time_;
+		double still_time_;
 		int button_;
 }
