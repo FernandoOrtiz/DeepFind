@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import rospy
-from deepfind_package.msg import imu_data
+from sensor_msgs.msg import Imu
 from vnpy import *
 
 
@@ -18,34 +18,48 @@ def talker():
     rospy.init_node('vn100')
     rate = rospy.Rate(10) # 10hz
     message = imu_data()
+    
+    message.orientation_covariance[0] = -1
+    message.angular_velocity_covariance[0] = -1
+    message.linear_acceleration_covariance[0] = -1
+
+    for i in range(1,9):
+	message.orientation_covariance[i] = 0
+	message.angular_velocity_covariance[i] = 0
+	message.linear_acceleration_covariance[i] = 0
+
 
     while not rospy.is_shutdown():
         values = vn100.next_data();
         
-        if(values.yaw_pitch_roll.x < 0):
-            values.yaw_pitch_roll.x += 360
+        #if(values.yaw_pitch_roll.x < 0):
+        #    values.yaw_pitch_roll.x += 360
 
-        if(values.yaw_pitch_roll.y < 0):
-            values.yaw_pitch_roll.y += 360
+        #if(values.yaw_pitch_roll.y < 0):
+        #    values.yaw_pitch_roll.y += 360
         
-        if(values.yaw_pitch_roll.z < 0):
-            values.yaw_pitch_roll.z += 360
+        #if(values.yaw_pitch_roll.z < 0):
+        #    values.yaw_pitch_roll.z += 360
 
-        message.yaw = values.yaw_pitch_roll.x
-        message.pitch = values.yaw_pitch_roll.y
-        message.roll = values.yaw_pitch_roll.z
+        message.quaternion.w = values.quaternion.w
+        message.quaternion.x = values.quaternion.x
+        message.quaternion.y = values.quaternion.y
+        message.quaternion.z = values.quaternion.z
 
-        message.acc_x = values.acceleration.x
-        message.acc_y = values.acceleration.y
-        message.acc_z = values.acceleration.z
+        message.linear_acceleration.x = values.acceleration.x
+        message.linear_acceleration.y = values.acceleration.y
+        message.linear_acceleration.z = values.acceleration.z
 
-        message.gyr_x = values.angular_rate.x
-        message.gyr_y = values.angular_rate.y
-        message.gyr_z = values.angular_rate.z
+        message.angular_velocity.x = values.angular_rate.x
+        message.angular_velocity.y = values.angular_rate.y
+        message.angular_velocity.z = values.angular_rate.z
 
         message.mag_x = values.magnetic.x
         message.mag_y = values.magnetic.y
         message.mag_z = values.magnetic.z
+
+	
+	
 
         hello_str = "VN100 {}".format(rospy.get_time())
         rospy.loginfo(hello_str)
