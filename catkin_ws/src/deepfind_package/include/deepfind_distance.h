@@ -1,4 +1,7 @@
-#include <std_msgs/Header.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Joy.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <deepfind_package/distance_traveled.h>
 
 class DeepFindDistance {
 	public:
@@ -8,15 +11,15 @@ class DeepFindDistance {
 		void poseCallback(const geometry_msgs::PoseStamped& curr);
 		void timerCallback(const ros::TimerEvent& timer);
 
-		void update(const geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2);
+		void update(geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2);
 		double calculateDistance();
 		void setLandmark();
 
 	private:
-		geometry_msgs::Pose landmark1;
-		geometry_msgs::Pose landmark2;
-		geometry_msgs::Pose origin;
-		bool initial_pose;
+		geometry_msgs::PoseStamped landmark1;
+		geometry_msgs::PoseStamped landmark2;
+		geometry_msgs::PoseStamped origin;
+		bool initial_pose;	
 		double distanceOrigin;
 		double distanceTraveled;
 
@@ -24,10 +27,7 @@ class DeepFindDistance {
 
 		//Subscribers
 		ros::Subscriber joySubscriber_;
-		ros::Subscriber slamPoseSubscriber_;
-
-		//Timer
-		ros::Timer timer1_;
+		ros::Subscriber poseSubscriber_;
 
 		//Publishers
 		deepfind_package::distance_traveled deepfind_distance;
@@ -36,4 +36,4 @@ class DeepFindDistance {
 		//Parameters
 		double still_time_;
 		int button_;
-}
+};

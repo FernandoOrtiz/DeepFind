@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(deepfind_package)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -57,6 +57,7 @@ add_message_files(
   sensor_data.msg
   motor_command.msg
   imu_data.msg
+  distance_traveled.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -125,6 +126,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  include/ 
 )
 
 ## Declare a C++ library
@@ -141,6 +143,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(odom_conversion src/odom_conversion.cpp)
+ add_executable(deepfind_distance src/deepfind_distance.cpp)
+ #add_executable(main src/main.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,9 +155,13 @@ include_directories(
 ## Add cmake target dependencies of the executable
 ## same as for the library above
  add_dependencies(odom_conversion deepfind_package_gencpp)
+ add_dependencies(deepfind_distance deepfind_package_gencpp)
+ #add_dependencies(main deepfind_package_gencpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(odom_conversion ${catkin_LIBRARIES})
+ target_link_libraries(deepfind_distance ${catkin_LIBRARIES})
+ #target_link_libraries(main ${catkin_LIBRARIES})
 
 #############
 ## Install ##
