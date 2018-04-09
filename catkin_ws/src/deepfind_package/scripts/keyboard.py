@@ -6,7 +6,7 @@ from std_msgs.msg import String
 from std_msgs.msg import Int32
 
 def keyboard_listener():
-	keyboard = keyboard();
+	keyboard = keyboard()
 	pub = rospy.Publisher('key', Int32, queue_size = 10)	
     rospy.init_node('keyboard')
     while not rospy.is_shutdown():
@@ -17,10 +17,10 @@ def keyboard_listener():
     		keyboard.landmark = 1
     	else:
     		pass
-  	    pub.publish(keyboard);
+  	    pub.publish(keyboard)
   	    keyboard.origin = 0
-    	keyboard.landmark = 0;
+    	keyboard.landmark = 0
 
 
-if __name__=='__main__'
+if __name__=='__main__':
 	keyboard_listener()
