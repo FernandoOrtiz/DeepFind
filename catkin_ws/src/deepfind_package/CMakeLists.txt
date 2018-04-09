@@ -2,15 +2,18 @@ cmake_minimum_required(VERSION 2.8.3)
 project(deepfind_package)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  tf
   rospy
+  roscpp
   sensor_msgs
   std_msgs
+  nav_msgs
   message_generation
 )
 
@@ -54,6 +57,7 @@ add_message_files(
   sensor_data.msg
   motor_command.msg
   imu_data.msg
+  distance_traveled.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -74,6 +78,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   sensor_msgs#   std_msgs
+  nav_msgs
 )
 
 ################################################
@@ -108,7 +113,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES deepfind_package
-  CATKIN_DEPENDS rospy sensor_msgs std_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy nav_msgs sensor_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -121,6 +126,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  include/ 
 )
 
 ## Declare a C++ library
@@ -136,7 +142,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/deepfind_package_node.cpp)
+ add_executable(odom_conversion src/odom_conversion.cpp)
+ add_executable(deepfind_distance src/deepfind_distance.cpp)
+ #add_executable(main src/main.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -146,12 +154,14 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ add_dependencies(odom_conversion deepfind_package_gencpp)
+ add_dependencies(deepfind_distance deepfind_package_gencpp)
+ #add_dependencies(main deepfind_package_gencpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(odom_conversion ${catkin_LIBRARIES})
+ target_link_libraries(deepfind_distance ${catkin_LIBRARIES})
+ #target_link_libraries(main ${catkin_LIBRARIES})
 
 #############
 ## Install ##

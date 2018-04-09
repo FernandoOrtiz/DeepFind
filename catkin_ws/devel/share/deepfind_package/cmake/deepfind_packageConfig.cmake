@@ -160,7 +160,7 @@ foreach(t ${deepfind_package_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "rospy;sensor_msgs;std_msgs;message_runtime")
+set(depends "roscpp;rospy;nav_msgs;sensor_msgs;std_msgs;message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
