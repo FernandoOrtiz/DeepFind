@@ -9,4 +9,9 @@
    <node name="diff_node" pkg="deepfind_package" type="diff_motor_controller.py">
    </node>
 
+   <node name="distance_node" pkg="deepfind_package" type="distance_node">
+   <param name="still_time_"  type="float" value="3.0"/>  
+   <param name="button_"      type="int"   value="0"/>
+   </node>
+
 </launch>
