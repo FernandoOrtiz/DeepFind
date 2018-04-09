@@ -1,6 +1,6 @@
-#include <sensor_msgs/Joy.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <deepfind_distance.h>
+#include <deepfind_package/keyboard.h>
 #include <math.h>
 #include <ros/ros.h>
 
@@ -23,10 +23,10 @@ DeepFindDistance::DeepFindDistance () {
 	ros::NodeHandle private_nh_("~");
 
 	private_nh_.param("still_time", still_time_, 3.0);
-	private_nh_.param("button", button_, 0);
+	private_nh_.param("key", key_, 0);
 
 	//Subcribers setup
-	joySubscriber_ = node_.subscribe("joy", 1000, &DeepFindDistance::joyCallback, this);
+	keySubscriber_ = node_.subscribe("key", 1000, &DeepFindDistance::keyCallback, this);
 	poseSubscriber_ = node_.subscribe("slam_out_pose", 1000, &DeepFindDistance::poseCallback, this);
 	//ros::Timer timer1 = node_.createTimer(ros::Duration(still_time_), timerCallback);
 
@@ -40,12 +40,18 @@ DeepFindDistance::DeepFindDistance () {
 
 }
 
-void DeepFindDistance::joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
-	bool pressed = joy->buttons[button_];
+void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
+	bool pressed_origin = key.origin;
+        bool pressed_landmark = key.landmark;
 
-	//If button_ was pressed mark current position as a landmark
-	if(pressed) {
-		setLandmark();	
+	//If origin button was pressed mark current position as the new origin
+	if(pressed_origin) {
+		update(origin, landmark1);	
+	}
+
+	//If landmark button was pressed mark current position as a landmark
+	if(pressed_landmark) {
+		update(landmark2, landmark1);	
 	}
 }
 
@@ -95,13 +101,6 @@ double DeepFindDistance::calculateDistance() {
 
 	//Calculate distance from previous landmark to current position
 	distanceTraveled = std::sqrt(pow(landmark2.pose.position.x - landmark1.pose.position.x, 2) + pow(landmark2.pose.position.y - landmark1.pose.position.y, 2));
-}
-		
-void DeepFindDistance::setLandmark() {
-	//Set landmark2 to current pose
-	update(landmark2, landmark1);
-
-	//ROS_INFO("DeepFindDistance landmark updated to x = %f, y = %f and z = %f", landmark1.pose.position.x, landmark1.pose.position.y, landmark1.pose.position.z);
 }
 
 

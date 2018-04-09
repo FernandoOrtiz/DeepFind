@@ -1,19 +1,18 @@
 #include <ros/ros.h>
-#include <sensor_msgs/Joy.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <deepfind_package/distance_traveled.h>
+#include <deepfind_package/keyboard.h>
 
 class DeepFindDistance {
 	public:
 		DeepFindDistance();
 
-		void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
+		void keyCallback(const deepfind_package::keyboard& message);
 		void poseCallback(const geometry_msgs::PoseStamped& curr);
 		void timerCallback(const ros::TimerEvent& timer);
 
 		void update(geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2);
 		double calculateDistance();
-		void setLandmark();
 
 	private:
 		geometry_msgs::PoseStamped landmark1;
@@ -26,7 +25,7 @@ class DeepFindDistance {
 		ros::NodeHandle node_;
 
 		//Subscribers
-		ros::Subscriber joySubscriber_;
+		ros::Subscriber keySubscriber_;
 		ros::Subscriber poseSubscriber_;
 
 		//Publishers
@@ -35,5 +34,5 @@ class DeepFindDistance {
 
 		//Parameters
 		double still_time_;
-		int button_;
+		int key_;
 };

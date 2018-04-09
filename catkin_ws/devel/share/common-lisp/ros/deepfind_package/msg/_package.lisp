@@ -7,6 +7,8 @@
    "ENCODERS_DATA"
    "<IMU_DATA>"
    "IMU_DATA"
+   "<KEYBOARD>"
+   "KEYBOARD"
    "<MOTOR_COMMAND>"
    "MOTOR_COMMAND"
    "<SENSOR_DATA>"
