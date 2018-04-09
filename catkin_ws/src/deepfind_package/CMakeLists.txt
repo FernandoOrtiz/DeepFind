@@ -58,6 +58,7 @@ add_message_files(
   motor_command.msg
   imu_data.msg
   distance_traveled.msg
+  keyboard.msg
 )
 
 ## Generate services in the 'srv' folder
