@@ -47,4 +47,4 @@ from .libvncxx import (VnSensor, EzAsyncData, CompositeData, Attitude, Position,
                        VPEENABLE_DISABLE, VPEENABLE_ENABLE, VPEMODE_MODE1, VPEMODE_OFF,
                        celsius2fahren, celsius2kelvin, dcm2omega_phi_kappa_rads, dcm2quat, dcm2ypr_degs,
                        dcm2ypr_rads, fahren2celsius, fahren2kelvin, kelvin2celsius, kelvin2fahren, parse,
-                       quat2dcm, quat2omega_phi_kappa_rads, quat2ypr_degs, quat2ypr_rads, to_string)
+                       quat2dcm, quat2omega_phi_kappa_rads, quat2ypr_degs, quat2ypr_rads, to_string, ypr_degs2quat, ypr_rads2quat, ypr_degs2dcm)
