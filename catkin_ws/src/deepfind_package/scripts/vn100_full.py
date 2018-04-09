@@ -30,7 +30,15 @@ def talker():
 
 
     while not rospy.is_shutdown():
+        message.header.stamp = rospy.Time.now()
+        message.frame_id = 'base_link'
         values = vn100.next_data();
+
+        qaut_values = vnpy.libvncxx.yppr_degs2quat(
+        	          vnpy.vec3f(values.yaw_pitch_roll.x,
+        	          values.yaw_pitch_roll.y,
+        	          values.yaw_pitch_roll.z))
+
 
         #if(values.yaw_pitch_roll.x < 0):
         #    values.yaw_pitch_roll.x += 360
@@ -41,10 +49,10 @@ def talker():
         #if(values.yaw_pitch_roll.z < 0):
         #    values.yaw_pitch_roll.z += 360
 
-        message.orientation.w = values.quaternion.w
-        message.orientation.x = values.quaternion.x
-        message.orientation.y = values.quaternion.y
-        message.orientation.z = values.quaternion.z
+        message.orientation.w = qaut_values.w
+        message.orientation.x = qaut_values.x
+        message.orientation.y = qaut_values.y
+        message.orientation.z = qaut_values.z
 
         message.linear_acceleration.x = values.acceleration.x
         message.linear_acceleration.y = values.acceleration.y
