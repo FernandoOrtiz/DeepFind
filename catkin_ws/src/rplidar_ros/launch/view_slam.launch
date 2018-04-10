@@ -6,5 +6,6 @@
 <launch>
   <include file="$(find rplidar_ros)/launch/rplidar.launch" />
   <include file="$(find rplidar_ros)/launch/hectormapping.launch" />
+  <!-- <include file="$(find hector_mapping)/launch/mapping_default.launch" /> -->
   <include file="$(find hector_geotiff)/launch/geotiff_mapper.launch" />
 </launch>

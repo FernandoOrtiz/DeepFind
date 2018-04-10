@@ -1,5 +1,6 @@
 global_costmap:
-  global_frame: /map
-  robot_base_frame: base_link
+  global_frame: map
+  robot_base_frame: scanmatcher_frame
   update_frequency: 3.0
   static_map: true
+  transform_tolerance: 10.0
