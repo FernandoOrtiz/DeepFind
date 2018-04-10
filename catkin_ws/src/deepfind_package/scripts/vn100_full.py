@@ -31,11 +31,11 @@ def talker():
 
     while not rospy.is_shutdown():
         message.header.stamp = rospy.Time.now()
-        message.frame_id = 'base_link'
+        message.header.frame_id = 'base_link'
         values = vn100.next_data();
 
-        qaut_values = vnpy.libvncxx.yppr_degs2quat(
-        	          vnpy.vec3f(values.yaw_pitch_roll.x,
+        qaut_values = libvncxx.ypr_degs2quat(
+        	          vec3f(values.yaw_pitch_roll.x,
         	          values.yaw_pitch_roll.y,
         	          values.yaw_pitch_roll.z))
 
@@ -61,11 +61,6 @@ def talker():
         message.angular_velocity.x = values.angular_rate.x
         message.angular_velocity.y = values.angular_rate.y
         message.angular_velocity.z = values.angular_rate.z
-
-        message.mag_x = values.magnetic.x
-        message.mag_y = values.magnetic.y
-        message.mag_z = values.magnetic.z
-
 
         hello_str = "VN100 {}".format(rospy.get_time())
         rospy.loginfo(hello_str)
