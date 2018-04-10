@@ -2,24 +2,28 @@
 
 import getch
 import rospy
-from std_msgs.msg import String 
+from deepfind_package.msg import keyboard
+from std_msgs.msg import String
 from std_msgs.msg import Int32
 
 def keyboard_listener():
-	keyboard = keyboard()
-	pub = rospy.Publisher('key', Int32, queue_size = 10)	
+	#keyboard = keyboard()
+	pub = rospy.Publisher('key', Int32, queue_size = 10)
 	rospy.init_node('keyboard')
+	keyb = keyboard()
 	while not rospy.is_shutdown():
-	k = ord(getch.getch())
-		if k == 79: #Key = o/O
-			keyboard.origin = 1
-		elif k == 76: #Key = i/I
-			keyboard.landmark = 1
+		k = ord(getch.getch())
+		if k == 111:
+			keyb.origin = 1
+			#rospy.loginfo("Key pressed: O")
+		elif k == 108:
+			keyb.landmark = 1
+			#rospy.loginfo("Key pressed: L")
 		else:
 			pass
-	   	pub.publish(keyboard)
-	    keyboard.origin = 0
-		keyboard.landmark = 0
+		pub.publish(keyboard)
+		keyb.origin = 0
+		keyb.landmark = 0
 
 if __name__=='__main__':
 	keyboard_listener()

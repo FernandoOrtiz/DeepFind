@@ -13,7 +13,6 @@
 
    <node name="distance_node" pkg="deepfind_package" type="deepfind_distance">
    <param name="still_time_"  type="double" value="3.0"/>  
-   <param name="button_"      type="int"   value="0"/>
    </node>
 
 </launch>

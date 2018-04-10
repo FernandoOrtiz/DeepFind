@@ -3,6 +3,7 @@
 #include <deepfind_package/keyboard.h>
 #include <math.h>
 #include <ros/ros.h>
+#include <ros/console.h>
 
 int main(int argc, char* argv[]) {
 	ros::init(argc, argv, "distance_node");
@@ -23,7 +24,6 @@ DeepFindDistance::DeepFindDistance () {
 	ros::NodeHandle private_nh_("~");
 
 	private_nh_.param("still_time", still_time_, 3.0);
-	private_nh_.param("key", key_, 0);
 
 	//Subcribers setup
 	keySubscriber_ = node_.subscribe("key", 1000, &DeepFindDistance::keyCallback, this);
@@ -35,23 +35,23 @@ DeepFindDistance::DeepFindDistance () {
 
 	initial_pose = true;
 
-	//ROS_INFO("DeepFindDistance still_time: %f", still_time_);
-	//ROS_INFO("DeepFindDistance button: %d", button_);
-
+	ROS_INFO("DeepFindDistance still_time: %f", still_time_);
 }
 
 void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
 	bool pressed_origin = key.origin;
-        bool pressed_landmark = key.landmark;
+    bool pressed_landmark = key.landmark;
 
 	//If origin button was pressed mark current position as the new origin
 	if(pressed_origin) {
-		update(origin, landmark1);	
+		update(origin, landmark1);
+		ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y);	
 	}
 
 	//If landmark button was pressed mark current position as a landmark
 	if(pressed_landmark) {
-		update(landmark2, landmark1);	
+		update(landmark2, landmark1);
+		ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);	
 	}
 }
 

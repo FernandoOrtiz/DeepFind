@@ -34,5 +34,4 @@ class DeepFindDistance {
 
 		//Parameters
 		double still_time_;
-		int key_;
 };
