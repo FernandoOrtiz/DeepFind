@@ -6,7 +6,7 @@ import time
 
 
 
-def get_power_voltage():
+def get_input_power():
 	with open("/sys/bus/i2c/devices/0-0040/iio_device/in_current0_input",'r') as i:
 		current = next(i)
 	file = open ("current_consumption",'w')
