@@ -6,7 +6,13 @@ import time
 
 
 
-def get_input_voltage():
+def get_power_voltage():
+	with open("/sys/bus/i2c/devices/0-0040/iio_device/in_current0_input",'r') as i:
+		current = next(i)
+	file = open ("current_consumption",'w')
+	file.write(current)
+	file.close()
+
 	with open("/sys/bus/i2c/devices/0-0040/iio_device/in_voltage0_input",'r') as i:
 		line = next(i)
 	voltage = int(line[0]+line[1])
@@ -18,8 +24,8 @@ def get_input_voltage():
     
 
 if __name__ == '__main__':
-	rospy.init_node('voltage_monitor')
+	rospy.init_node('power_monitor')
 	while(1):
-		get_input_voltage()
+		get_input_power()
 		time.sleep(10)
 
