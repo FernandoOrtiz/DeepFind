@@ -17,7 +17,7 @@ class SysCom(object):
 		rospy.Subscriber('encoder', encoders_data, self.encoder_callback)
 
 		self.dataPub = rospy.Publisher('sensor_data', sensor_data, queue_size = 10)
-		self.rate = rospy.Rate(10)
+		self.rate = rospy.Rate(7.1)
 
 
 	def imu_callback(self, data):

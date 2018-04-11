@@ -16,7 +16,7 @@ print('Initialized')
 def talker():
     pub = rospy.Publisher('vn100_yaw', Imu, queue_size=10)
     rospy.init_node('vn100')
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(7.1) # 10hz
     message = Imu()
 
     message.orientation_covariance[0] = -1
