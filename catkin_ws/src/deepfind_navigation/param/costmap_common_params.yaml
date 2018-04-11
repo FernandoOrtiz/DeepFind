@@ -4,7 +4,7 @@ footprint: [[0.138,0.17], [-0.138,0.17], [-0.138,-0.17], [0.138,-0.17]]
 inflation_radius: 0.4
 
 #Set the tolerance we're willing to have for tf transforms
-transform_tolerance: 0.3
+transform_tolerance: 0.5
 min_obstacle_height: 0.0
 always_send_full_costmap: true
 
