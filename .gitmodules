@@ -4,3 +4,6 @@
 [submodule "rosbag_to_csv"]
 	path = rosbag_to_csv
 	url = https://github.com/AtsushiSakai/rosbag_to_csv
+[submodule "catkin_ws/src/hector_slam"]
+	path = catkin_ws/src/hector_slam
+	url = https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
