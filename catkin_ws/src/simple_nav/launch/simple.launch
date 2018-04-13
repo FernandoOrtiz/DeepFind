@@ -1,0 +1,3 @@
+<launch>
+  <node name="simple_nav" pkg="simple_nav" type="simple_nav" output="screen"/>
+</launch>

@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 
 <launch>
+	
+  <!--- Run map server -->
+  <!--<node name="map_server" pkg="map_server" type="map_server" args="$(find deepfind_navigation)/maps/capstone.yaml"/> -->
+
   <!--- Run move_base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <remap from="odom" to="scanmatch_odom" />
