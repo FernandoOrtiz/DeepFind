@@ -9,8 +9,6 @@
    <node name="diff_node" pkg="deepfind_package" type="diff_motor_controller.py">
    </node>
 
-   <node name="odometry_publisher" pkg="deepfind_package" type="odom_conversion" />
-
    <node name="distance_node" pkg="deepfind_package" type="deepfind_distance">
    <param name="still_time_"  type="double" value="3.0"/>  
    </node>

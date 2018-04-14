@@ -107,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES deepfind_navigation
-   CATKIN_DEPENDS message_runtime
+   CATKIN_DEPENDS message_runtime move_base
 #  DEPENDS system_lib
 )
 

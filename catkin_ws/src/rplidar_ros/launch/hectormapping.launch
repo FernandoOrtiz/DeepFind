@@ -5,9 +5,6 @@ notice : you should install hector-slam at first,  sudo apt-get install ros-indi
 E-mail: kint.zhao@slamtec.com
  -->
 <launch>
-
-  
-
   <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="-0.035 0 0.065 3.14159 0 0 base_link laser 100" /> <!--change -->
 
 
@@ -32,20 +29,10 @@ E-mail: kint.zhao@slamtec.com
     <param name="map_update_angle_thresh" value="0.1"/>
 
     <param name="map_resolution" value="0.05"/>
-    <param name="map_size" value="2048"/>
+    <param name="map_size" value="1024"/>
     <param name="map_start_x" value="0.5"/>
     <param name="map_start_y" value="0.5"/>
 
     <param name="tf_map_scanmatch_transform_frame_name" value="scanmatcher_frame" />
   </node>
-
- <!--- Run move_base -->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find deepfind_navigation)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find deepfind_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find deepfind_navigation)/param/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find deepfind_navigation)/param/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find deepfind_navigation)/param/base_local_planner_params.yaml" command="load" />
-  </node>
-
 </launch>
