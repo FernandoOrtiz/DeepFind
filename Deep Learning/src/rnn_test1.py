@@ -9,6 +9,8 @@ RNN Implementation
 import pandas as pd 
 from matplotlib import pyplot
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+
 
 #Neural Network Keras Imports
 from keras.models import Sequential
@@ -16,17 +18,26 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
 
-#Set Training Data 
-data_set = pd.read_csv('')
-training_set = data_set.iloc[:, 1:2].values
+#Set Training & test Data 
+training_set = pd.read_csv("Training_Data - Copy2.csv")
+test_set = pd.read_csv("Test_Data - Copy3.csv")
+
+#Merge both test and train to obtain initial values
+dataset_total = pd.concat((training_set, test_set), axis = 0)
+sc = MinMaxScaler(feature_range = (-1,1))
+sc.fit(dataset_total.iloc[:,0:2].as_matrix())
+
+#Extract the inputs to the neural nework
+training_input_set = training_set.iloc[:,2:376]
+training_input_set = training_input_set.as_matrix() 
+
 
 #data structure
 X=[]
 Y=[]
-for i in range(60, 1258):
-    X.append(training_set[i-60:i, 0])
-    Y.append(training_set[i, 0])
-X, Y = np.array(X), np.array(Y)
+for i in range(60, int(training_input_set.size/training_input_set.shape[1])):
+    X.append(training_input_set[i-60 : i , 0:])
+X= np.array(X)
 
 # Reshaping
 X = np.reshape(X, (X.shape[0], X.shape[1], 1))
