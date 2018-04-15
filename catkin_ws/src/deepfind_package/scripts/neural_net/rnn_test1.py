@@ -7,6 +7,7 @@ RNN Implementation
 """
 #general purpose imports
 import pandas as pd 
+from matplotlib import pyplot
 
 #Neural Network Keras Imports
 from keras.models import Sequential
@@ -36,3 +37,13 @@ print(history.history['loss'])
 print(history.history['acc'])
 print(history.history['val_loss'])
 print(history.history['val_acc'])
+
+#diagnose the system
+history = network.fit(X, Y, epochs=100, validation_data=(valX, valY))
+pyplot.plot(history.history['loss'])
+pyplot.plot(history.history['val_loss'])
+pyplot.title('model train vs validation loss')
+pyplot.ylabel('loss')
+pyplot.xlabel('epoch')
+pyplot.legend(['train', 'validation'], loc='upper right')
+pyplot.show()
