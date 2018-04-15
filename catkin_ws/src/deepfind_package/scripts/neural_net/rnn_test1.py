@@ -17,7 +17,18 @@ from keras.layers import Dropout
 
 #Set Training Data 
 data_set = pd.read_csv('')
-training_set = dataset_train.iloc[:].values
+training_set = dataset_train.iloc[:, 1:2].values
+
+#data structure
+X=[]
+Y=[]
+for i in range(60, 1258):
+    X.append(training_set_scaled[i-60:i, 0])
+    Y.append(training_set_scaled[i, 0])
+X, Y = np.array(X), np.array(Y)
+
+# Reshaping
+X = np.reshape(X, (X.shape[0], X.shape[1], 1))
 
 
 #Initialization and Creation of the RNN
