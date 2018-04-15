@@ -43,7 +43,7 @@ print(history.history['acc'])
 
 #Validate the neural net
 network.compile(optimizer = 'adam', loss='logcosh', metrics=['accuracy'])
-history = network.fit(X, Y, epochs=100, validation_split=0.33)
+history = network.fit(X, Y, epochs=100, validation_split=0)
 print(history.history['loss'])
 print(history.history['acc'])
 print(history.history['val_loss'])
