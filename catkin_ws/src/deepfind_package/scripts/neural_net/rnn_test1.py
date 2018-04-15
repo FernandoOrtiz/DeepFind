@@ -33,19 +33,19 @@ X = np.reshape(X, (X.shape[0], X.shape[1], 1))
 
 #Initialization and Creation of the RNN
 network = Sequential()
-network.add(LSTM(units = 50, return_sequences = True, input_shape = (X.shape[1], 1)))
+network.add(LSTM(units = 30, return_sequences = True, input_shape = (X.shape[1], 1)))
 network.add(Dropout(0.5))
 
 # Adding a second LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 50, return_sequences = True))
+network.add(LSTM(units = 30, return_sequences = True))
 network.add(Dropout(0.5))
 
 # Adding a third LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 50, return_sequences = True))
+network.add(LSTM(units = 30, return_sequences = True))
 network.add(Dropout(0.5))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 50))
+network.add(LSTM(units = 30))
 network.add(Dropout(0.5))
 
 # Adding the output layer
@@ -60,14 +60,14 @@ print(history.history['acc'])
 
 #Validate the neural net
 network.compile(optimizer = 'adam', loss='logcosh', metrics=['accuracy'])
-history = network.fit(X, Y, epochs=100, validation_split=0)
+history = network.fit(X, Y, epochs=100, validation_split=0.4)
 print(history.history['loss'])
 print(history.history['acc'])
 print(history.history['val_loss'])
 print(history.history['val_acc'])
 
 #diagnose the system
-history = network.fit(X, Y, epochs=100, validation_data=(valX, valY))
+history = network.fit(X, Y, epochs=100, validation_data=(X, Y))
 pyplot.plot(history.history['loss'])
 pyplot.plot(history.history['val_loss'])
 pyplot.title('model train vs validation loss')
