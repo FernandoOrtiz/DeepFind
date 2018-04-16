@@ -20,7 +20,7 @@ from keras.optimizers import Adam
 
 
 #The amount of time-steps the LSTM will look back at
-time_step = 10
+time_step = 100
 
 
 #Import the training set
@@ -37,14 +37,14 @@ training_input_set = train_dataset.iloc[:,2:376]
 training_input_set = training_input_set.as_matrix()  
 #Reshappe the inpputt so it fits the neural network
 x_train = []
-for i in range(time_step, int(training_input_set.size/training_input_set.shape[1])):
-    x_train.append(training_input_set[i-time_step : i , 0:])
+for i in range(time_step-1, int(training_input_set.size/training_input_set.shape[1])):
+    x_train.append(training_input_set[i-time_step+1 : i+1 , 0:])
 x_train= np.array(x_train)
 
 
 
 #Extract the output of the neural network
-y_train = train_dataset.iloc[time_step:,0:2]
+y_train = train_dataset.iloc[time_step-1:,0:2]
 y_train = y_train.as_matrix()
 #Feature Scaling
 
@@ -55,16 +55,16 @@ y_train = sc.transform(y_train)
 test_inputs_set = dataset_total.iloc[
         len(dataset_total) - len(test_dataset) - time_step:, 2:].values 
 x_test = []
-for i in range(time_step, int(test_inputs_set.size/test_inputs_set.shape[1])):
-    x_test.append(test_inputs_set[i-time_step:i, :])
+for i in range(time_step-1, int(test_inputs_set.size/test_inputs_set.shape[1])):
+    x_test.append(test_inputs_set[i-time_step+1:i+1, :])
 x_test= np.array(x_test)
-y_test = dataset_total.iloc[len(dataset_total) - len(test_dataset):, 0:2].values
-
+y_test = dataset_total.iloc[len(dataset_total) - len(test_dataset)-1:, 0:2].values
+y_test = sc.transform(y_test)
 
 
 # Part 2 - Building the RNN
 ################################################################################
-units = 50
+units = 200
 dropout = 0.3
 #Build rnn
 regresor = Sequential()
