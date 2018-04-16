@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Mon Apr 16 10:26:01 2018
 
-Fernando Ortiz
-RNN Implementation
+@author: Fernando Ortiz
 """
 #general purpose imports
 import pandas as pd 
@@ -18,7 +17,6 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
 from keras.optimizers import Adam
-from sklearn.model_selection import KFold
 
 
 #Import the training set
@@ -48,37 +46,37 @@ Y = sc.fit_transform(Y)
 #Initialization and Creation of the RNN
 
 network = Sequential()
-network.add(LSTM(units = 20, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
-network.add(Dropout(0.2))
-network.add(Dense(units = 20, activation = 'tanh'))
+network.add(LSTM(units = 10, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
+#network.add(Dropout(0.2))
+network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 20, return_sequences = True))
-network.add(Dropout(0.2))
-network.add(Dense(units = 20, activation = 'tanh'))
+#network.add(LSTM(units = 20, return_sequences = True))
+#network.add(Dropout(0.2))
+#network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 20, return_sequences = True))
-network.add(Dropout(0.2))
-network.add(Dense(units = 20, activation = 'tanh'))
+#network.add(LSTM(units = 20, return_sequences = True))
+#network.add(Dropout(0.2))
+#network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a third LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 20, return_sequences = True))
-network.add(Dropout(0.2))
-network.add(Dense(units = 20, activation = 'tanh'))
+#network.add(LSTM(units = 10, return_sequences = True))
+#network.add(Dropout(0.2))
+#network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 20))
-network.add(Dropout(0.2))
+network.add(LSTM(units = 10))
+#network.add(Dropout(0.2))
 
-network.add(Dense(units = 20, activation = 'tanh'))
+network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding the output layer
 network.add(Dense(units = 2, activation = 'tanh'))
 
 
 #Validate the neural net
-network.compile(optimizer = Adam(lr=0.001), loss='logcosh', metrics=['accuracy'])
+network.compile(optimizer = Adam(lr=0.0002), loss='logcosh', metrics=['accuracy'])
 history = network.fit(X, Y, validation_split=0.2, epochs=150, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
