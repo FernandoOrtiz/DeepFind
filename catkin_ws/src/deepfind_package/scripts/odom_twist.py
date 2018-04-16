@@ -3,6 +3,7 @@ import message_filters
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 
+# Callback function that mix data from nav_msgs/Odometry and geometry_msgs/Twist
 def callback(odometry, twist):
     odom = Odometry()
     odom.header.stamp = odometry.header.stamp
@@ -23,14 +24,17 @@ def callback(odometry, twist):
 	pub = rospy.Publisher('odom', Odometry, queue_size = 10)
 	pub.publish(odom)
 
-
+# Node initialization and syncronized topics setup
 def odom_twist_listener():
 	rospy.init_node('odom_twist')
+
+	#Syncronized topics setup
 	odom_sub = message_filters.Subscriber('scanmatch_odom', Odometry)
 	twist_sub = message_filters.Subscriber('cmd_vel', Twist)
-
-	ts = message_filters.TimeSynchronizer([odom_sub, twist_sub], 10)
+	ts = message_filters.ApproximateTimeSynchronizer([odom_sub, twist_sub], 10, 0.1, allow_headerless=True)
 	ts.registerCallback(callback)
+
+    #Spin node
 	rospy.spin()
   
 if __name__ == '__main__':
