@@ -46,9 +46,9 @@ Y = sc.fit_transform(Y)
 #Initialization and Creation of the RNN
 
 network = Sequential()
-network.add(LSTM(units = 10, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
+network.add(LSTM(units = 15, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
 #network.add(Dropout(0.2))
-network.add(Dense(units = 10, activation = 'tanh'))
+network.add(Dense(units = 15, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
 #network.add(LSTM(units = 20, return_sequences = True))
@@ -66,10 +66,10 @@ network.add(Dense(units = 10, activation = 'tanh'))
 #network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 10))
+network.add(LSTM(units = 15))
 #network.add(Dropout(0.2))
 
-network.add(Dense(units = 10, activation = 'tanh'))
+network.add(Dense(units = 15, activation = 'tanh'))
 
 # Adding the output layer
 network.add(Dense(units = 2, activation = 'tanh'))
