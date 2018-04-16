@@ -2,25 +2,102 @@
 #include <tf/transform_broadcaster.h>
 #include <deepfind_package/encoders_data.h>
 #include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Twist>
 
-double qe1 = 0;
-double qe2 = 0;
-double dt = 0;
-double dx = 0;
-double dy = 0;
-double dth = 0;
-double dist = 0;
-double x = 0.0;
-double y = 0.0;
-double th = 0.0;
-double vx = 0.0;
-double vy = 0.0;
-double vth = 0.0;
-double dxp, dyp, vartheta, rcurv;
-ros::Time current_time, last_time;
-ros::Publisher odom_pub;
+ros::Time currentTime, lastTime;
+geometry_msgs::Quaternion odomQuat;
+nav_msgs::Odometry odom;
+
+const double WHEEL_SEPARATION = 0;
+const double ODOM_TURN_MULTIPLIER = 0;
+
+double x = 0;
+double y = 0;
+double th = 0;
+
 
 void quadencCallback(const deepfind_package::encoders_data& msg){
+
+  //ALGO QUE NO SE COMO PUNETA HACER... AUN!
+
+  int leftSpeed = 0;
+  int rightSpeed = 0;
+
+  //Easy shit
+  tf::TransformBroadcaster odom_broadcaster;
+  currentTime = ros::Time::now();
+
+  elapsedTime = currentTime - lastTime;
+
+  dl = elapsedTime.toSec() * leftSpeed;
+  dr = elapsedTime.toSec() * rightSpeed;
+
+  double dxy = (dl + dr) / 2;
+  double dth = (((dl - dr) / WHEEL_SEPARATION)) * ODOM_TURN_MULTIPLIER;
+
+  x += dxy * cosf(th);
+  y += dxy * sinf(th);
+
+  th += dth;
+
+  double v = dxy/elapsedTime.toSec();
+  double w = dth/elapsedTime.toSec();
+
+  odomQuat = tf::createQuaternionMsgFromRollPitchYaw(0,0,th);
+
+  odom_transform.header.stamp = currentTime;
+  odom_transform.transform.translation.x = x;
+  odom_transform.transform.translation.y = y;
+  odom_transform.transform.translation.z = 0;
+  odom_transform.rotation = tf::createQuaternionMsgFromYaw(th);
+
+  //position ****Tal vez se puede sacar del mapa
+  odom.pose.pose.position.x = x;
+  odom.pose.pose.position.y = y;
+  odom.pose.pose.position.z = 0.0;
+  odom.pose.pose.orientation = odomQuat;
+
+  //velocity
+  velocity.twist.twist.linear.x = v;
+  velocity.twist.twist.linear.y = 0.0;
+  velocity.twist.twist.linear.z = 0.0;
+  velocity.twist.twist.angular.x = 0.0;
+  velocity.twist.twist.angular.y = 0.0;
+  velocity.twist.twist.angular.z = w;
+
+
+  odom_broadcaster.sendTransform(odom_transform);
+  odomPub.publish(odom);
+
+
+}
+
+
+int main(int argc, char **argv){
+
+  ros::init(argc, argv, "odometry_publisher");
+  ros::NodeHandle nh; 
+
+  ros::Publisher odom_pub;
+  tf::TransformBroadcaster odom_broadcaster;
+
+  odomPub = nh.advertise<nav_msgs::Odometry>("/odom", 50);
+  ros::Subscriber encoderSub = nh.subscribe("/encoder", 50, quadencCallback);
+  
+  lastTime = ros::Time::now();
+  ros::spin();
+  
+  return 0;
+}
+
+
+
+
+
+
+
+
+/*
   tf::TransformBroadcaster odom_broadcaster;
   current_time = ros::Time::now();
   qe1 = msg.rightMotor*0.00007124683339;//0.00007302800423;//0.00007356235548;//0.00007391858965;//0.00007427482381;//0.00007436388235;//fr //convert qecounts into m 
@@ -34,58 +111,8 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
   x += dx;
   y += dy;
   th += dth;
-/*
-  if(qe1*qe2 <0){ //TURNS
-    dth = (qe1-qe2)/2; //average
-    dth= dth/.1464945; //convert to radians of rotation .14605m is 11.5in/2 (half of wheel base)
-    th += dth;
-  }
-  else if(((qe1-qe2)<0.000743) && ((qe1-qe2)>-0.000743))  // STRAIGHTS 
-  {
-    dist = (qe1 +qe2)/2;
-    dx = dist*cos(th);
-    dy = dist*sin(th);
-    x += dx;
-    y += dy;
-  }
-  else{  // CURVES
-    if(qe2>qe1){
-      vartheta = (qe2-qe1)/.2921;
-      rcurv = (qe1+qe2)/(2*vartheta);
-      dyp = rcurv*cos(vartheta) - rcurv;
-      dxp = rcurv*sin(vartheta);
-      dx= (dxp*cos(th)) - (dyp*sin(th));
-      dy= (dxp*sin(th)) + (dyp*cos(th));
-      dth=-vartheta;   
-    }
-    else{
-      vartheta = (qe1-qe2)/.2921;
-      rcurv = (qe1+qe2)/(2*vartheta);
-      dyp = rcurv - rcurv*cos(vartheta);
-      dxp = rcurv*sin(vartheta);
-      dx= (dxp*cos(th)) - (dyp*sin(th));
-      dy= (dxp*sin(th)) + (dyp*cos(th));
-      dth= vartheta;
-    }
-    x+=dx;
-    y+=dy;
-    th+=dth;
-  }
- */
  //we need a quaternion to describe rotation in 3d
-  geometry_msgs::Quaternion odom_quat =tf::createQuaternionMsgFromYaw(th);
-/* 
-  geometry_msgs::TransformStamped odom_trans; //publish transform using TF 
-  odom_trans.header.stamp = ros::Time::now();
-  odom_trans.header.frame_id = "odom";
-  odom_trans.child_frame_id = "base_link";
- 
-  odom_trans.transform.translation.x = x;
-  odom_trans.transform.translation.y = y;
-  odom_trans.transform.translation.z = 0.0;
-  odom_trans.transform.rotation = odom_quat;
-*/ 
- // odom_broadcaster.sendTransform(odom_trans);  //send transform 
+  
 
   dt =(current_time-last_time).toSec(); //calc velocities
   vx = dist/dt; //v is in base_link frame
@@ -109,18 +136,4 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
   odom_pub.publish(odom);  //publish odom message
  
   last_time = current_time;
-}
-
-int main(int argc, char **argv){
-  ros::init(argc, argv, "odometry_publisher");
-  tf::TransformBroadcaster odom_broadcaster;
-  ros::NodeHandle nh; 
-  odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 50);
-  ros::Subscriber quadenc_sub = nh.subscribe("encoder",50,quadencCallback);
-
-  current_time = ros::Time::now();
-  last_time = ros::Time::now();
- 
-  ros::spin();
-  return 0;
-}
+  */
