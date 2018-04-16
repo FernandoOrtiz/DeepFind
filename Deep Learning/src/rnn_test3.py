@@ -53,17 +53,17 @@ network.add(LSTM(units = 40, return_sequences = True, input_shape = (X.shape[1],
 #network.add(Dense(units = 40, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True))
+network.add(LSTM(units = 40, return_sequences = True))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True))
+network.add(LSTM(units = 40, return_sequences = True))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a third LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True))
+network.add(LSTM(units = 40, return_sequences = True))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
@@ -71,7 +71,7 @@ network.add(LSTM(units = 40, return_sequences = True, input_shape = (X.shape[1],
 network.add(LSTM(units = 40))
 #network.add(Dropout(0.2))
 
-#network.add(Dense(units = 20, activation = 'tanh'))
+network.add(Dense(units = 40, activation = 'tanh'))
 
 # Adding the output layer
 network.add(Dense(units = 2, activation = 'tanh'))
