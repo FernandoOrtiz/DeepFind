@@ -12,13 +12,13 @@ def callback(odometry, twist):
     odom.pose.pose.position.y = odometry.pose.pose.position.y
     odom.pose.pose.position.z = odometry.pose.pose.position.z
 
-    odom.pose.pose.orientation.x = odometry.pose.orientation.x
-	odom.pose.pose.orientation.y = odometry.pose.orientation.y
-	odom.pose.pose.orientation.z = odometry.pose.orientation.z
-	odom.pose.pose.orientation.w = odometry.pose.orientation.w
+    odom.pose.pose.orientation.x = odometry.pose.pose.orientation.x
+	odom.pose.pose.orientation.y = odometry.pose.pose.orientation.y
+	odom.pose.pose.orientation.z = odometry.pose.pose.orientation.z
+	odom.pose.pose.orientation.w = odometry.pose.pose.orientation.w
 
-	odom.twist.twist.linear.x = twist.linear.x
-	odom.twist.twist.angular.z = twist.angular.z
+	odom.twist.twist.linear.x = twist.twist.linear.x
+	odom.twist.twist.angular.z = twist.twist.angular.z
 
 	pub = rospy.Publisher('odom', Odometry, queue_size = 10)
 	pub.publish(odom)
