@@ -20,7 +20,7 @@ from keras.optimizers import Adam
 
 
 #The amount of time-steps the LSTM will look back at
-step = 30
+step = 100
 
 def setup_data(time_step):
     global X
@@ -64,13 +64,13 @@ setup_data(step)
 
 network = Sequential()
 network.add(LSTM(units = 4, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
-#network.add(Dropout(0.2))
-#network.add(Dense(units = 4, activation = 'tanh'))
+network.add(Dropout(0.5))
+network.add(Dense(units = 4, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
 network.add(LSTM(units = 4, return_sequences = True))
-#network.add(Dropout(0.2))
-#network.add(Dense(units = 4, activation = 'tanh'))
+network.add(Dropout(0.5))
+network.add(Dense(units = 4, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
 #network.add(LSTM(units = 20, return_sequences = True))
@@ -84,16 +84,16 @@ network.add(LSTM(units = 4, return_sequences = True))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
 network.add(LSTM(units = 4))
-#network.add(Dropout(0.2))
+network.add(Dropout(0.5))
 
-#network.add(Dense(units = 4, activation = 'tanh'))
+network.add(Dense(units = 4, activation = 'tanh'))
 
 # Adding the output layer
 network.add(Dense(units = 2, activation = 'tanh'))
 
 
 #Validate the neural net
-network.compile(optimizer = Adam(lr=0.0002), loss='logcosh', metrics=['accuracy'])
+network.compile(optimizer = Adam(lr=0.0001), loss='logcosh', metrics=['accuracy'])
 history = network.fit(X, Y, validation_split=0.2, epochs=150, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
@@ -129,7 +129,7 @@ if(network.input_shape[1] != step):
     setup_data(network.input_shape[1])
 
 slice_index = int(X.shape[0]*(1-0.2))
-prediction = network.predict(X=X[slice_index:,0:,0:])
+prediction = network.predict(x=X[slice_index:,0:,0:])
 prediction = sc.inverse_transform(prediction)
 expected_outcome = sc.inverse_transform(Y[slice_index:,:])
 
@@ -155,4 +155,4 @@ setup_data(step)
 
 
 #Save the trained model
-#regresor.save('LSTM-51.28%accuracy.h5py')
+#network.save('LSTM-35%accuracy-GOOD LOSS-Fer.h5py')
