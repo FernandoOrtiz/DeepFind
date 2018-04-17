@@ -45,20 +45,11 @@
 
 //scale factor fix encoders
 #define SCALE_FACTOR_LEFT 1.31
-#define SCALE_FACTOR_RIGHT 0.8
+#define SCALE_FACTOR_RIGHT 0.81
 
-#define WHEEL_DIAMETER 0.13335
-
-//Variables for counting encoder pulses and calculating velocities
-int odomCount = 0;
+//Variables for counting encoder pulses
 int counter1 = 0; 
 int counter2 = 0;  
-int lastCount1 = 0;
-int lastCount2 = 0;
-long time[2] = {0,0};
-double ddis [2] = {0,0};
-double velocity[2] = {0,0};
-float scaleFactor[2] = {SCALE_FACTOR_LEFT, SCALE_FACTOR_RIGHT};
 
 
 //ROS variables and methods
@@ -114,7 +105,6 @@ void setup() {
    
 } 
 
-
 void doEncoder() {
  
   if (digitalRead(OUTPUT_A1) == digitalRead(OUTPUT_B1)) {
@@ -122,52 +112,28 @@ void doEncoder() {
   } else {
     counter1--;
   }
-
-  lastCount1 = counter1 - lastCount1;
+ 
 }
 
 void doEncoder2() {
  
+
  if (digitalRead(OUTPUT_A2) == digitalRead(OUTPUT_B2)) {
     counter2++;
   } else {
     counter2--;
   }
-
-  lastCount2 = counter2 - lastCount2;
-}
-
-double ticksToMeters(double ticks){
-  return (ticks*3.14*WHEEL_DIAMETER);
 }
 
 
-void getVelocities(int motor){
 
-  long t = millis();
-  int dTime = t - time[motor];
-  time[motor] = t;
-  
-  ddis[motor] = ticksToMeters(lastCount1*scaleFactor[motor]);
-  
-  double estimatedVel = (ddis[motor]/dTime)*1000;
-  velocity[motor] = estimatedVel;
-  
-}
+ void loop() { 
 
-
-void loop() {
-  
-  
-  if(odomCount > 3){  
-    //Get data to motor_encoder message and publish
-    encoders.leftMotor = counter2*SCALE_FACTOR_LEFT;
-    encoders.rightMotor = counter1*SCALE_FACTOR_RIGHT;
-    encoders.speed[0] = velocity[0];
-    encoders.speed[1] = velocity[1];
-    pub.publish(&encoders);
-
-  nh.spinOnce();
+   //Get data to motor_encoder message and publish
+   encoders.leftMotor = counter2*SCALE_FACTOR_LEFT;
+   encoders.rightMotor = counter1*SCALE_FACTOR_RIGHT;
+   pub.publish(&encoders);
    
-  delay(1);
+   nh.spinOnce();
+   delay(1);
  }
