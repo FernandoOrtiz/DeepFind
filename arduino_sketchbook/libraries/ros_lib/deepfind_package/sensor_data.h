@@ -48,7 +48,7 @@ namespace deepfind_package
     }
 
     const char * getType(){ return "deepfind_package/sensor_data"; };
-    const char * getMD5(){ return "9fccc7b309d5bf5d740dd999ac988ed8"; };
+    const char * getMD5(){ return "3617d192ba4547d6b33b35da08af94a2"; };
 
   };
 

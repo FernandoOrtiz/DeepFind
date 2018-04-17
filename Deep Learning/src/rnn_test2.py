@@ -63,9 +63,9 @@ setup_data(step)
 #Initialization and Creation of the RNN
 
 network = Sequential()
-network.add(LSTM(units = 4, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
-#network.add(Dropout(0.2))
-network.add(Dense(units = 4, activation = 'tanh'))
+network.add(LSTM(units = 5, return_sequences = True, input_shape = (X.shape[1], X.shape[2])))
+network.add(Dropout(0.5))
+#network.add(Dense(units = 5, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
 #network.add(LSTM(units = 4, return_sequences = True))
@@ -83,17 +83,17 @@ network.add(Dense(units = 4, activation = 'tanh'))
 #network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 4))
-#network.add(Dropout(0.2))
+network.add(LSTM(units = 5))
+network.add(Dropout(0.5))
 
-network.add(Dense(units = 4, activation = 'tanh'))
+#network.add(Dense(units = 5, activation = 'tanh'))
 
 # Adding the output layer
 network.add(Dense(units = 2, activation = 'tanh'))
 
 
 #Validate the neural net
-network.compile(optimizer = Adam(lr=0.02), loss='logcosh', metrics=['accuracy'])
+network.compile(optimizer = Adam(lr=0.00001), loss='logcosh', metrics=['accuracy'])
 history = network.fit(X, Y, validation_split=0.2, epochs=150, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
@@ -129,7 +129,7 @@ if(network.input_shape[1] != step):
     setup_data(network.input_shape[1])
 
 slice_index = int(X.shape[0]*(1-0.2))
-prediction = network.predict(X=X[slice_index:,0:,0:])
+prediction = network.predict(x=X[slice_index:,0:,0:])
 prediction = sc.inverse_transform(prediction)
 expected_outcome = sc.inverse_transform(Y[slice_index:,:])
 
