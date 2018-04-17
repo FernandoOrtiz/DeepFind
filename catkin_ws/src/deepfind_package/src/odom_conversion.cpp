@@ -10,6 +10,7 @@ ros::Publisher odomPub;
 
 
 const double WHEEL_SEPARATION = 0.29845;
+const double WHEEL_DIAMETER = 0.13335;
 const double ODOM_TURN_MULTIPLIER = 1.0;
 
 //double elapsedTime = 0;
@@ -18,22 +19,40 @@ double y = 0;
 double th = 0;
 double elapsedTime = 0;
 double dl = 0, dr = 0;
+double lastCount1 = 0;
+double lastCount2 = 0;
+double distanceTraveled1 = 0;
+double distanceTraveled2 = 0;
+double leftSpeed = 0;
+double rightSpeed = 0;
 
+double ticksToMeters(double ticks){
+  return (ticks*3.14*WHEEL_DIAMETER);
+}
 
 void quadencCallback(const deepfind_package::encoders_data& msg){
 
-  double leftSpeed = msg.speed[0];
-  double rightSpeed = msg.speed[1];
+  currentTime = ros::Time::now();
+  elapsedTime = currentTime.toSec() - lastTime.toSec();
+  lastTime = currentTime;
 
+  //velocity calculation
+  lastCount1 = msg.leftMotor - lastCount1;
+  lastCount2 = msg.rightMotor - lastCount2;
+
+  distanceTraveled1 = ticksToMeters(lastCount1);
+  distanceTraveled2 = ticksToMeters(lastCount2);
+
+  leftSpeed = (distanceTraveled1/elapsedTime);
+  rightSpeed = (distanceTraveled2/elapsedTime);
+
+
+  //pose and transform
   geometry_msgs::Quaternion odomQuat;
   nav_msgs::Odometry odom;
   tf::TransformBroadcaster odomBroadcaster;
   tf::Transform odomTransform;
   
-  //ros::Time elapsedTime = ros::Time::now();
-  currentTime = ros::Time::now();
-  elapsedTime = currentTime.toSec() - lastTime.toSec();
-
   dl = elapsedTime * leftSpeed;
   dr = elapsedTime * rightSpeed;
 
@@ -89,7 +108,7 @@ int main(int argc, char **argv){
   odomPub = nh.advertise<nav_msgs::Odometry>("/odom", 50);
 
   ros::Subscriber encoderSub = nh.subscribe("/encoder", 50, quadencCallback);
-  
+
   lastTime = ros::Time::now();
 
   ros::spin();
