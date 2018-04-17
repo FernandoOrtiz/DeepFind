@@ -53,8 +53,7 @@
 int odomCount = 0;
 int counter1 = 0; 
 int counter2 = 0;  
-int lastCount1 = 0;
-int lastCount2 = 0;
+int lastCount[2] = {0,0};
 long time[2] = {0,0};
 double ddis [2] = {0,0};
 double velocity[2] = {0,0};
@@ -123,7 +122,7 @@ void doEncoder() {
     counter1--;
   }
 
-  lastCount1 = counter1 - lastCount1;
+  lastCount[0] = counter1 - lastCount[0];
 }
 
 void doEncoder2() {
@@ -134,7 +133,7 @@ void doEncoder2() {
     counter2--;
   }
 
-  lastCount2 = counter2 - lastCount2;
+  lastCount[1] = counter2 - lastCount[1];
 }
 
 double ticksToMeters(double ticks){
@@ -148,7 +147,7 @@ void getVelocities(int motor){
   int dTime = t - time[motor];
   time[motor] = t;
   
-  ddis[motor] = ticksToMeters(lastCount1*scaleFactor[motor]);
+  ddis[motor] = ticksToMeters(lastCount[motor]*scaleFactor[motor]);
   
   double estimatedVel = (ddis[motor]/dTime)*1000;
   velocity[motor] = estimatedVel;
