@@ -2,35 +2,40 @@
 #include <tf/transform_broadcaster.h>
 #include <deepfind_package/encoders_data.h>
 #include <nav_msgs/Odometry.h>
-#include <geometry_msgs/Twist>
+#include <geometry_msgs/Twist.h>
 
 ros::Time currentTime, lastTime;
-geometry_msgs::Quaternion odomQuat;
-nav_msgs::Odometry odom;
+ros::Publisher odomPub;
 
-const double WHEEL_SEPARATION = 0;
-const double ODOM_TURN_MULTIPLIER = 0;
 
+
+const double WHEEL_SEPARATION = 0.29845;
+const double ODOM_TURN_MULTIPLIER = 1.0;
+
+//double elapsedTime = 0;
 double x = 0;
 double y = 0;
 double th = 0;
+double elapsedTime = 0;
+double dl = 0, dr = 0;
 
 
 void quadencCallback(const deepfind_package::encoders_data& msg){
 
-  //ALGO QUE NO SE COMO PUNETA HACER... AUN!
+  double leftSpeed = msg.speed[0];
+  double rightSpeed = msg.speed[1];
 
-  int leftSpeed = 0;
-  int rightSpeed = 0;
-
-  //Easy shit
-  tf::TransformBroadcaster odom_broadcaster;
+  geometry_msgs::Quaternion odomQuat;
+  nav_msgs::Odometry odom;
+  tf::TransformBroadcaster odomBroadcaster;
+  tf::Transform odomTransform;
+  
+  //ros::Time elapsedTime = ros::Time::now();
   currentTime = ros::Time::now();
+  elapsedTime = currentTime.toSec() - lastTime.toSec();
 
-  elapsedTime = currentTime - lastTime;
-
-  dl = elapsedTime.toSec() * leftSpeed;
-  dr = elapsedTime.toSec() * rightSpeed;
+  dl = elapsedTime * leftSpeed;
+  dr = elapsedTime * rightSpeed;
 
   double dxy = (dl + dr) / 2;
   double dth = (((dl - dr) / WHEEL_SEPARATION)) * ODOM_TURN_MULTIPLIER;
@@ -40,16 +45,19 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
 
   th += dth;
 
-  double v = dxy/elapsedTime.toSec();
-  double w = dth/elapsedTime.toSec();
+  double v = dxy/elapsedTime;
+  double w = dth/elapsedTime;
 
   odomQuat = tf::createQuaternionMsgFromRollPitchYaw(0,0,th);
+  tf::Quaternion q;
+  q.setRPY(0,0,th);
 
-  odom_transform.header.stamp = currentTime;
-  odom_transform.transform.translation.x = x;
-  odom_transform.transform.translation.y = y;
-  odom_transform.transform.translation.z = 0;
-  odom_transform.rotation = tf::createQuaternionMsgFromYaw(th);
+  
+  odomTransform.setOrigin(tf::Vector3(x,y,0.0));
+  //odomTransform.transform.translation.x = x;
+  //odomTransform.transform.translation.y = y;
+  //odomTransform.transform.translation.z = 0;
+  odomTransform.setRotation(q);
 
   //position ****Tal vez se puede sacar del mapa
   odom.pose.pose.position.x = x;
@@ -58,15 +66,15 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
   odom.pose.pose.orientation = odomQuat;
 
   //velocity
-  velocity.twist.twist.linear.x = v;
-  velocity.twist.twist.linear.y = 0.0;
-  velocity.twist.twist.linear.z = 0.0;
-  velocity.twist.twist.angular.x = 0.0;
-  velocity.twist.twist.angular.y = 0.0;
-  velocity.twist.twist.angular.z = w;
+  odom.twist.twist.linear.x = v;
+  odom.twist.twist.linear.y = 0.0;
+  odom.twist.twist.linear.z = 0.0;
+  odom.twist.twist.angular.x = 0.0;
+  odom.twist.twist.angular.y = 0.0;
+  odom.twist.twist.angular.z = w;
 
-
-  odom_broadcaster.sendTransform(odom_transform);
+  //publish
+  odomBroadcaster.sendTransform(tf::StampedTransform(odomTransform, ros::Time::now(), "map", "odometry"));
   odomPub.publish(odom);
 
 
@@ -78,13 +86,12 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "odometry_publisher");
   ros::NodeHandle nh; 
 
-  ros::Publisher odom_pub;
-  tf::TransformBroadcaster odom_broadcaster;
-
   odomPub = nh.advertise<nav_msgs::Odometry>("/odom", 50);
+
   ros::Subscriber encoderSub = nh.subscribe("/encoder", 50, quadencCallback);
   
   lastTime = ros::Time::now();
+
   ros::spin();
   
   return 0;
