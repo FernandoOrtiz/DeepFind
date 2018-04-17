@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   nav_msgs
+  geometry_msgs
   message_generation
 )
 
@@ -78,6 +79,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  geometry_msgs
   sensor_msgs#   std_msgs
   nav_msgs
 )
@@ -114,7 +116,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES deepfind_package
-  CATKIN_DEPENDS roscpp rospy nav_msgs sensor_msgs std_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy nav_msgs sensor_msgs std_msgs message_runtime geometry_msgs
 #  DEPENDS system_lib
 )
 
@@ -143,7 +145,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- #add_executable(odom_conversion src/odom_conversion.cpp)
+ add_executable(odom_conversion src/odom_conversion.cpp)
  add_executable(deepfind_distance src/deepfind_distance.cpp)
  #add_executable(main src/main.cpp)
 
@@ -155,12 +157,12 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
- #add_dependencies(odom_conversion deepfind_package_gencpp)
+ add_dependencies(odom_conversion deepfind_package_gencpp)
  add_dependencies(deepfind_distance deepfind_package_gencpp)
  #add_dependencies(main deepfind_package_gencpp)
 
 ## Specify libraries to link a library or executable target against
- #target_link_libraries(odom_conversion ${catkin_LIBRARIES})
+ target_link_libraries(odom_conversion ${catkin_LIBRARIES})
  target_link_libraries(deepfind_distance ${catkin_LIBRARIES})
  #target_link_libraries(main ${catkin_LIBRARIES})
 
