@@ -137,7 +137,7 @@ void doEncoder2() {
 }
 
 double ticksToMeters(double ticks){
-  return (ticks*3.14*WHEEL_DIAMETER)
+  return (ticks*3.14*WHEEL_DIAMETER);
 }
 
 
@@ -173,7 +173,7 @@ void loop() {
    encoders.speed[1] = velocity[1];
    pub.publish(&encoders);
 
-   getMotorsSpeedseeds();
+   getMotorsSpeeds();
    
    delay(3);
  }

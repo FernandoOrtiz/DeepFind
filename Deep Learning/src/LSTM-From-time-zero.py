@@ -21,16 +21,16 @@ from sklearn.model_selection import KFold
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 30
+time_step = 20
 
 def setup_data(time_step):
     global x
     global y
     global sc
     #Import the training set
-    train_dataset = pd.read_csv("Training_Data - Copy2.csv")
+    train_dataset = pd.read_csv("../Datasets/Training_Data - Copy2.csv")
     #Obtain the test Data
-    test_dataset = pd.read_csv("Test_Data - Copy3.csv")
+    test_dataset = pd.read_csv("../Datasets/Test_Data - Copy3.csv")
     #Merge both test and train to obtain initial values
     dataset_total = pd.concat((train_dataset, test_dataset), axis = 0)
     
@@ -60,7 +60,7 @@ setup_data(time_step)
 #%% Part 2 - Building the RNN
 ################################################################################
 units = 20
-dropout = 0.1
+dropout = 0.5
 val_split = 0.15
 
 
@@ -74,46 +74,46 @@ regresor.add(CuDNNLSTM(units = units, return_sequences = True,
                    input_shape=(x.shape[1], x.shape[2])))
 regresor.add(Dropout(dropout))
 
-regresor.add(Dense(units = units, activation = 'tanh'))
-regresor.add(Dropout(dropout))
+#regresor.add(Dense(units = units, activation = 'tanh'))
+#regresor.add(Dropout(dropout))
 
 #Second layers with dropout regularization
-regresor.add(CuDNNLSTM(units = units, return_sequences = True))
-regresor.add(Dropout(dropout))
+#regresor.add(CuDNNLSTM(units = units, return_sequences = True))
+#regresor.add(Dropout(dropout))
 
 #Third layers with dropout regularization
-regresor.add(CuDNNLSTM(units = units   , return_sequences = True)) 
-regresor.add(Dropout(dropout))
+#regresor.add(CuDNNLSTM(units = units   , return_sequences = True)) 
+#regresor.add(Dropout(dropout))
 
 #Fourth layers with dropout regularization
-regresor.add(CuDNNLSTM(units = units   , return_sequences = True)) 
+regresor.add(CuDNNLSTM(units = units   , return_sequences = False)) 
 regresor.add(Dropout(dropout))
 #Output Layer
-regresor.add(Dense(units = units, activation = 'relu'))
-regresor.add(Dropout(dropout))
+#regresor.add(Dense(units = units, activation = 'relu'))
+#regresor.add(Dropout(dropout))
 
 #Output Layer
-regresor.add(Dense(units = units, activation = 'tanh'))
-regresor.add(Dropout(dropout))
+#regresor.add(Dense(units = units, activation = 'tanh'))
+#regresor.add(Dropout(dropout))
 
 #Fifth layers with dropout regularization
-regresor.add(CuDNNLSTM(units = units))
-regresor.add(Dropout(dropout))
+#regresor.add(CuDNNLSTM(units = units))
+#regresor.add(Dropout(dropout))
 
 
 #Output Layer
 regresor.add(Dense(units = 2, activation = 'tanh'))
 
 #Compile this network
-regresor.compile(optimizer = Adam(lr=0.003), loss='logcosh', metrics=['accuracy'])
+regresor.compile(optimizer = Nadam(lr=0.005), loss='logcosh', metrics=['accuracy'])
 
 #Fit the data
 #history = regresor.fit(x, y, validation_split=val_split, epochs=400, callbacks=
-#          [ModelCheckpoint('2LSTM-3ANN-100weights.{epoch:02d}-{val_acc:.4f}.hdf5', 
+#          [ModelCheckpoint('../Models/5LSTM-4ANN-20weights-30timesteps.{epoch:02d}-{val_acc:.4f}.hdf5', 
 #          monitor='val_acc',save_best_only=True)], batch_size = 32) 
 #regresor.save('LSTM-nice-converge-86.45%accuracy.h5py')
  
-history = regresor.fit(x, y, validation_split=val_split, epochs=250, batch_size = 32) 
+history = regresor.fit(x, y, validation_split=val_split, epochs=150, batch_size = 32) 
 
 
 #%%Evaluate the model
@@ -138,8 +138,8 @@ pyplot.show()
 
 max(history.history['val_acc'])
 
-
-#regresor = load_model('2LSTM-3ANN-100weights.81-0.8876.hdf5')
+#%%
+#regresor = load_model('../Models/2LSTM-3ANN-weights.179-0.89.hdf5')
 
 if(regresor.input_shape[1] != time_step):
     setup_data(regresor.input_shape[1])
