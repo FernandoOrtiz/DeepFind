@@ -1,0 +1,246 @@
+<?xml version="1.0"?>
+<robot name="deepfind">
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="gray">
+    <color rgba="0 0 0 0.8"/> 
+  </material>
+
+  <material name="white">
+    <color rgba="255 255 255 1"/> 
+  </material> 
+
+  <material name="magenta">
+    <color rgba="255 0 255 1"/> 
+  </material>
+
+  <!-- Lower base link -->
+  <link name="base_link">
+    <inertial>
+      <mass value="0.00205673"/>
+      <origin rpy="0  0  0" xyz="0.17822  0.11018  0.18168"/>
+      <inertia ixx="2.05771e-05" ixy="0" ixz="0" iyy="1.32089e-05" iyz="0" izz="3.36277e-05"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.17822  0.11018  0.18168"/>
+      <geometry>
+        <box size="0.27676 0.34582 0.021538"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0 0 1.5708" xyz="0.0 0.0 0.10168"/>
+      <geometry>
+        <box size="0.27676 0.34582 0.021538"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- Left wheel link -->
+  <link name="left_wheel">
+    <inertial>
+      <mass value="0.00065195"/>
+      <origin rpy="3.14159  1.56928  3.14159" xyz="0.02656 -0.00281  0.15927"/>
+      <inertia ixx="1.07134e-06" ixy="0" ixz="0" iyy="1.07134e-06" iyz="0" izz="2.07118e-06"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="3.14159  1.56928  3.14159" xyz="0.02656 -0.00281  0.15927"/>
+      <geometry>
+        <cylinder length="0.025666" radius="0.079711"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="3.14159  1.56928  1.5708" xyz="-0.14500 0.14281 0.07927"/>
+      <geometry>
+        <cylinder length="0.0256658" radius="0.0797112"/>
+      </geometry>
+      <material name="magenta"/>
+    </visual>
+  </link>
+
+  <!-- Right wheel link -->
+  <link name="right_wheel">
+    <inertial>
+      <mass value="0.00065195"/>
+      <origin rpy="3.14159  1.56928  3.14159" xyz="0.32818 -0.00211  0.15934"/>
+      <inertia ixx="1.07134e-06" ixy="0" ixz="0" iyy="1.07134e-06" iyz="0" izz="2.07118e-06"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="3.14159  1.56928  3.14159" xyz="0.32818 -0.00211  0.15934"/>
+      <geometry>
+        <cylinder length="0.025666" radius="0.079711"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="3.14159  1.56928  1.5708" xyz="-0.14500 -0.14281 0.07927"/>
+      <geometry>
+        <cylinder length="0.0256658" radius="0.0797112"/>
+      </geometry>
+      <material name="magenta"/>
+    </visual>
+  </link>
+
+  <!-- Upper base link -->
+  <link name="upper_base">
+    <inertial>
+      <mass value="0.00171663"/>
+      <origin rpy="0  0  0" xyz="0.17956  0.10072  0.27089"/>
+      <inertia ixx="1.19764e-05" ixy="0" ixz="0" iyy="1.10252e-05" iyz="0" izz="2.28694e-05"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.17956  0.10072  0.27089"/>
+      <geometry>
+        <box size="0.27676 0.288542 0.021538"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0  0  1.5708" xyz="0.0 0.0 0.19089"/>
+      <geometry>
+        <box size="0.27676 0.288542 0.021538"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- Ball caster link -->
+  <link name="ball_caster">
+    <inertial>
+      <mass value="0.00045131"/>
+      <origin rpy="0  0  0" xyz="0.18026  0.24474  0.11789"/>
+      <inertia ixx="2.7e-07" ixy="0" ixz="0" iyy="2.7e-07" iyz="0" izz="2.7e-07"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.18026  0.24474  0.11789"/>
+      <geometry>
+        <sphere radius="0.03835"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0  0  1.5708" xyz="0.13026  0.0  0.03789"/>
+      <geometry>
+        <sphere radius="0.0383504"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <!-- Ball caster box link -->
+  <link name="ball_caster_box">
+    <inertial>
+      <mass value="0.000704419"/>
+      <origin rpy="0  0  0" xyz="0.17956  0.24148  0.13773"/>
+      <inertia ixx="6.66345e-07" ixy="0" ixz="0" iyy="1.2101e-06" iyz="0" izz="1.35675e-06"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.17956  0.24148  0.13773"/>
+      <geometry>
+        <box size="0.127232 0.083214 0.066526"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0  0  1.5708" xyz="0.12956 0.0  0.05773"/>
+      <geometry>
+        <box size="0.127232 0.083214 0.066526"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  
+
+  <!-- Left wall link -->
+  <link name="left_wall">
+    <inertial>
+      <mass value="0.000286893"/>
+      <origin rpy="0  0  0" xyz="0.05035  0.10072  0.22755"/>
+      <inertia ixx="1.21303e-06" ixy="0" ixz="0" iyy="1.37371e-07" iyz="0" izz="1.0917e-06"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.05035  0.10072  0.22755"/>
+      <geometry>
+        <box size="0.018328 0.212902 0.073543"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0  0  1.5708" xyz="0.0  0.10072  0.14755"/>
+      <geometry>
+        <box size="0.018328 0.212902 0.073543"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <!-- Right wall link -->
+  <link name="right_wall">
+    <inertial>
+      <mass value="0.000286893"/>
+      <origin rpy="0  0  0" xyz="0.30785  0.10072  0.22755"/>
+      <inertia ixx="1.21303e-06" ixy="0" ixz="0" iyy="1.37371e-07" iyz="0" izz="1.0917e-06"/>
+    </inertial>
+    <collision name="deepfind__collision">
+      <origin rpy="0  0  0" xyz="0.30785  0.10072  0.22755"/>
+      <geometry>
+        <box size="0.018328 0.212902 0.073543"/>
+      </geometry>
+    </collision>
+    <visual name="deepfind__visual">
+      <origin rpy="0  0  1.5708" xyz="0.0  -0.10072  0.14755"/>
+      <geometry>
+        <box size="0.018328 0.212902 0.073543"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <!-- Left wheel joint -->
+  <joint name="base_link_left" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Right wheel joint -->
+  <joint name="base_link_right" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Left wall joint -->
+  <joint name="base_link_left_wall" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wall"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Right wall joint -->
+  <joint name="base_link_right_wall" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wall"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Upper base joint -->
+  <joint name="base_link_upper" type="fixed">
+    <parent link="base_link"/>
+    <child link="upper_base"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Ball caster box joint -->
+  <joint name="base_link_bc_box" type="fixed">
+    <parent link="base_link"/>
+    <child link="ball_caster_box"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Ball caster joint -->
+  <joint name="base_link_bc" type="fixed">
+    <parent link="base_link"/>
+    <child link="ball_caster"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+</robot>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import message_filters
 from nav_msgs.msg import Odometry
@@ -18,10 +20,11 @@ def callback(odometry, twist):
   odom.pose.pose.orientation.z = odometry.pose.pose.orientation.z
   odom.pose.pose.orientation.w = odometry.pose.pose.orientation.w
     
-  odom.twist.twist.linear.x = twist.twist.linear.x
-  odom.twist.twist.angular.z = twist.twist.angular.z
+  odom.twist.twist.linear.x = twist.linear.x
+  odom.twist.twist.linear.y = twist.linear.y
+  odom.twist.twist.angular.z = twist.angular.z
 
-  pub = rospy.Publisher('odom', Odometry, queue_size = 10)
+  pub = rospy.Publisher('scanmatch_odom', Odometry, queue_size = 10)
   pub.publish(odom)
 
 # Node initialization and syncronized topics setup

@@ -2,9 +2,12 @@
 
 <launch>
   <master auto="start"/>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
 	
   <!--- Run map server -->
   <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find deepfind_navigation)/maps/capstone.yaml"/> -->
+  <param name="robot_description" textfile="$(find deepfind_navigation)/urdf/deepfind.urdf"/>
 
   <!--- Run move_base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">

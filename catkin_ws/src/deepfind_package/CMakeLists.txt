@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+	cmake_minimum_required(VERSION 2.8.3)
 project(deepfind_package)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   nav_msgs
-  geometry_msgs
+  #geometry_msgs
   message_generation
 )
 
@@ -79,7 +79,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  geometry_msgs
+  #geometry_msgs
   sensor_msgs#   std_msgs
   nav_msgs
 )
@@ -116,7 +116,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES deepfind_package
-  CATKIN_DEPENDS roscpp rospy nav_msgs sensor_msgs std_msgs message_runtime geometry_msgs
+  CATKIN_DEPENDS roscpp rospy nav_msgs sensor_msgs std_msgs message_runtime #geometry_msgs
 #  DEPENDS system_lib
 )
 

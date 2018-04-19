@@ -16,15 +16,10 @@ namespace deepfind_package
       _leftMotor_type leftMotor;
       typedef int32_t _rightMotor_type;
       _rightMotor_type rightMotor;
-      uint32_t speed_length;
-      typedef float _speed_type;
-      _speed_type st_speed;
-      _speed_type * speed;
 
     encoders_data():
       leftMotor(0),
-      rightMotor(0),
-      speed_length(0), speed(NULL)
+      rightMotor(0)
     {
     }
 
@@ -51,14 +46,6 @@ namespace deepfind_package
       *(outbuffer + offset + 2) = (u_rightMotor.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_rightMotor.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->rightMotor);
-      *(outbuffer + offset + 0) = (this->speed_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->speed_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->speed_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->speed_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->speed_length);
-      for( uint32_t i = 0; i < speed_length; i++){
-      offset += serializeAvrFloat64(outbuffer + offset, this->speed[i]);
-      }
       return offset;
     }
 
@@ -87,23 +74,11 @@ namespace deepfind_package
       u_rightMotor.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->rightMotor = u_rightMotor.real;
       offset += sizeof(this->rightMotor);
-      uint32_t speed_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      speed_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      speed_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      speed_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->speed_length);
-      if(speed_lengthT > speed_length)
-        this->speed = (float*)realloc(this->speed, speed_lengthT * sizeof(float));
-      speed_length = speed_lengthT;
-      for( uint32_t i = 0; i < speed_length; i++){
-      offset += deserializeAvrFloat64(inbuffer + offset, &(this->st_speed));
-        memcpy( &(this->speed[i]), &(this->st_speed), sizeof(float));
-      }
      return offset;
     }
 
     const char * getType(){ return "deepfind_package/encoders_data"; };
-    const char * getMD5(){ return "2bf9ef0a1e520aaacbce835a92460e99"; };
+    const char * getMD5(){ return "40c59515e060d941dde4c816f719e5bb"; };
 
   };
 

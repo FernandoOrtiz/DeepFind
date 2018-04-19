@@ -2,14 +2,17 @@
 <launch>
 
    <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
-            <param name="port" value="/dev/ttyACM0"/>
+            <param name="port" value="/dev/ttyACM1"/>
             <param name="baud" value="57600" />
    </node>
 
    <node name="diff_node" pkg="deepfind_package" type="diff_motor_controller.py">
    </node>
 
-   <node name="distance_node" pkg="deepfind_package" type="deepfind_distance">
+   <!-- <node name="odom_twist_node" pkg="deepfind_package" type="odom_twist.py">
+   </node> -->
+
+   <node name="distance_node" pkg="deepfind_package" type="deepfind_distance" output="screen">
    <param name="still_time_"  type="double" value="3.0"/>  
    </node>
 
