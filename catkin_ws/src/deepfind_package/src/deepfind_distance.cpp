@@ -1,4 +1,4 @@
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <deepfind_distance.h>
 #include <deepfind_package/keyboard.h>
 #include <math.h>
@@ -45,17 +45,17 @@ void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
      //If origin button was pressed mark current position as the new origin
      if(pressed_origin) {
 	update(origin, landmark1);
-	ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.pose.position.x, origin.pose.pose.position.y);	
+	ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y);	
 	}
 
      //If landmark button was pressed mark current position as a landmark
      if(pressed_landmark) {
 	update(landmark2, landmark1);
-	ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.pose.position.x, landmark2.pose.pose.position.y);	
+	ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);	
 	}
 }
 
-void DeepFindDistance::poseCallback(const geometry_msgs::PoseWithCovarianceStamped& curr) {
+void DeepFindDistance::poseCallback(const geometry_msgs::PoseStamped& curr) {
      //If first time, set initial pose
      if(initial_pose) {
 	initial_pose = false;
@@ -78,29 +78,29 @@ void DeepFindDistance::poseCallback(const geometry_msgs::PoseWithCovarianceStamp
      distancePublisher_.publish(deepfind_distance);
 }
 
-void DeepFindDistance::update(geometry_msgs::PoseWithCovarianceStamped& msg1, const geometry_msgs::PoseWithCovarianceStamped& msg2) {
+void DeepFindDistance::update(geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2) {
      //Set current header
      msg1.header.stamp = msg2.header.stamp;
      msg1.header.frame_id = msg2.header.frame_id;
 
      //Set current position
-     msg1.pose.pose.position.x = msg2.pose.pose.position.x;
-     msg1.pose.pose.position.y = msg2.pose.pose.position.y;
-     msg1.pose.pose.position.z = msg2.pose.pose.position.z;
+     msg1.pose.position.x = msg2.pose.position.x;
+     msg1.pose.position.y = msg2.pose.position.y;
+     msg1.pose.position.z = msg2.pose.position.z;
 
      //Set current orientation
-     msg1.pose.pose.orientation.x = msg2.pose.pose.orientation.x;
-     msg1.pose.pose.orientation.y = msg2.pose.pose.orientation.y;
-     msg1.pose.pose.orientation.z = msg2.pose.pose.orientation.z;
-     msg1.pose.pose.orientation.w = msg2.pose.pose.orientation.w;
+     msg1.pose.orientation.x = msg2.pose.orientation.x;
+     msg1.pose.orientation.y = msg2.pose.orientation.y;
+     msg1.pose.orientation.z = msg2.pose.orientation.z;
+     msg1.pose.orientation.w = msg2.pose.orientation.w;
 }
 
 double DeepFindDistance::calculateDistance() {
      //Calculate distance from origin to current position
-     distanceOrigin = std::sqrt(pow(origin.pose.pose.position.x - landmark1.pose.pose.position.x, 2) + pow(origin.pose.pose.position.y - landmark1.pose.pose.position.y, 2));
+     distanceOrigin = std::sqrt(pow(origin.pose.position.x - landmark1.pose.position.x, 2) + pow(origin.pose.position.y - landmark1.pose.position.y, 2));
 
      //Calculate distance from previous landmark to current position
-     distanceTraveled = std::sqrt(pow(landmark2.pose.pose.position.x - landmark1.pose.pose.position.x, 2) + pow(landmark2.pose.pose.position.y - landmark1.pose.pose.position.y, 2));
+     distanceTraveled = std::sqrt(pow(landmark2.pose.position.x - landmark1.pose.position.x, 2) + pow(landmark2.pose.position.y - landmark1.pose.position.y, 2));
 }
 
 

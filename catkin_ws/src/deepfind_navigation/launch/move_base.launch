@@ -3,7 +3,8 @@
 <launch>
   <master auto="start"/>
 
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+  <!--<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+  </node> -->
 	
   <!--- Run map server -->
   <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find deepfind_navigation)/maps/capstone.yaml"/> -->

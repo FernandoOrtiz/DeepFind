@@ -57,7 +57,7 @@
       <geometry>
         <cylinder length="0.0256658" radius="0.0797112"/>
       </geometry>
-      <material name="magenta"/>
+      <material name="gray"/>
     </visual>
   </link>
 
@@ -79,7 +79,7 @@
       <geometry>
         <cylinder length="0.0256658" radius="0.0797112"/>
       </geometry>
-      <material name="magenta"/>
+      <material name="gray"/>
     </visual>
   </link>
 

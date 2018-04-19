@@ -135,5 +135,7 @@ void doEncoder2() {
    pub.publish(&encoders);
    
    nh.spinOnce();
-   delay(1);
+   //delay(1);
+   delay(20);
+   
  }

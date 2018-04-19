@@ -21,6 +21,8 @@ double elapsedTime = 0;
 double dl = 0, dr = 0;
 double lastCount1 = 0;
 double lastCount2 = 0;
+double countDifference1 = 0;
+double countDifference2 = 0;
 double distanceTraveled1 = 0;
 double distanceTraveled2 = 0;
 double leftSpeed = 0;
@@ -37,15 +39,18 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
   lastTime = currentTime;
 
   //velocity calculation
-  lastCount1 = msg.leftMotor - lastCount1;
-  lastCount2 = msg.rightMotor - lastCount2;
+  countDifference1 = msg.leftMotor - lastCount1;
+  countDifference2 = msg.rightMotor - lastCount2;
 
-  distanceTraveled1 = ticksToMeters(lastCount1);
-  distanceTraveled2 = ticksToMeters(lastCount2);
+  lastCount1 = msg.leftMotor;
+  lastCount2 = msg.rightMotor;
+
+  distanceTraveled1 = ticksToMeters(countDifference1);
+  distanceTraveled2 = ticksToMeters(countDifference2);
 
   leftSpeed = (distanceTraveled1/elapsedTime);
   rightSpeed = (distanceTraveled2/elapsedTime);
-
+ 
 
   //pose and transform
   geometry_msgs::Quaternion odomQuat;
@@ -70,8 +75,10 @@ void quadencCallback(const deepfind_package::encoders_data& msg){
   odomQuat = tf::createQuaternionMsgFromRollPitchYaw(0,0,th);
   tf::Quaternion q;
   q.setRPY(0,0,th);
-
   
+  double lm = msg.leftMotor; 
+  printf("%f   %f   %f     %f\n", lastCount1, lm, distanceTraveled1, leftSpeed); 
+   
   odomTransform.setOrigin(tf::Vector3(x,y,0.0));
   //odomTransform.transform.translation.x = x;
   //odomTransform.transform.translation.y = y;
@@ -107,8 +114,10 @@ int main(int argc, char **argv){
 
   odomPub = nh.advertise<nav_msgs::Odometry>("/odom", 50);
 
-  ros::Subscriber encoderSub = nh.subscribe("/encoder", 50, quadencCallback);
+  ros::Subscriber encoderSub = nh.subscribe("/encoder", 1000, quadencCallback);
 
+  lastTime.useSystemTime();
+  currentTime.useSystemTime();
   lastTime = ros::Time::now();
 
   ros::spin();

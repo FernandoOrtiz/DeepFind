@@ -5,4 +5,6 @@
           LIDAR
           ENCODER-VAL
           ENCODER
+          POSE-VAL
+          POSE
 ))

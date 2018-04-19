@@ -10,13 +10,15 @@
 
 (in-package "ROS")
 ;;//! \htmlinclude sensor_data.msg.html
+(if (not (find-package "GEOMETRY_MSGS"))
+  (ros::roseus-add-msgs "geometry_msgs"))
 (if (not (find-package "SENSOR_MSGS"))
   (ros::roseus-add-msgs "sensor_msgs"))
 
 
 (defclass deepfind_package::sensor_data
   :super ros::object
-  :slots (_imu _lidar _encoder ))
+  :slots (_imu _lidar _encoder _pose ))
 
 (defmethod deepfind_package::sensor_data
   (:init
@@ -24,11 +26,13 @@
     ((:imu __imu) (instance deepfind_package::imu_data :init))
     ((:lidar __lidar) (instance sensor_msgs::LaserScan :init))
     ((:encoder __encoder) (instance deepfind_package::encoders_data :init))
+    ((:pose __pose) (instance geometry_msgs::PoseStamped :init))
     )
    (send-super :init)
    (setq _imu __imu)
    (setq _lidar __lidar)
    (setq _encoder __encoder)
+   (setq _pose __pose)
    self)
   (:imu
    (&rest __imu)
@@ -51,6 +55,13 @@
      (progn
        (if __encoder (setq _encoder (car __encoder)))
        _encoder)))
+  (:pose
+   (&rest __pose)
+   (if (keywordp (car __pose))
+       (send* _pose __pose)
+     (progn
+       (if __pose (setq _pose (car __pose)))
+       _pose)))
   (:serialization-length
    ()
    (+
@@ -60,6 +71,8 @@
     (send _lidar :serialization-length)
     ;; deepfind_package/encoders_data _encoder
     (send _encoder :serialization-length)
+    ;; geometry_msgs/PoseStamped _pose
+    (send _pose :serialization-length)
     ))
   (:serialize
    (&optional strm)
@@ -71,6 +84,8 @@
        (send _lidar :serialize s)
      ;; deepfind_package/encoders_data _encoder
        (send _encoder :serialize s)
+     ;; geometry_msgs/PoseStamped _pose
+       (send _pose :serialize s)
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
@@ -81,16 +96,19 @@
      (send _lidar :deserialize buf ptr-) (incf ptr- (send _lidar :serialization-length))
    ;; deepfind_package/encoders_data _encoder
      (send _encoder :deserialize buf ptr-) (incf ptr- (send _encoder :serialization-length))
+   ;; geometry_msgs/PoseStamped _pose
+     (send _pose :deserialize buf ptr-) (incf ptr- (send _pose :serialization-length))
    ;;
    self)
   )
 
-(setf (get deepfind_package::sensor_data :md5sum-) "9fccc7b309d5bf5d740dd999ac988ed8")
+(setf (get deepfind_package::sensor_data :md5sum-) "d889fddaeeb05675262e5f8a70744d81")
 (setf (get deepfind_package::sensor_data :datatype-) "deepfind_package/sensor_data")
 (setf (get deepfind_package::sensor_data :definition-)
       "imu_data imu
 sensor_msgs/LaserScan lidar
 encoders_data encoder
+geometry_msgs/PoseStamped pose
 
 ================================================================================
 MSG: deepfind_package/imu_data
@@ -161,10 +179,38 @@ float32[] intensities    # intensity data [device-specific units].  If your
 MSG: deepfind_package/encoders_data
 int32 leftMotor
 int32 rightMotor
+================================================================================
+MSG: geometry_msgs/PoseStamped
+# A Pose with reference coordinate frame and timestamp
+Header header
+Pose pose
+
+================================================================================
+MSG: geometry_msgs/Pose
+# A representation of pose in free space, composed of position and orientation. 
+Point position
+Quaternion orientation
+
+================================================================================
+MSG: geometry_msgs/Point
+# This contains the position of a point in free space
+float64 x
+float64 y
+float64 z
+
+================================================================================
+MSG: geometry_msgs/Quaternion
+# This represents an orientation in free space in quaternion form.
+
+float64 x
+float64 y
+float64 z
+float64 w
+
 ")
 
 
 
-(provide :deepfind_package/sensor_data "9fccc7b309d5bf5d740dd999ac988ed8")
+(provide :deepfind_package/sensor_data "d889fddaeeb05675262e5f8a70744d81")
 
 

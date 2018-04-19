@@ -13,6 +13,7 @@ const _finder = _ros_msg_utils.Find;
 const _getByteLength = _ros_msg_utils.getByteLength;
 let imu_data = require('./imu_data.js');
 let encoders_data = require('./encoders_data.js');
+let geometry_msgs = _finder('geometry_msgs');
 let sensor_msgs = _finder('sensor_msgs');
 
 //-----------------------------------------------------------
@@ -24,6 +25,7 @@ class sensor_data {
       this.imu = null;
       this.lidar = null;
       this.encoder = null;
+      this.pose = null;
     }
     else {
       if (initObj.hasOwnProperty('imu')) {
@@ -44,6 +46,12 @@ class sensor_data {
       else {
         this.encoder = new encoders_data();
       }
+      if (initObj.hasOwnProperty('pose')) {
+        this.pose = initObj.pose
+      }
+      else {
+        this.pose = new geometry_msgs.msg.PoseStamped();
+      }
     }
   }
 
@@ -55,6 +63,8 @@ class sensor_data {
     bufferOffset = sensor_msgs.msg.LaserScan.serialize(obj.lidar, buffer, bufferOffset);
     // Serialize message field [encoder]
     bufferOffset = encoders_data.serialize(obj.encoder, buffer, bufferOffset);
+    // Serialize message field [pose]
+    bufferOffset = geometry_msgs.msg.PoseStamped.serialize(obj.pose, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -68,6 +78,8 @@ class sensor_data {
     data.lidar = sensor_msgs.msg.LaserScan.deserialize(buffer, bufferOffset);
     // Deserialize message field [encoder]
     data.encoder = encoders_data.deserialize(buffer, bufferOffset);
+    // Deserialize message field [pose]
+    data.pose = geometry_msgs.msg.PoseStamped.deserialize(buffer, bufferOffset);
     return data;
   }
 
@@ -75,6 +87,7 @@ class sensor_data {
     let length = 0;
     length += imu_data.getMessageSize(object.imu);
     length += sensor_msgs.msg.LaserScan.getMessageSize(object.lidar);
+    length += geometry_msgs.msg.PoseStamped.getMessageSize(object.pose);
     return length + 8;
   }
 
@@ -85,7 +98,7 @@ class sensor_data {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '9fccc7b309d5bf5d740dd999ac988ed8';
+    return 'd889fddaeeb05675262e5f8a70744d81';
   }
 
   static messageDefinition() {
@@ -94,6 +107,7 @@ class sensor_data {
     imu_data imu
     sensor_msgs/LaserScan lidar
     encoders_data encoder
+    geometry_msgs/PoseStamped pose
     
     ================================================================================
     MSG: deepfind_package/imu_data
@@ -164,6 +178,34 @@ class sensor_data {
     MSG: deepfind_package/encoders_data
     int32 leftMotor
     int32 rightMotor
+    ================================================================================
+    MSG: geometry_msgs/PoseStamped
+    # A Pose with reference coordinate frame and timestamp
+    Header header
+    Pose pose
+    
+    ================================================================================
+    MSG: geometry_msgs/Pose
+    # A representation of pose in free space, composed of position and orientation. 
+    Point position
+    Quaternion orientation
+    
+    ================================================================================
+    MSG: geometry_msgs/Point
+    # This contains the position of a point in free space
+    float64 x
+    float64 y
+    float64 z
+    
+    ================================================================================
+    MSG: geometry_msgs/Quaternion
+    # This represents an orientation in free space in quaternion form.
+    
+    float64 x
+    float64 y
+    float64 z
+    float64 w
+    
     `;
   }
 
@@ -192,6 +234,13 @@ class sensor_data {
     }
     else {
       resolved.encoder = new encoders_data()
+    }
+
+    if (msg.pose !== undefined) {
+      resolved.pose = geometry_msgs.msg.PoseStamped.Resolve(msg.pose)
+    }
+    else {
+      resolved.pose = new geometry_msgs.msg.PoseStamped()
     }
 
     return resolved;

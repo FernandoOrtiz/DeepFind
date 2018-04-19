@@ -23,10 +23,10 @@ def synch_data():
 	imu = message_filters.Subscriber('vn100_yaw', imu_data)
 	lidar = message_filters.Subscriber('scan', LaserScan)
 	encoders = message_filters.Subscriber('encoder', encoders_data)
-	opose = message_filters.Subscriber('slam_out_pose', PoseStamped)
+	pose = message_filters.Subscriber('slam_out_pose', PoseStamped)
 	#odom = message_filters.Subscriber('odom', Odometry) 
 
-	ts = message_filters.ApproximateTimeSynchronizer([odom, imu, lidar, encoders, odom], 10, 0.1, allow_headerless=True)
+	ts = message_filters.ApproximateTimeSynchronizer([imu, lidar, encoders, pose], 10, 0.1, allow_headerless=True)
 	ts.registerCallback(callback)
 
 	dataPub = rospy.Publisher('sensor_data', sensor_data, queue_size = 1000)

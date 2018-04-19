@@ -18,6 +18,7 @@
 #include <deepfind_package/imu_data.h>
 #include <sensor_msgs/LaserScan.h>
 #include <deepfind_package/encoders_data.h>
+#include <geometry_msgs/PoseStamped.h>
 
 namespace deepfind_package
 {
@@ -29,12 +30,14 @@ struct sensor_data_
   sensor_data_()
     : imu()
     , lidar()
-    , encoder()  {
+    , encoder()
+    , pose()  {
     }
   sensor_data_(const ContainerAllocator& _alloc)
     : imu(_alloc)
     , lidar(_alloc)
-    , encoder(_alloc)  {
+    , encoder(_alloc)
+    , pose(_alloc)  {
   (void)_alloc;
     }
 
@@ -48,6 +51,9 @@ struct sensor_data_
 
    typedef  ::deepfind_package::encoders_data_<ContainerAllocator>  _encoder_type;
   _encoder_type encoder;
+
+   typedef  ::geometry_msgs::PoseStamped_<ContainerAllocator>  _pose_type;
+  _pose_type pose;
 
 
 
@@ -127,12 +133,12 @@ struct MD5Sum< ::deepfind_package::sensor_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "9fccc7b309d5bf5d740dd999ac988ed8";
+    return "d889fddaeeb05675262e5f8a70744d81";
   }
 
   static const char* value(const ::deepfind_package::sensor_data_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x9fccc7b309d5bf5dULL;
-  static const uint64_t static_value2 = 0x740dd999ac988ed8ULL;
+  static const uint64_t static_value1 = 0xd889fddaeeb05675ULL;
+  static const uint64_t static_value2 = 0x262e5f8a70744d81ULL;
 };
 
 template<class ContainerAllocator>
@@ -154,6 +160,7 @@ struct Definition< ::deepfind_package::sensor_data_<ContainerAllocator> >
     return "imu_data imu\n\
 sensor_msgs/LaserScan lidar\n\
 encoders_data encoder\n\
+geometry_msgs/PoseStamped pose\n\
 \n\
 ================================================================================\n\
 MSG: deepfind_package/imu_data\n\
@@ -224,6 +231,33 @@ float32[] intensities    # intensity data [device-specific units].  If your\n\
 MSG: deepfind_package/encoders_data\n\
 int32 leftMotor\n\
 int32 rightMotor\n\
+================================================================================\n\
+MSG: geometry_msgs/PoseStamped\n\
+# A Pose with reference coordinate frame and timestamp\n\
+Header header\n\
+Pose pose\n\
+\n\
+================================================================================\n\
+MSG: geometry_msgs/Pose\n\
+# A representation of pose in free space, composed of position and orientation. \n\
+Point position\n\
+Quaternion orientation\n\
+\n\
+================================================================================\n\
+MSG: geometry_msgs/Point\n\
+# This contains the position of a point in free space\n\
+float64 x\n\
+float64 y\n\
+float64 z\n\
+\n\
+================================================================================\n\
+MSG: geometry_msgs/Quaternion\n\
+# This represents an orientation in free space in quaternion form.\n\
+\n\
+float64 x\n\
+float64 y\n\
+float64 z\n\
+float64 w\n\
 ";
   }
 
@@ -245,6 +279,7 @@ namespace serialization
       stream.next(m.imu);
       stream.next(m.lidar);
       stream.next(m.encoder);
+      stream.next(m.pose);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -272,6 +307,9 @@ struct Printer< ::deepfind_package::sensor_data_<ContainerAllocator> >
     s << indent << "encoder: ";
     s << std::endl;
     Printer< ::deepfind_package::encoders_data_<ContainerAllocator> >::stream(s, indent + "  ", v.encoder);
+    s << indent << "pose: ";
+    s << std::endl;
+    Printer< ::geometry_msgs::PoseStamped_<ContainerAllocator> >::stream(s, indent + "  ", v.pose);
   }
 };
 
