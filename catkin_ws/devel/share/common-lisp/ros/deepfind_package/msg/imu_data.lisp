@@ -7,12 +7,7 @@
 ;//! \htmlinclude imu_data.msg.html
 
 (cl:defclass <imu_data> (roslisp-msg-protocol:ros-message)
-  ((header
-    :reader header
-    :initarg :header
-    :type std_msgs-msg:Header
-    :initform (cl:make-instance 'std_msgs-msg:Header))
-   (yaw
+  ((yaw
     :reader yaw
     :initarg :yaw
     :type cl:float
@@ -82,11 +77,6 @@
   (cl:unless (cl:typep m 'imu_data)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name deepfind_package-msg:<imu_data> is deprecated: use deepfind_package-msg:imu_data instead.")))
 
-(cl:ensure-generic-function 'header-val :lambda-list '(m))
-(cl:defmethod header-val ((m <imu_data>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader deepfind_package-msg:header-val is deprecated.  Use deepfind_package-msg:header instead.")
-  (header m))
-
 (cl:ensure-generic-function 'yaw-val :lambda-list '(m))
 (cl:defmethod yaw-val ((m <imu_data>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader deepfind_package-msg:yaw-val is deprecated.  Use deepfind_package-msg:yaw instead.")
@@ -148,7 +138,6 @@
   (mag_z m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <imu_data>) ostream)
   "Serializes a message object of type '<imu_data>"
-  (roslisp-msg-protocol:serialize (cl:slot-value msg 'header) ostream)
   (cl:let ((bits (roslisp-utils:encode-double-float-bits (cl:slot-value msg 'yaw))))
     (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
@@ -260,7 +249,6 @@
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <imu_data>) istream)
   "Deserializes a message object of type '<imu_data>"
-  (roslisp-msg-protocol:deserialize (cl:slot-value msg 'header) istream)
     (cl:let ((bits 0))
       (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
@@ -391,19 +379,18 @@
   "deepfind_package/imu_data")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<imu_data>)))
   "Returns md5sum for a message object of type '<imu_data>"
-  "5781ee5294affb6dd3e062f6edb954b1")
+  "df8149b69f061ec41c794db384bb53e8")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'imu_data)))
   "Returns md5sum for a message object of type 'imu_data"
-  "5781ee5294affb6dd3e062f6edb954b1")
+  "df8149b69f061ec41c794db384bb53e8")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<imu_data>)))
   "Returns full string definition for message of type '<imu_data>"
-  (cl:format cl:nil "Header header~%float64 yaw~%float64 pitch ~%float64 roll~%float64 acc_x~%float64 acc_y~%float64 acc_z~%float64 gyr_x~%float64 gyr_y~%float64 gyr_z~%float64 mag_x~%float64 mag_y~%float64 mag_z~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
+  (cl:format cl:nil "float64 yaw~%float64 pitch ~%float64 roll~%float64 acc_x~%float64 acc_y~%float64 acc_z~%float64 gyr_x~%float64 gyr_y~%float64 gyr_z~%float64 mag_x~%float64 mag_y~%float64 mag_z~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'imu_data)))
   "Returns full string definition for message of type 'imu_data"
-  (cl:format cl:nil "Header header~%float64 yaw~%float64 pitch ~%float64 roll~%float64 acc_x~%float64 acc_y~%float64 acc_z~%float64 gyr_x~%float64 gyr_y~%float64 gyr_z~%float64 mag_x~%float64 mag_y~%float64 mag_z~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
+  (cl:format cl:nil "float64 yaw~%float64 pitch ~%float64 roll~%float64 acc_x~%float64 acc_y~%float64 acc_z~%float64 gyr_x~%float64 gyr_y~%float64 gyr_z~%float64 mag_x~%float64 mag_y~%float64 mag_z~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <imu_data>))
   (cl:+ 0
-     (roslisp-msg-protocol:serialization-length (cl:slot-value msg 'header))
      8
      8
      8
@@ -420,7 +407,6 @@
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <imu_data>))
   "Converts a ROS message object to a list"
   (cl:list 'imu_data
-    (cl:cons ':header (header msg))
     (cl:cons ':yaw (yaw msg))
     (cl:cons ':pitch (pitch msg))
     (cl:cons ':roll (roll msg))

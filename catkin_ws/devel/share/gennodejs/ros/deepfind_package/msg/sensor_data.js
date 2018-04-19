@@ -11,7 +11,6 @@ const _deserializer = _ros_msg_utils.Deserialize;
 const _arrayDeserializer = _deserializer.Array;
 const _finder = _ros_msg_utils.Find;
 const _getByteLength = _ros_msg_utils.getByteLength;
-let imu_data = require('./imu_data.js');
 let encoders_data = require('./encoders_data.js');
 let geometry_msgs = _finder('geometry_msgs');
 let sensor_msgs = _finder('sensor_msgs');
@@ -32,7 +31,7 @@ class sensor_data {
         this.imu = initObj.imu
       }
       else {
-        this.imu = new imu_data();
+        this.imu = new sensor_msgs.msg.Imu();
       }
       if (initObj.hasOwnProperty('lidar')) {
         this.lidar = initObj.lidar
@@ -58,7 +57,7 @@ class sensor_data {
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type sensor_data
     // Serialize message field [imu]
-    bufferOffset = imu_data.serialize(obj.imu, buffer, bufferOffset);
+    bufferOffset = sensor_msgs.msg.Imu.serialize(obj.imu, buffer, bufferOffset);
     // Serialize message field [lidar]
     bufferOffset = sensor_msgs.msg.LaserScan.serialize(obj.lidar, buffer, bufferOffset);
     // Serialize message field [encoder]
@@ -73,7 +72,7 @@ class sensor_data {
     let len;
     let data = new sensor_data(null);
     // Deserialize message field [imu]
-    data.imu = imu_data.deserialize(buffer, bufferOffset);
+    data.imu = sensor_msgs.msg.Imu.deserialize(buffer, bufferOffset);
     // Deserialize message field [lidar]
     data.lidar = sensor_msgs.msg.LaserScan.deserialize(buffer, bufferOffset);
     // Deserialize message field [encoder]
@@ -85,7 +84,7 @@ class sensor_data {
 
   static getMessageSize(object) {
     let length = 0;
-    length += imu_data.getMessageSize(object.imu);
+    length += sensor_msgs.msg.Imu.getMessageSize(object.imu);
     length += sensor_msgs.msg.LaserScan.getMessageSize(object.lidar);
     length += geometry_msgs.msg.PoseStamped.getMessageSize(object.pose);
     return length + 8;
@@ -98,32 +97,44 @@ class sensor_data {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'd889fddaeeb05675262e5f8a70744d81';
+    return '54c9cefb94ab3d9328c75de242859749';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    imu_data imu
+    sensor_msgs/Imu imu
     sensor_msgs/LaserScan lidar
     encoders_data encoder
     geometry_msgs/PoseStamped pose
     
     ================================================================================
-    MSG: deepfind_package/imu_data
+    MSG: sensor_msgs/Imu
+    # This is a message to hold data from an IMU (Inertial Measurement Unit)
+    #
+    # Accelerations should be in m/s^2 (not in g's), and rotational velocity should be in rad/sec
+    #
+    # If the covariance of the measurement is known, it should be filled in (if all you know is the 
+    # variance of each measurement, e.g. from the datasheet, just put those along the diagonal)
+    # A covariance matrix of all zeros will be interpreted as "covariance unknown", and to use the
+    # data a covariance will have to be assumed or gotten from some other source
+    #
+    # If you have no estimate for one of the data elements (e.g. your IMU doesn't produce an orientation 
+    # estimate), please set element 0 of the associated covariance matrix to -1
+    # If you are interpreting this message, please check for a value of -1 in the first element of each 
+    # covariance matrix, and disregard the associated estimate.
+    
     Header header
-    float64 yaw
-    float64 pitch 
-    float64 roll
-    float64 acc_x
-    float64 acc_y
-    float64 acc_z
-    float64 gyr_x
-    float64 gyr_y
-    float64 gyr_z
-    float64 mag_x
-    float64 mag_y
-    float64 mag_z
+    
+    geometry_msgs/Quaternion orientation
+    float64[9] orientation_covariance # Row major about x, y, z axes
+    
+    geometry_msgs/Vector3 angular_velocity
+    float64[9] angular_velocity_covariance # Row major about x, y, z axes
+    
+    geometry_msgs/Vector3 linear_acceleration
+    float64[9] linear_acceleration_covariance # Row major x, y z 
+    
     ================================================================================
     MSG: std_msgs/Header
     # Standard metadata for higher-level stamped data types.
@@ -142,6 +153,27 @@ class sensor_data {
     # 1: global frame
     string frame_id
     
+    ================================================================================
+    MSG: geometry_msgs/Quaternion
+    # This represents an orientation in free space in quaternion form.
+    
+    float64 x
+    float64 y
+    float64 z
+    float64 w
+    
+    ================================================================================
+    MSG: geometry_msgs/Vector3
+    # This represents a vector in free space. 
+    # It is only meant to represent a direction. Therefore, it does not
+    # make sense to apply a translation to it (e.g., when applying a 
+    # generic rigid transformation to a Vector3, tf2 will only apply the
+    # rotation). If you want your data to be translatable too, use the
+    # geometry_msgs/Point message instead.
+    
+    float64 x
+    float64 y
+    float64 z
     ================================================================================
     MSG: sensor_msgs/LaserScan
     # Single scan from a planar laser range-finder
@@ -197,15 +229,6 @@ class sensor_data {
     float64 y
     float64 z
     
-    ================================================================================
-    MSG: geometry_msgs/Quaternion
-    # This represents an orientation in free space in quaternion form.
-    
-    float64 x
-    float64 y
-    float64 z
-    float64 w
-    
     `;
   }
 
@@ -216,10 +239,10 @@ class sensor_data {
     }
     const resolved = new sensor_data(null);
     if (msg.imu !== undefined) {
-      resolved.imu = imu_data.Resolve(msg.imu)
+      resolved.imu = sensor_msgs.msg.Imu.Resolve(msg.imu)
     }
     else {
-      resolved.imu = new imu_data()
+      resolved.imu = new sensor_msgs.msg.Imu()
     }
 
     if (msg.lidar !== undefined) {

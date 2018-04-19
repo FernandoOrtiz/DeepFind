@@ -10,18 +10,15 @@
 
 (in-package "ROS")
 ;;//! \htmlinclude imu_data.msg.html
-(if (not (find-package "STD_MSGS"))
-  (ros::roseus-add-msgs "std_msgs"))
 
 
 (defclass deepfind_package::imu_data
   :super ros::object
-  :slots (_header _yaw _pitch _roll _acc_x _acc_y _acc_z _gyr_x _gyr_y _gyr_z _mag_x _mag_y _mag_z ))
+  :slots (_yaw _pitch _roll _acc_x _acc_y _acc_z _gyr_x _gyr_y _gyr_z _mag_x _mag_y _mag_z ))
 
 (defmethod deepfind_package::imu_data
   (:init
    (&key
-    ((:header __header) (instance std_msgs::Header :init))
     ((:yaw __yaw) 0.0)
     ((:pitch __pitch) 0.0)
     ((:roll __roll) 0.0)
@@ -36,7 +33,6 @@
     ((:mag_z __mag_z) 0.0)
     )
    (send-super :init)
-   (setq _header __header)
    (setq _yaw (float __yaw))
    (setq _pitch (float __pitch))
    (setq _roll (float __roll))
@@ -50,13 +46,6 @@
    (setq _mag_y (float __mag_y))
    (setq _mag_z (float __mag_z))
    self)
-  (:header
-   (&rest __header)
-   (if (keywordp (car __header))
-       (send* _header __header)
-     (progn
-       (if __header (setq _header (car __header)))
-       _header)))
   (:yaw
    (&optional __yaw)
    (if __yaw (setq _yaw __yaw)) _yaw)
@@ -96,8 +85,6 @@
   (:serialization-length
    ()
    (+
-    ;; std_msgs/Header _header
-    (send _header :serialization-length)
     ;; float64 _yaw
     8
     ;; float64 _pitch
@@ -127,8 +114,6 @@
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; std_msgs/Header _header
-       (send _header :serialize s)
      ;; float64 _yaw
        (sys::poke _yaw (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
      ;; float64 _pitch
@@ -157,8 +142,6 @@
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; std_msgs/Header _header
-     (send _header :deserialize buf ptr-) (incf ptr- (send _header :serialization-length))
    ;; float64 _yaw
      (setq _yaw (sys::peek buf ptr- :double)) (incf ptr- 8)
    ;; float64 _pitch
@@ -187,11 +170,10 @@
    self)
   )
 
-(setf (get deepfind_package::imu_data :md5sum-) "5781ee5294affb6dd3e062f6edb954b1")
+(setf (get deepfind_package::imu_data :md5sum-) "df8149b69f061ec41c794db384bb53e8")
 (setf (get deepfind_package::imu_data :datatype-) "deepfind_package/imu_data")
 (setf (get deepfind_package::imu_data :definition-)
-      "Header header
-float64 yaw
+      "float64 yaw
 float64 pitch 
 float64 roll
 float64 acc_x
@@ -203,28 +185,11 @@ float64 gyr_z
 float64 mag_x
 float64 mag_y
 float64 mag_z
-================================================================================
-MSG: std_msgs/Header
-# Standard metadata for higher-level stamped data types.
-# This is generally used to communicate timestamped data 
-# in a particular coordinate frame.
-# 
-# sequence ID: consecutively increasing ID 
-uint32 seq
-#Two-integer timestamp that is expressed as:
-# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')
-# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')
-# time-handling sugar is provided by the client library
-time stamp
-#Frame this data is associated with
-# 0: no frame
-# 1: global frame
-string frame_id
 
 ")
 
 
 
-(provide :deepfind_package/imu_data "5781ee5294affb6dd3e062f6edb954b1")
+(provide :deepfind_package/imu_data "df8149b69f061ec41c794db384bb53e8")
 
 

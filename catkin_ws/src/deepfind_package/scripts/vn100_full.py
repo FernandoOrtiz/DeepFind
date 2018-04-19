@@ -5,7 +5,7 @@ from sensor_msgs.msg import Imu
 from vnpy import *
 
 
-__vn100_path = '/dev/ttyUSB1'
+__vn100_path = '/dev/ttyUSB0'
 __vn100_baud_rate = 115200
 
 
@@ -30,14 +30,10 @@ def talker():
 
 
     while not rospy.is_shutdown():
-        message.header.stamp = rospy.Time.now()
-        message.header.frame_id = 'base_link'
-        values = vn100.next_data();
-
-        qaut_values = libvncxx.ypr_degs2quat(
-        	          vec3f(values.yaw_pitch_roll.x,
-        	          values.yaw_pitch_roll.y,
-        	          values.yaw_pitch_roll.z))
+	message.header.stamp = rospy.Time.now()
+	message.header.frame_id = 'base_link'
+	values = vn100.next_data()
+	qaut_values = libvncxx.ypr_degs2quat(vec3f(values.yaw_pitch_roll.x, values.yaw_pitch_roll.y, values.yaw_pitch_roll.z))
 
 
         #if(values.yaw_pitch_roll.x < 0):

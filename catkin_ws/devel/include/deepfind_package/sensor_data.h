@@ -15,7 +15,7 @@
 #include <ros/builtin_message_traits.h>
 #include <ros/message_operations.h>
 
-#include <deepfind_package/imu_data.h>
+#include <sensor_msgs/Imu.h>
 #include <sensor_msgs/LaserScan.h>
 #include <deepfind_package/encoders_data.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -43,7 +43,7 @@ struct sensor_data_
 
 
 
-   typedef  ::deepfind_package::imu_data_<ContainerAllocator>  _imu_type;
+   typedef  ::sensor_msgs::Imu_<ContainerAllocator>  _imu_type;
   _imu_type imu;
 
    typedef  ::sensor_msgs::LaserScan_<ContainerAllocator>  _lidar_type;
@@ -133,12 +133,12 @@ struct MD5Sum< ::deepfind_package::sensor_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "d889fddaeeb05675262e5f8a70744d81";
+    return "54c9cefb94ab3d9328c75de242859749";
   }
 
   static const char* value(const ::deepfind_package::sensor_data_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xd889fddaeeb05675ULL;
-  static const uint64_t static_value2 = 0x262e5f8a70744d81ULL;
+  static const uint64_t static_value1 = 0x54c9cefb94ab3d93ULL;
+  static const uint64_t static_value2 = 0x28c75de242859749ULL;
 };
 
 template<class ContainerAllocator>
@@ -157,26 +157,38 @@ struct Definition< ::deepfind_package::sensor_data_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "imu_data imu\n\
+    return "sensor_msgs/Imu imu\n\
 sensor_msgs/LaserScan lidar\n\
 encoders_data encoder\n\
 geometry_msgs/PoseStamped pose\n\
 \n\
 ================================================================================\n\
-MSG: deepfind_package/imu_data\n\
+MSG: sensor_msgs/Imu\n\
+# This is a message to hold data from an IMU (Inertial Measurement Unit)\n\
+#\n\
+# Accelerations should be in m/s^2 (not in g's), and rotational velocity should be in rad/sec\n\
+#\n\
+# If the covariance of the measurement is known, it should be filled in (if all you know is the \n\
+# variance of each measurement, e.g. from the datasheet, just put those along the diagonal)\n\
+# A covariance matrix of all zeros will be interpreted as \"covariance unknown\", and to use the\n\
+# data a covariance will have to be assumed or gotten from some other source\n\
+#\n\
+# If you have no estimate for one of the data elements (e.g. your IMU doesn't produce an orientation \n\
+# estimate), please set element 0 of the associated covariance matrix to -1\n\
+# If you are interpreting this message, please check for a value of -1 in the first element of each \n\
+# covariance matrix, and disregard the associated estimate.\n\
+\n\
 Header header\n\
-float64 yaw\n\
-float64 pitch \n\
-float64 roll\n\
-float64 acc_x\n\
-float64 acc_y\n\
-float64 acc_z\n\
-float64 gyr_x\n\
-float64 gyr_y\n\
-float64 gyr_z\n\
-float64 mag_x\n\
-float64 mag_y\n\
-float64 mag_z\n\
+\n\
+geometry_msgs/Quaternion orientation\n\
+float64[9] orientation_covariance # Row major about x, y, z axes\n\
+\n\
+geometry_msgs/Vector3 angular_velocity\n\
+float64[9] angular_velocity_covariance # Row major about x, y, z axes\n\
+\n\
+geometry_msgs/Vector3 linear_acceleration\n\
+float64[9] linear_acceleration_covariance # Row major x, y z \n\
+\n\
 ================================================================================\n\
 MSG: std_msgs/Header\n\
 # Standard metadata for higher-level stamped data types.\n\
@@ -195,6 +207,27 @@ time stamp\n\
 # 1: global frame\n\
 string frame_id\n\
 \n\
+================================================================================\n\
+MSG: geometry_msgs/Quaternion\n\
+# This represents an orientation in free space in quaternion form.\n\
+\n\
+float64 x\n\
+float64 y\n\
+float64 z\n\
+float64 w\n\
+\n\
+================================================================================\n\
+MSG: geometry_msgs/Vector3\n\
+# This represents a vector in free space. \n\
+# It is only meant to represent a direction. Therefore, it does not\n\
+# make sense to apply a translation to it (e.g., when applying a \n\
+# generic rigid transformation to a Vector3, tf2 will only apply the\n\
+# rotation). If you want your data to be translatable too, use the\n\
+# geometry_msgs/Point message instead.\n\
+\n\
+float64 x\n\
+float64 y\n\
+float64 z\n\
 ================================================================================\n\
 MSG: sensor_msgs/LaserScan\n\
 # Single scan from a planar laser range-finder\n\
@@ -249,15 +282,6 @@ MSG: geometry_msgs/Point\n\
 float64 x\n\
 float64 y\n\
 float64 z\n\
-\n\
-================================================================================\n\
-MSG: geometry_msgs/Quaternion\n\
-# This represents an orientation in free space in quaternion form.\n\
-\n\
-float64 x\n\
-float64 y\n\
-float64 z\n\
-float64 w\n\
 ";
   }
 
@@ -300,7 +324,7 @@ struct Printer< ::deepfind_package::sensor_data_<ContainerAllocator> >
   {
     s << indent << "imu: ";
     s << std::endl;
-    Printer< ::deepfind_package::imu_data_<ContainerAllocator> >::stream(s, indent + "  ", v.imu);
+    Printer< ::sensor_msgs::Imu_<ContainerAllocator> >::stream(s, indent + "  ", v.imu);
     s << indent << "lidar: ";
     s << std::endl;
     Printer< ::sensor_msgs::LaserScan_<ContainerAllocator> >::stream(s, indent + "  ", v.lidar);

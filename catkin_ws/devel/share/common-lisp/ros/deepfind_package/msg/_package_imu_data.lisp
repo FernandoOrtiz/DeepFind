@@ -1,7 +1,5 @@
 (cl:in-package deepfind_package-msg)
-(cl:export '(HEADER-VAL
-          HEADER
-          YAW-VAL
+(cl:export '(YAW-VAL
           YAW
           PITCH-VAL
           PITCH

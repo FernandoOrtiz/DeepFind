@@ -11,7 +11,6 @@ const _deserializer = _ros_msg_utils.Deserialize;
 const _arrayDeserializer = _deserializer.Array;
 const _finder = _ros_msg_utils.Find;
 const _getByteLength = _ros_msg_utils.getByteLength;
-let std_msgs = _finder('std_msgs');
 
 //-----------------------------------------------------------
 
@@ -19,7 +18,6 @@ class imu_data {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.header = null;
       this.yaw = null;
       this.pitch = null;
       this.roll = null;
@@ -34,12 +32,6 @@ class imu_data {
       this.mag_z = null;
     }
     else {
-      if (initObj.hasOwnProperty('header')) {
-        this.header = initObj.header
-      }
-      else {
-        this.header = new std_msgs.msg.Header();
-      }
       if (initObj.hasOwnProperty('yaw')) {
         this.yaw = initObj.yaw
       }
@@ -117,8 +109,6 @@ class imu_data {
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type imu_data
-    // Serialize message field [header]
-    bufferOffset = std_msgs.msg.Header.serialize(obj.header, buffer, bufferOffset);
     // Serialize message field [yaw]
     bufferOffset = _serializer.float64(obj.yaw, buffer, bufferOffset);
     // Serialize message field [pitch]
@@ -150,8 +140,6 @@ class imu_data {
     //deserializes a message object of type imu_data
     let len;
     let data = new imu_data(null);
-    // Deserialize message field [header]
-    data.header = std_msgs.msg.Header.deserialize(buffer, bufferOffset);
     // Deserialize message field [yaw]
     data.yaw = _deserializer.float64(buffer, bufferOffset);
     // Deserialize message field [pitch]
@@ -180,9 +168,7 @@ class imu_data {
   }
 
   static getMessageSize(object) {
-    let length = 0;
-    length += std_msgs.msg.Header.getMessageSize(object.header);
-    return length + 96;
+    return 96;
   }
 
   static datatype() {
@@ -192,13 +178,12 @@ class imu_data {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '5781ee5294affb6dd3e062f6edb954b1';
+    return 'df8149b69f061ec41c794db384bb53e8';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    Header header
     float64 yaw
     float64 pitch 
     float64 roll
@@ -211,23 +196,6 @@ class imu_data {
     float64 mag_x
     float64 mag_y
     float64 mag_z
-    ================================================================================
-    MSG: std_msgs/Header
-    # Standard metadata for higher-level stamped data types.
-    # This is generally used to communicate timestamped data 
-    # in a particular coordinate frame.
-    # 
-    # sequence ID: consecutively increasing ID 
-    uint32 seq
-    #Two-integer timestamp that is expressed as:
-    # * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')
-    # * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')
-    # time-handling sugar is provided by the client library
-    time stamp
-    #Frame this data is associated with
-    # 0: no frame
-    # 1: global frame
-    string frame_id
     
     `;
   }
@@ -238,13 +206,6 @@ class imu_data {
       msg = {};
     }
     const resolved = new imu_data(null);
-    if (msg.header !== undefined) {
-      resolved.header = std_msgs.msg.Header.Resolve(msg.header)
-    }
-    else {
-      resolved.header = new std_msgs.msg.Header()
-    }
-
     if (msg.yaw !== undefined) {
       resolved.yaw = msg.yaw;
     }
