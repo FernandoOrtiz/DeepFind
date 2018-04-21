@@ -10,7 +10,7 @@ from nav_msgs.msg import Odometry
 import message_filters
 
 
-def callback(lidar, encoder, pose):
+def callback(lidar, encoder, pose, imu):
 	sensorData = sensor_data()
 	sensorData.imu = imu;
 	sensorData.lidar = lidar
