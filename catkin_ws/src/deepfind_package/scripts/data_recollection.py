@@ -16,7 +16,6 @@ def callback(lidar, encoder, pose, imu):
 	sensorData.lidar = lidar
 	sensorData.encoder = encoder
 	sensorData.pose = pose
-	print('hi')
 	dataPub.publish(sensorData)
 	
 def synch_data():
