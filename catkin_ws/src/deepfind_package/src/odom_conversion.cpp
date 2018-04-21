@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
-#include <deepfind_package/encoders_data.h>
+#include <deepfind_package/EncodersData.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 
@@ -32,7 +32,7 @@ double ticksToMeters(double ticks){
   return (ticks*3.14*WHEEL_DIAMETER);
 }
 
-void quadencCallback(const deepfind_package::encoders_data& msg){
+void quadencCallback(const deepfind_package::EncodersData& msg){
 
   currentTime = ros::Time::now();
   elapsedTime = currentTime.toSec() - lastTime.toSec();

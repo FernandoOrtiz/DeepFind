@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import *
-from deepfind_package.msg import *
+from deepfind_package.msg import EncodersData
 from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import PoseStamped
@@ -11,7 +11,7 @@ import message_filters
 
 
 def callback(lidar, encoder, pose, imu):
-	sensorData = sensor_data()
+	sensorData = SensorData()
 	sensorData.imu = imu;
 	sensorData.lidar = lidar
 	sensorData.encoder = encoder
@@ -23,7 +23,7 @@ def synch_data():
 
 	imu = message_filters.Subscriber('vn100_yaw', Imu)
 	lidar = message_filters.Subscriber('scan', LaserScan)
-	encoders = message_filters.Subscriber('encoder', encoders_data)
+	encoders = message_filters.Subscriber('encoder', EncodersData)
 	pose = message_filters.Subscriber('slam_out_pose', PoseStamped)
 	#odom = message_filters.Subscriber('odom', Odometry) 
 

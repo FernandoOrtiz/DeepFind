@@ -54,12 +54,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  encoders_data.msg
-  sensor_data.msg
-  motor_command.msg
-  imu_data.msg
+  EncodersData.msg
+  SensorData.msg
+  MotorCommand.msg
   distance_traveled.msg
-  keyboard.msg
+  Keyboard.msg
 )
 
 ## Generate services in the 'srv' folder

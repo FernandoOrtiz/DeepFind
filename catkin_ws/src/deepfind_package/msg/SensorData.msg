@@ -1,4 +1,4 @@
 sensor_msgs/Imu imu
 sensor_msgs/LaserScan lidar
-encoders_data encoder
+deepfind_package/EncodersData encoder
 geometry_msgs/PoseStamped pose

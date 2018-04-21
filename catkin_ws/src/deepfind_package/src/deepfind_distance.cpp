@@ -44,24 +44,24 @@ void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
 
      //If origin button was pressed mark current position as the new origin
      if(pressed_origin) {
-	update(origin, landmark1);
-	ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y);	
-	}
+     update(origin, landmark1);
+     ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y); 
+     }
 
      //If landmark button was pressed mark current position as a landmark
      if(pressed_landmark) {
-	update(landmark2, landmark1);
-	ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);	
-	}
+     update(landmark2, landmark1);
+     ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);   
+     }
 }
 
 void DeepFindDistance::poseCallback(const geometry_msgs::PoseStamped& curr) {
      //If first time, set initial pose
      if(initial_pose) {
-	initial_pose = false;
+     initial_pose = false;
 
-	//Set intial pose (origin) to current pose
-	update(origin, curr);
+     //Set intial pose (origin) to current pose
+     update(origin, curr);
      }
 
      //Update current pose
