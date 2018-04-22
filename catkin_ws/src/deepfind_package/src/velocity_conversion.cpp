@@ -2,22 +2,21 @@
 #include <tf/transform_broadcaster.h>
 #include <deepfind_package/EncodersData.h>
 #include <nav_msgs/Odometry.h>
-#include <geometry_msgs/Twist.h>
 
 ros::Time currentTime, lastTime;
-ros::Publisher odomPub;
+ros::Publisher vel1Pub;
 
 
-
+//constants in meters
 const double WHEEL_SEPARATION = 0.29845;
 const double WHEEL_DIAMETER = 0.13335;
+
 const double ODOM_TURN_MULTIPLIER = 1.0;
 
-//double elapsedTime = 0;
-double x = 0;
-double y = 0;
-double th = 0;
-double elapsedTime = 0;
+//double x = 0;
+//double y = 0;
+//double th = 0;
+double timeDelta = 0;
 double dl = 0, dr = 0;
 double lastCount1 = 0;
 double lastCount2 = 0;
@@ -29,79 +28,82 @@ double leftSpeed = 0;
 double rightSpeed = 0;
 
 double ticksToMeters(double ticks){
-  return (ticks*3.14*WHEEL_DIAMETER);
+  return (ticks*3.14159265359*WHEEL_DIAMETER);
 }
 
 void quadencCallback(const deepfind_package::EncodersData& msg){
 
   currentTime = ros::Time::now();
-  elapsedTime = currentTime.toSec() - lastTime.toSec();
-  lastTime = currentTime;
+  timeDelta = currentTime.toSec() - lastTime.toSec();
+  
 
   //velocity calculation
   countDifference1 = msg.leftMotor - lastCount1;
   countDifference2 = msg.rightMotor - lastCount2;
 
-  lastCount1 = msg.leftMotor;
-  lastCount2 = msg.rightMotor;
-
   distanceTraveled1 = ticksToMeters(countDifference1);
   distanceTraveled2 = ticksToMeters(countDifference2);
 
-  leftSpeed = (distanceTraveled1/elapsedTime);
-  rightSpeed = (distanceTraveled2/elapsedTime);
+  leftSpeed = (distanceTraveled1/timeDelta);
+  rightSpeed = (distanceTraveled2/timeDelta);
+
+  lastTime = currentTime;
+  lastCount1 = msg.leftMotor;
+  lastCount2 = msg.rightMotor;
  
 
-  //pose and transform
-  geometry_msgs::Quaternion odomQuat;
-  nav_msgs::Odometry odom;
-  tf::TransformBroadcaster odomBroadcaster;
-  tf::Transform odomTransform;
+  // //pose and transform
+  // geometry_msgs::Quaternion odomQuat;
+  // nav_msgs::Odometry odom;
+  // tf::TransformBroadcaster odomBroadcaster;
+  // tf::Transform odomTransform;
   
-  dl = elapsedTime * leftSpeed;
-  dr = elapsedTime * rightSpeed;
+  //dl = timeDelta * leftSpeed;
+  //dr = timeDelta * rightSpeed;
 
-  double dxy = (dl + dr) / 2;
-  double dth = (((dl - dr) / WHEEL_SEPARATION)) * ODOM_TURN_MULTIPLIER;
+  double dxy = (distanceTraveled1 + distanceTraveled2) / 2;
+  double dth = (((distanceTraveled1 - distanceTraveled2) / WHEEL_SEPARATION)) * ODOM_TURN_MULTIPLIER;
 
-  x += dxy * cosf(th);
-  y += dxy * sinf(th);
+  // x += dxy * cosf(th);
+  // y += dxy * sinf(th);
 
-  th += dth;
+  // th += dth;
 
-  double v = dxy/elapsedTime;
-  double w = dth/elapsedTime;
+  double v = dxy/timeDelta;
+  double w = dth/timeDelta;
 
-  odomQuat = tf::createQuaternionMsgFromRollPitchYaw(0,0,th);
-  tf::Quaternion q;
-  q.setRPY(0,0,th);
+  // odomQuat = tf::createQuaternionMsgFromRollPitchYaw(0,0,th);
+  // tf::Quaternion q;
+  // q.setRPY(0,0,th);
   
-  double lm = msg.leftMotor; 
-  printf("%f   %f   %f     %f\n", lastCount1, lm, distanceTraveled1, leftSpeed); 
+  // double lm = msg.leftMotor; 
+  printf("%f   %f   %f     %f\n", v, w, timeDelta, distanceTraveled1); 
    
-  odomTransform.setOrigin(tf::Vector3(x,y,0.0));
-  //odomTransform.transform.translation.x = x;
-  //odomTransform.transform.translation.y = y;
-  //odomTransform.transform.translation.z = 0;
-  odomTransform.setRotation(q);
+  // odomTransform.setOrigin(tf::Vector3(x,y,0.0));
+  // //odomTransform.transform.translation.x = x;
+  // //odomTransform.transform.translation.y = y;
+  // //odomTransform.transform.translation.z = 0;
+  // odomTransform.setRotation(q);
 
-  //position ****Tal vez se puede sacar del mapa
-  odom.pose.pose.position.x = x;
-  odom.pose.pose.position.y = y;
-  odom.pose.pose.position.z = 0.0;
-  odom.pose.pose.orientation = odomQuat;
+  // //position ****Tal vez se puede sacar del mapa
+  // odom.pose.pose.position.x = x;
+  // odom.pose.pose.position.y = y;
+  // odom.pose.pose.position.z = 0.0;
+  // odom.pose.pose.orientation = odomQuat;
 
-  //velocity
-  odom.twist.twist.linear.x = v;
-  odom.twist.twist.linear.y = 0.0;
-  odom.twist.twist.linear.z = 0.0;
-  odom.twist.twist.angular.x = 0.0;
-  odom.twist.twist.angular.y = 0.0;
-  odom.twist.twist.angular.z = w;
+  // //velocity
+  // odom.twist.twist.linear.x = v;
+  // odom.twist.twist.linear.y = 0.0;
+  // odom.twist.twist.linear.z = 0.0;
+  // odom.twist.twist.angular.x = 0.0;
+  // odom.twist.twist.angular.y = 0.0;
+  // odom.twist.twist.angular.z = w;
+
+
 
   //publish
-  odomBroadcaster.sendTransform(tf::StampedTransform(odomTransform, ros::Time::now(), "map", "odometry"));
-  odomPub.publish(odom);
+  //odomBroadcaster.sendTransform(tf::StampedTransform(odomTransform, ros::Time::now(), "map", "odometry"));
+  //velPub.publish(vel);
 
 
 }
@@ -109,10 +111,10 @@ void quadencCallback(const deepfind_package::EncodersData& msg){
 
 int main(int argc, char **argv){
 
-  ros::init(argc, argv, "odometry_publisher");
+  ros::init(argc, argv, "velocity_publisher");
   ros::NodeHandle nh; 
 
-  odomPub = nh.advertise<nav_msgs::Odometry>("/odom", 50);
+  //odomPub = nh.advertise<nav_msgs::Odometry>("/vel", 50);
 
   ros::Subscriber encoderSub = nh.subscribe("/encoder", 1000, quadencCallback);
 
