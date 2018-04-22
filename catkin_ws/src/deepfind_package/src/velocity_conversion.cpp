@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <deepfind_package/EncodersData.h>
+#include <deepfind_package/Velocity.h>
 #include <nav_msgs/Odometry.h>
 
 ros::Time currentTime, lastTime;
@@ -103,7 +104,13 @@ void quadencCallback(const deepfind_package::EncodersData& msg){
 
   //publish
   //odomBroadcaster.sendTransform(tf::StampedTransform(odomTransform, ros::Time::now(), "map", "odometry"));
-  //velPub.publish(vel);
+
+  deepfind_package::Velocity vel;
+  vel.header.stamp = ros::Time::now();
+  vel.linearX = v;
+  vel.angularZ = w;
+  
+  velPub.publish(vel);
 
 
 }
@@ -114,7 +121,7 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "velocity_publisher");
   ros::NodeHandle nh; 
 
-  //odomPub = nh.advertise<nav_msgs::Odometry>("/vel", 50);
+  velPub = nh.advertise<deepfind_package::Velocity>("/vel", 50);
 
   ros::Subscriber encoderSub = nh.subscribe("/encoder", 1000, quadencCallback);
 
