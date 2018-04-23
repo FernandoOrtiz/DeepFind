@@ -9,7 +9,6 @@ class DeepFindDistance {
 
    void keyCallback(const deepfind_package::keyboard& message);
    void poseCallback(const geometry_msgs::PoseStamped& curr);
-   static void timerCallback(const ros::TimerEvent& timer);
 
    void update(geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2);
    double calculateDistance();
@@ -19,9 +18,9 @@ class DeepFindDistance {
    geometry_msgs::PoseStamped landmark2;
    geometry_msgs::PoseStamped origin;
 
-   bool initialPose;	
-   double distanceOrigin;
-   double distanceTraveled;
+   bool initialPose;
+   double absoluteDistOrigin;   //Absolute distance from origin	
+   double absoluteDistLandmark; //Absolute distance from previous landmark
 
    ros::NodeHandle node;
 
@@ -32,7 +31,4 @@ class DeepFindDistance {
    //Publishers
    deepfind_package::distance_traveled deepfindDistance;
    ros::Publisher distancePublisher;
-
-   //Parameters
-   double stillTime;
 };

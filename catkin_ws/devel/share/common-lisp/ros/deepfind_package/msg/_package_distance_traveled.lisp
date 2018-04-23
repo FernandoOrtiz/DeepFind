@@ -1,6 +1,6 @@
 (cl:in-package deepfind_package-msg)
-(cl:export '(DISTANCE_ORIGIN-VAL
-          DISTANCE_ORIGIN
-          DISTANCE_TRAVELED-VAL
-          DISTANCE_TRAVELED
+(cl:export '(ABSOLUTE_ORIGIN-VAL
+          ABSOLUTE_ORIGIN
+          ABSOLUTE_LANDMARK-VAL
+          ABSOLUTE_LANDMARK
 ))

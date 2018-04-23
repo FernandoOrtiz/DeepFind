@@ -11,6 +11,6 @@ local_costmap:
   transform_tolerance: 0.5
 
   plugins:
-    - {name: static_map,             type: "costmap_2d::StaticLayer"}
+#    - {name: static_map,             type: "costmap_2d::StaticLayer"}
     - {name: obstacle_layer,         type: "costmap_2d::ObstacleLayer",     observation_sources: scan}
     - {name: inflation_layer,        type: "costmap_2d::InflationLayer"}

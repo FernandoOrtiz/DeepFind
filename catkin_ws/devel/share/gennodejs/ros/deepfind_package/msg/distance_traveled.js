@@ -18,31 +18,31 @@ class distance_traveled {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.distance_origin = null;
-      this.distance_traveled = null;
+      this.absolute_origin = null;
+      this.absolute_landmark = null;
     }
     else {
-      if (initObj.hasOwnProperty('distance_origin')) {
-        this.distance_origin = initObj.distance_origin
+      if (initObj.hasOwnProperty('absolute_origin')) {
+        this.absolute_origin = initObj.absolute_origin
       }
       else {
-        this.distance_origin = 0.0;
+        this.absolute_origin = 0.0;
       }
-      if (initObj.hasOwnProperty('distance_traveled')) {
-        this.distance_traveled = initObj.distance_traveled
+      if (initObj.hasOwnProperty('absolute_landmark')) {
+        this.absolute_landmark = initObj.absolute_landmark
       }
       else {
-        this.distance_traveled = 0.0;
+        this.absolute_landmark = 0.0;
       }
     }
   }
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type distance_traveled
-    // Serialize message field [distance_origin]
-    bufferOffset = _serializer.float64(obj.distance_origin, buffer, bufferOffset);
-    // Serialize message field [distance_traveled]
-    bufferOffset = _serializer.float64(obj.distance_traveled, buffer, bufferOffset);
+    // Serialize message field [absolute_origin]
+    bufferOffset = _serializer.float64(obj.absolute_origin, buffer, bufferOffset);
+    // Serialize message field [absolute_landmark]
+    bufferOffset = _serializer.float64(obj.absolute_landmark, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -50,10 +50,10 @@ class distance_traveled {
     //deserializes a message object of type distance_traveled
     let len;
     let data = new distance_traveled(null);
-    // Deserialize message field [distance_origin]
-    data.distance_origin = _deserializer.float64(buffer, bufferOffset);
-    // Deserialize message field [distance_traveled]
-    data.distance_traveled = _deserializer.float64(buffer, bufferOffset);
+    // Deserialize message field [absolute_origin]
+    data.absolute_origin = _deserializer.float64(buffer, bufferOffset);
+    // Deserialize message field [absolute_landmark]
+    data.absolute_landmark = _deserializer.float64(buffer, bufferOffset);
     return data;
   }
 
@@ -68,14 +68,14 @@ class distance_traveled {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'a9e63f456f9ece12564e3132719b476c';
+    return '2090cb8db4678ff5744ff25e1aeb8f66';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    float64 distance_origin
-    float64 distance_traveled
+    float64 absolute_origin
+    float64 absolute_landmark
     
     `;
   }
@@ -86,18 +86,18 @@ class distance_traveled {
       msg = {};
     }
     const resolved = new distance_traveled(null);
-    if (msg.distance_origin !== undefined) {
-      resolved.distance_origin = msg.distance_origin;
+    if (msg.absolute_origin !== undefined) {
+      resolved.absolute_origin = msg.absolute_origin;
     }
     else {
-      resolved.distance_origin = 0.0
+      resolved.absolute_origin = 0.0
     }
 
-    if (msg.distance_traveled !== undefined) {
-      resolved.distance_traveled = msg.distance_traveled;
+    if (msg.absolute_landmark !== undefined) {
+      resolved.absolute_landmark = msg.absolute_landmark;
     }
     else {
-      resolved.distance_traveled = 0.0
+      resolved.absolute_landmark = 0.0
     }
 
     return resolved;

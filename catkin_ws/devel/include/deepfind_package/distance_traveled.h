@@ -24,22 +24,22 @@ struct distance_traveled_
   typedef distance_traveled_<ContainerAllocator> Type;
 
   distance_traveled_()
-    : distance_origin(0.0)
-    , distance_traveled(0.0)  {
+    : absolute_origin(0.0)
+    , absolute_landmark(0.0)  {
     }
   distance_traveled_(const ContainerAllocator& _alloc)
-    : distance_origin(0.0)
-    , distance_traveled(0.0)  {
+    : absolute_origin(0.0)
+    , absolute_landmark(0.0)  {
   (void)_alloc;
     }
 
 
 
-   typedef double _distance_origin_type;
-  _distance_origin_type distance_origin;
+   typedef double _absolute_origin_type;
+  _absolute_origin_type absolute_origin;
 
-   typedef double _distance_traveled_type;
-  _distance_traveled_type distance_traveled;
+   typedef double _absolute_landmark_type;
+  _absolute_landmark_type absolute_landmark;
 
 
 
@@ -119,12 +119,12 @@ struct MD5Sum< ::deepfind_package::distance_traveled_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "a9e63f456f9ece12564e3132719b476c";
+    return "2090cb8db4678ff5744ff25e1aeb8f66";
   }
 
   static const char* value(const ::deepfind_package::distance_traveled_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xa9e63f456f9ece12ULL;
-  static const uint64_t static_value2 = 0x564e3132719b476cULL;
+  static const uint64_t static_value1 = 0x2090cb8db4678ff5ULL;
+  static const uint64_t static_value2 = 0x744ff25e1aeb8f66ULL;
 };
 
 template<class ContainerAllocator>
@@ -143,8 +143,8 @@ struct Definition< ::deepfind_package::distance_traveled_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float64 distance_origin\n\
-float64 distance_traveled\n\
+    return "float64 absolute_origin\n\
+float64 absolute_landmark\n\
 ";
   }
 
@@ -163,8 +163,8 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.distance_origin);
-      stream.next(m.distance_traveled);
+      stream.next(m.absolute_origin);
+      stream.next(m.absolute_landmark);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -183,10 +183,10 @@ struct Printer< ::deepfind_package::distance_traveled_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::deepfind_package::distance_traveled_<ContainerAllocator>& v)
   {
-    s << indent << "distance_origin: ";
-    Printer<double>::stream(s, indent + "  ", v.distance_origin);
-    s << indent << "distance_traveled: ";
-    Printer<double>::stream(s, indent + "  ", v.distance_traveled);
+    s << indent << "absolute_origin: ";
+    Printer<double>::stream(s, indent + "  ", v.absolute_origin);
+    s << indent << "absolute_landmark: ";
+    Printer<double>::stream(s, indent + "  ", v.absolute_landmark);
   }
 };
 

@@ -1,2 +1,2 @@
-float64 distance_origin
-float64 distance_traveled
+float64 absolute_origin
+float64 absolute_landmark

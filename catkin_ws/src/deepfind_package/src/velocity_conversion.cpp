@@ -5,7 +5,7 @@
 #include <nav_msgs/Odometry.h>
 
 ros::Time currentTime, lastTime;
-ros::Publisher vel1Pub;
+ros::Publisher velPub;
 
 
 //constants in meters
