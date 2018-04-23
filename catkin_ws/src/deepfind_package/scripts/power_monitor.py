@@ -17,15 +17,19 @@ def get_input_power():
 		line = next(i)
 	voltage = int(line[0]+line[1])
 	voltageDecimal = int(line[3])
-	if voltage <= 11 and voltageDecimal <= 5:
+	print("Voltage = " + str( voltage) + "." + str(voltageDecimal))
+	if voltage <= 11 and voltageDecimal < 6 and enable == 1:
+		print('hi')
 		#todo: save data
-		os.system("rosnode kill -a")
-		os.system("shutdown now")		
+		#os.system("rosnode kill -a")
+		os.system("sudo shutdown -h now")		
     
 
 if __name__ == '__main__':
 	rospy.init_node('power_monitor')
+	enable = 0
 	while(1):
 		get_input_power()
-		time.sleep(10)
+		enable = 1
+		time.sleep(5)
 
