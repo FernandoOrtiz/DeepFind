@@ -136,6 +136,6 @@ void doEncoder2() {
    
    nh.spinOnce();
    //delay(1);
-   delay(20);
+   delay(3);
    
  }

@@ -59,6 +59,7 @@ add_message_files(
   MotorCommand.msg
   distance_traveled.msg
   Keyboard.msg
+  Velocity.msg
 )
 
 ## Generate services in the 'srv' folder

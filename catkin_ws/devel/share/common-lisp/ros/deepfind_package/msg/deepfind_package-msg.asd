@@ -4,6 +4,7 @@
 (defsystem "deepfind_package-msg"
   :depends-on (:roslisp-msg-protocol :roslisp-utils :geometry_msgs-msg
                :sensor_msgs-msg
+               :std_msgs-msg
 )
   :components ((:file "_package")
     (:file "EncodersData" :depends-on ("_package_EncodersData"))
@@ -14,6 +15,8 @@
     (:file "_package_MotorCommand" :depends-on ("_package"))
     (:file "SensorData" :depends-on ("_package_SensorData"))
     (:file "_package_SensorData" :depends-on ("_package"))
+    (:file "Velocity" :depends-on ("_package_Velocity"))
+    (:file "_package_Velocity" :depends-on ("_package"))
     (:file "distance_traveled" :depends-on ("_package_distance_traveled"))
     (:file "_package_distance_traveled" :depends-on ("_package"))
   ))

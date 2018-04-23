@@ -15,27 +15,22 @@ int main(int argc, char* argv[]) {
      return 0;
 }
 
-void DeepFindDistance::timerCallback(const ros::TimerEvent&) {
-     //ROS_INFO("Timer");
-     int a = 0;
-}
-
 DeepFindDistance::DeepFindDistance () {
      ros::NodeHandle private_nh_("~");
 
-     private_nh_.param("still_time", still_time_, 3.0);
+     private_nh_.param("still_time", stillTime, 3.0);
 
      //Subcribers setup
-     keySubscriber_ = node_.subscribe("key", 1000, &DeepFindDistance::keyCallback, this);
-     poseSubscriber_ = node_.subscribe("slam_out_pose", 1000, &DeepFindDistance::poseCallback, this);
-     //ros::Timer timer1 = node_.createTimer(ros::Duration(still_time_), timerCallback);
+     keySubscriber = node.subscribe("key", 1000, &DeepFindDistance::keyCallback, this);
+     poseSubscriber = node.subscribe("slam_out_pose", 1000, &DeepFindDistance::poseCallback, this);
+     ros::Timer timer1 = node.createTimer(ros::Duration(1.0), timerCallback);
 
      //Publisher setup
-     distancePublisher_ = node_.advertise<deepfind_package::distance_traveled>("distance_traveled", 1000);
+     distancePublisher = node.advertise<deepfind_package::distance_traveled>("distance_traveled", 1000);
 
-     initial_pose = true;
+     initialPose = true;
 
-     ROS_INFO("DeepFindDistance still_time: %lf", still_time_);
+     ROS_INFO("DeepFindDistance still_time: %lf", stillTime);
 }
 
 void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
@@ -44,24 +39,24 @@ void DeepFindDistance::keyCallback(const deepfind_package::keyboard& key) {
 
      //If origin button was pressed mark current position as the new origin
      if(pressed_origin) {
-     update(origin, landmark1);
-     ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y); 
+     	update(origin, landmark1);
+     	ROS_INFO("DeepFindDistance origin set to [%.3f, %.3f]", origin.pose.position.x, origin.pose.position.y); 
      }
 
      //If landmark button was pressed mark current position as a landmark
      if(pressed_landmark) {
-     update(landmark2, landmark1);
-     ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);   
+     	update(landmark2, landmark1);
+     	ROS_INFO("DeepFindDistance landmark set to [%.3f, %.3f]", landmark2.pose.position.x, landmark2.pose.position.y);   
      }
 }
 
 void DeepFindDistance::poseCallback(const geometry_msgs::PoseStamped& curr) {
      //If first time, set initial pose
-     if(initial_pose) {
-     initial_pose = false;
+     if(initialPose) {
+     	initialPose = false;
 
-     //Set intial pose (origin) to current pose
-     update(origin, curr);
+     	//Set intial pose (origin) to current pose
+     	update(origin, curr);
      }
 
      //Update current pose
@@ -71,11 +66,16 @@ void DeepFindDistance::poseCallback(const geometry_msgs::PoseStamped& curr) {
      calculateDistance();
 
      //Update distances values
-     deepfind_distance.distance_origin = distanceOrigin;
-     deepfind_distance.distance_traveled = distanceTraveled;
+     deepfindDistance.distance_origin = distanceOrigin;
+     deepfindDistance.distance_traveled = distanceTraveled;
 
      //Publish distances to topic
-     distancePublisher_.publish(deepfind_distance);
+     distancePublisher.publish(deepfindDistance);
+}
+
+void DeepFindDistance::timerCallback(const ros::TimerEvent&) {
+     ROS_INFO("Timer");
+     int a = 0;
 }
 
 void DeepFindDistance::update(geometry_msgs::PoseStamped& msg1, const geometry_msgs::PoseStamped& msg2) {
