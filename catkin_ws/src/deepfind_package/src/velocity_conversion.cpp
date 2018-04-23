@@ -28,7 +28,7 @@ double leftSpeed = 0;
 double rightSpeed = 0;
 
 double ticksToMeters(double ticks){
-  return (ticks*3.14159265359*WHEEL_DIAMETER);
+  return ((ticks/360)*(3.14159265359*WHEEL_DIAMETER));
 }
 
 void quadencCallback(const deepfind_package::EncodersData& msg){
@@ -61,7 +61,7 @@ void quadencCallback(const deepfind_package::EncodersData& msg){
   //dl = timeDelta * leftSpeed;
   //dr = timeDelta * rightSpeed;
 
-  double dxy = (distanceTraveled1 + distanceTraveled2) / 2;
+  double dxy = (distanceTraveled2 + distanceTraveled2) / 2;
   double dth = (((distanceTraveled1 - distanceTraveled2) / WHEEL_SEPARATION)) * ODOM_TURN_MULTIPLIER;
 
   // x += dxy * cosf(th);
@@ -77,7 +77,7 @@ void quadencCallback(const deepfind_package::EncodersData& msg){
   // q.setRPY(0,0,th);
   
   // double lm = msg.leftMotor; 
-  printf("%f   %f   %f     %f\n", v, w, timeDelta, distanceTraveled1); 
+  printf("%f   %f    %f    %f\n",rightSpeed, distanceTraveled2, countDifference2, timeDelta); 
    
   // odomTransform.setOrigin(tf::Vector3(x,y,0.0));
   // //odomTransform.transform.translation.x = x;
