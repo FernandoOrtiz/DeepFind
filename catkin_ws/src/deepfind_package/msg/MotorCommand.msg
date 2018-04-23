@@ -1,0 +1,4 @@
+int32 leftMotorPower
+int32 rightMotorPower
+int32 leftMotorDirection
+int32 rightMotorDirection

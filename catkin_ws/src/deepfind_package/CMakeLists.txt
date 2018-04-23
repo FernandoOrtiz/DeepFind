@@ -54,12 +54,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  encoders_data.msg
-  sensor_data.msg
-  motor_command.msg
-  imu_data.msg
+  EncodersData.msg
+  SensorData.msg
+  MotorCommand.msg
   distance_traveled.msg
-  keyboard.msg
+  Keyboard.msg
+  Velocity.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -145,7 +145,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(odom_conversion src/odom_conversion.cpp)
+ add_executable(velocity_conversion src/velocity_conversion.cpp)
  add_executable(deepfind_distance src/deepfind_distance.cpp)
  #add_executable(main src/main.cpp)
 
@@ -157,12 +157,12 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
- add_dependencies(odom_conversion deepfind_package_gencpp)
+ add_dependencies(velocity_conversion deepfind_package_gencpp)
  add_dependencies(deepfind_distance deepfind_package_gencpp)
  #add_dependencies(main deepfind_package_gencpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(odom_conversion ${catkin_LIBRARIES})
+ target_link_libraries(velocity_conversion ${catkin_LIBRARIES})
  target_link_libraries(deepfind_distance ${catkin_LIBRARIES})
  #target_link_libraries(main ${catkin_LIBRARIES})
 

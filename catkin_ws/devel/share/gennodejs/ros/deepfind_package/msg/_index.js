@@ -1,18 +1,18 @@
 
 "use strict";
 
-let keyboard = require('./keyboard.js');
-let motor_command = require('./motor_command.js');
-let encoders_data = require('./encoders_data.js');
-let sensor_data = require('./sensor_data.js');
-let imu_data = require('./imu_data.js');
+let MotorCommand = require('./MotorCommand.js');
+let Keyboard = require('./Keyboard.js');
+let Velocity = require('./Velocity.js');
+let EncodersData = require('./EncodersData.js');
+let SensorData = require('./SensorData.js');
 let distance_traveled = require('./distance_traveled.js');
 
 module.exports = {
-  keyboard: keyboard,
-  motor_command: motor_command,
-  encoders_data: encoders_data,
-  sensor_data: sensor_data,
-  imu_data: imu_data,
+  MotorCommand: MotorCommand,
+  Keyboard: Keyboard,
+  Velocity: Velocity,
+  EncodersData: EncodersData,
+  SensorData: SensorData,
   distance_traveled: distance_traveled,
 };
