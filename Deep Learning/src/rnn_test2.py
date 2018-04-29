@@ -23,7 +23,7 @@ from keras.optimizers import Adam
 
 #The amount of time-steps the LSTM will look back at
 step = 20
-val_dat = 0.15
+val_dat = 1
 
 def setup_data(time_step):
     global X
@@ -67,10 +67,10 @@ setup_data(step)
 network = Sequential()
 network.add(LSTM(units = 30, return_sequences = True, input_shape = (X.shape[1], X.shape[2]),dropout= 0,recurrent_dropout=0))
 #network.add(Dropout(0.2))
-#network.add(Dense(units = 10, activation = 'tanh'))
+#network.add(Dense(units = 30, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True,dropout= 0.2,recurrent_dropout=0.2))
+#network.add(LSTM(units = 30, return_sequences = True,dropout= 0,recurrent_dropout=0))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
@@ -96,34 +96,35 @@ network.add(Dense(units = 2, activation = 'tanh'))
 
 #Validate the neural net
 network.compile(optimizer = Adam(lr=0.002), loss='logcosh', metrics=['accuracy'])
-call_back = TensorBoard(log_dir='../',write_graph=True)
-history = network.fit(X, Y, validation_split=val_dat, epochs=150, batch_size = 64, callbacks = call_back) 
+#call_back = TensorBoard(log_dir='../',write_graph=True)
+history = network.fit(X, Y, validation_split=1, epochs=50, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
 #print(history.history['val_loss'])
 #print(history.history['val_acc'])
-
+scores = network.evaluate(X,Y)
+print("\n%s: %.2f%%" %(network.metrics_names[1],scores[1]*100))
 #%%Evaluate the model
 
 #Plot this data
 
-pyplot.plot(history.history['loss'])
-pyplot.plot(history.history['val_loss'])
-pyplot.title('model train vs validation loss')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
-
-pyplot.plot(history.history['acc'])
-pyplot.plot(history.history['val_acc'])
-pyplot.title('model train vs validation acc')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
-
-max(history.history['val_acc'])
+#pyplot.plot(history.history['loss'])
+#pyplot.plot(history.history['val_loss'])
+#pyplot.title('model train vs validation loss')
+#pyplot.ylabel('loss')
+#pyplot.xlabel('epoch')
+#pyplot.legend(['train', 'validation'], loc='upper right')
+#pyplot.show()
+#
+#pyplot.plot(history.history['acc'])
+#pyplot.plot(history.history['val_acc'])
+#pyplot.title('model train vs validation acc')
+#pyplot.ylabel('loss')
+#pyplot.xlabel('epoch')
+#pyplot.legend(['train', 'validation'], loc='upper right')
+#pyplot.show()
+#
+#max(history.history['val_acc'])
 
 
 #regresor = load_model('2LSTM-3ANN-100weights.81-0.8876.hdf5')
