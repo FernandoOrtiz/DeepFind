@@ -97,7 +97,7 @@ network.add(Dense(units = 2, activation = 'tanh'))
 #Validate the neural net
 network.compile(optimizer = Adam(lr=0.002), loss='logcosh', metrics=['accuracy'])
 #call_back = TensorBoard(log_dir='../',write_graph=True)
-history = network.fit(X, Y, validation_split=1, epochs=50, batch_size = 64) 
+history = network.fit(X, Y, validation_split=val_dat, epochs=50, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
 #print(history.history['val_loss'])
