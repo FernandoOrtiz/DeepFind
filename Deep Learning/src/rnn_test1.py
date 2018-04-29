@@ -35,6 +35,36 @@ def setup_data(time_step):
     #test_dataset = pd.read_csv("../Datasets/Test_Data - Copy3.csv")
     #Merge both test and train to obtain initial values
     #dataset_total = pd.concat((train_dataset, test_dataset), axis = 0)
+    dataset_total = pd.read_csv("../Datasets/60MinuteRun-M1.csv")
+    dataset_total = dataset_total.as_matrix()
+    #Reshappe the inpputt so it fits the neural network
+    X = []
+    for i in range(1, time_step):
+        X.append(np.concatenate((np.zeros((time_step-i, dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), axis = 0))
+    
+    
+    for i in range(time_step-1, int(dataset_total.size/dataset_total.shape[1])):
+        X.append(dataset_total[i-time_step+1 : i+1 , 2:])
+    X = np.array(X)
+    
+    
+    #Extract the output of the neural network
+    #y = dataset_total.iloc[time_step-1:,0:2]
+    Y = dataset_total[0:,0:2]
+    #Feature Scaling
+    sc = MinMaxScaler(feature_range = (-1,1))
+    Y = sc.fit_transform(Y)
+
+def setup_Val_data(time_step):
+    global X
+    global Y
+    global sc
+    #Import the training set
+    #train_dataset = pd.read_csv("../Datasets/Training_Data - Copy2.csv")
+    #Obtain the test Data
+    #test_dataset = pd.read_csv("../Datasets/Test_Data - Copy3.csv")
+    #Merge both test and train to obtain initial values
+    #dataset_total = pd.concat((train_dataset, test_dataset), axis = 0)
     dataset_total = pd.read_csv("../Datasets/30MinuteRun-M1.csv")
     dataset_total = dataset_total.as_matrix()
     #Reshappe the inpputt so it fits the neural network
@@ -97,11 +127,13 @@ network.add(Dense(units = 2, activation = 'tanh'))
 #Validate the neural net
 network.compile(optimizer = Adam(lr=0.002), loss='logcosh', metrics=['accuracy'])
 #call_back = TensorBoard(log_dir='../',write_graph=True)
-history = network.fit(X, Y, validation_split=val_dat, epochs=50, batch_size = 64) 
+history = network.fit(X, Y, validation_split=val_dat, epochs=150, batch_size = 64) 
 #print(history.history['loss'])
 #print(history.history['acc'])
 #print(history.history['val_loss'])
 #print(history.history['val_acc'])
+
+setup_Val_data(step)
 scores = network.evaluate(X,Y)
 print("\n%s: %.2f%%" %(network.metrics_names[1],scores[1]*100))
 #%%Evaluate the model
