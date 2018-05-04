@@ -25,7 +25,7 @@ def sensor_data_callback(data):
     global deep_model
     global pose_pub
     
-    rnn_model_input = np.roll(rnn_model_input, 1, axis=0)
+    rnn_model_input = np.roll(rnn_model_input, 1, axis=1)
     if(input_format == "M2"):
         np.put(rnn_model_input,0,
            [data.imu.orientation.x, data.imu.orientation.y, 
@@ -38,8 +38,9 @@ def sensor_data_callback(data):
     else:
         raise TypeError('no valid format for data found')
         
-    magnitud, angle = deep_model.predict(rnn_model_input)
-    
+    output = deep_model.predict(x=rnn_model_input)
+    magnitud = output[0][0]
+    angle = output[0][1]
     
     message = PoseStamped()
     message.header.stamp = rospy.Time.now()
@@ -47,6 +48,7 @@ def sensor_data_callback(data):
     message.orientation = data.orientation
     message.position.x = cos(angle)*magnitud
     message.position.y = sin(angle)*magnitud
+    print("Callback succesful")
     pose_pub.Publish(message)
 
 def main():
@@ -58,19 +60,20 @@ def main():
     
     model = "Big_Data_LSTM-no-out-dense-lstm-regularizer.h5py"
     #Import the deep learning model
-    deep_model = load_model("../Model"+model)
+    deep_model = load_model("../Models/"+model)
     #initialize the amount of timesteps
     time_steps = deep_model.input_shape[1]
     features = deep_model.input_shape[2]
     input_format = "M2"
     
-    rnn_model_input = np.zeros(time_steps, features)
+    rnn_model_input = np.zeros((1, time_steps, features))
     index = 0
     
     
     pose_pub = rospy.Publisher("neural_pose", PoseStamped)
     data_sub = rospy.Subscriber("sensor_data", SensorData, sensor_data_callback)
-    rospy.init_node("Neural Network")
+    rospy.init_node("neural_network")
+    print("Initialized")
     rospy.spin()
     
 
