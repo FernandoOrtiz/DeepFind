@@ -11,7 +11,7 @@ import rospy
 from math import cos, sin
 
 from geometry_msgs.msg import PoseStamped
-from rumarino_package.msg import SensorData
+from deepfind_package.msg import SensorData
 
 import numpy as np
 from keras.models import load_model
@@ -33,7 +33,7 @@ def sensor_data_callback(data):
             data.imu.angular_velocity.x, data.imu.angular_velocity.y,
             data.imu.angular_velocity.z, data.imu.linear_acceleration.x,
             data.imu.linear_acceleration.y, data.imu.linear_acceleration.z,
-            data.pose.orientation.z, data.pose.orientation.w, 
+            data.pose.pose.orientation.z, data.pose.pose.orientation.w, 
             data.lidar.ranges], mode = 'raise')
     else:
         raise TypeError('no valid format for data found')
