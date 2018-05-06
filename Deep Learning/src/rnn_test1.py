@@ -89,6 +89,7 @@ def setup_Val_data(time_step):
     
     scaler = StandardScaler(copy=True, with_mean=True, with_std=True )
     dataset_total = scaler.fit_transform(dataset_total)
+    
     #Reshappe the inpputt so it fits the neural network
     X = []
     for i in range(1, time_step):
@@ -98,11 +99,12 @@ def setup_Val_data(time_step):
     for i in range(time_step-1, int(dataset_total.size/dataset_total.shape[1])):
         X.append(dataset_total[i-time_step+1 : i+1 , 2:])
     X = np.array(X)
-   
+    
     
     #Extract the output of the neural network
     #y = dataset_total.iloc[time_step-1:,0:2]
     Y = dataset_total[0:,0:2]
+    to_polar(Y)
     #Feature Scaling
     sc = MinMaxScaler(feature_range = (-1,1))
     Y = sc.fit_transform(Y)
