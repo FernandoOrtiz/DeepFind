@@ -18,12 +18,13 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
 from keras.optimizers import Adam
+from keras import regularizers
 
 
 
 #The amount of time-steps the LSTM will look back at
 step = 20
-val_dat = 1
+val_dat = 0.3
 
 def setup_data(time_step):
     global X
@@ -95,37 +96,37 @@ setup_data(step)
 #Initialization and Creation of the RNN
 
 network = Sequential()
-network.add(LSTM(units = 30, return_sequences = True, input_shape = (X.shape[1], X.shape[2]),dropout= 0,recurrent_dropout=0))
+network.add(LSTM(units = 80, return_sequences = True, input_shape = (X.shape[1], X.shape[2]),dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 30, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 30, return_sequences = True,dropout= 0,recurrent_dropout=0))
+#network.add(LSTM(units = 40, return_sequences = True,dropout= 0.02,recurrent_dropout=0.02, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a second LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True,dropout= 0.2,recurrent_dropout=0.2))
+#network.add(LSTM(units = 40, return_sequences = True,dropout= 0.02,recurrent_dropout=0.02, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a third LSTM layer and some Dropout regularisation
-#network.add(LSTM(units = 20, return_sequences = True,dropout= 0.2,recurrent_dropout=0.2))
+#network.add(LSTM(units = 40, return_sequences = True,dropout= 0.02,recurrent_dropout=0.02, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 30,dropout= 0,recurrent_dropout=0))
+network.add(LSTM(units = 80,dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 
 #network.add(Dense(units = 10, activation = 'tanh'))
 
 # Adding the output layer
-network.add(Dense(units = 2, activation = 'tanh'))
+network.add(Dense(units = 2, activation = 'linear',kernel_regularizer = regularizers.l2(0.000001)))
 
 
 #Validate the neural net
-network.compile(optimizer = Adam(lr=0.002), loss='logcosh', metrics=['accuracy'])
+network.compile(optimizer = Adam(lr=0.0015), loss='logcosh', metrics=['accuracy','mae'])
 #call_back = TensorBoard(log_dir='../',write_graph=True)
 history = network.fit(X, Y, validation_split=val_dat, epochs=150, batch_size = 64) 
 #print(history.history['loss'])
@@ -140,23 +141,23 @@ print("\n%s: %.2f%%" %(network.metrics_names[1],scores[1]*100))
 
 #Plot this data
 
-#pyplot.plot(history.history['loss'])
-#pyplot.plot(history.history['val_loss'])
-#pyplot.title('model train vs validation loss')
-#pyplot.ylabel('loss')
-#pyplot.xlabel('epoch')
-#pyplot.legend(['train', 'validation'], loc='upper right')
-#pyplot.show()
-#
-#pyplot.plot(history.history['acc'])
-#pyplot.plot(history.history['val_acc'])
-#pyplot.title('model train vs validation acc')
-#pyplot.ylabel('loss')
-#pyplot.xlabel('epoch')
-#pyplot.legend(['train', 'validation'], loc='upper right')
-#pyplot.show()
-#
-#max(history.history['val_acc'])
+pyplot.plot(history.history['loss'])
+pyplot.plot(history.history['val_loss'])
+pyplot.title('model train vs validation loss')
+pyplot.ylabel('loss')
+pyplot.xlabel('epoch')
+pyplot.legend(['train', 'validation'], loc='upper right')
+pyplot.show()
+
+pyplot.plot(history.history['acc'])
+pyplot.plot(history.history['val_acc'])
+pyplot.title('model train vs validation acc')
+pyplot.ylabel('loss')
+pyplot.xlabel('epoch')
+pyplot.legend(['train', 'validation'], loc='upper right')
+pyplot.show()
+
+max(history.history['val_acc'])
 
 
 #regresor = load_model('2LSTM-3ANN-100weights.81-0.8876.hdf5')

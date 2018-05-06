@@ -14,6 +14,7 @@ import numpy as np
 from matplotlib import pyplot
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.layers import CuDNNLSTM
@@ -81,17 +82,17 @@ def to_polar(data):
 def setup_data(time_step, dataset):
     global x
     global y
-    global sc
-    dataset_copy = list(dataset)
-    dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))
-    for element in dataset_copy:
+    global out_sc
+    dataset_copy = list(train_set)                                               #Make a copy of the list so you do not alter it
+    dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+    for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
         dataset_total = pd.concat((dataset_total,
                                   pd.read_csv("../Datasets/"+element)),
                                   axis=0)
-    dataset_total = dataset_total.as_matrix()
+    dataset_total = dataset_total.as_matrix()                                  #Convert into numpy array 
     #Reshappe the inpputt so it fits the recurrent neural network
     x = []
-    for i in range(1, time_step):
+    for i in range(1, time_step):                                              #Pad initial values with zeros 
         x.append(np.concatenate((np.zeros((time_step-i, 
                  dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), 
                  axis = 0))
@@ -100,15 +101,16 @@ def setup_data(time_step, dataset):
     for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
         x.append(dataset_total[i-time_step+1 : i+1 , 2:])
     x = np.array(x)
-    
+    in_sc = StandardScaler()
+    x = 
     
     #Extract the output of the neural network
     y = dataset_total[0:,0:2]
     #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
     to_polar(y)
     #Feature Scaling
-    sc = MinMaxScaler(feature_range = (-1,1))
-    y = sc.fit_transform(y)
+    out_sc = MinMaxScaler(feature_range = (-1,1))
+    y = out_sc.fit_transform(y)
 
 setup_data(time_step, train_set)
 
@@ -148,7 +150,7 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True))
-#regresor.add(Activation('tanh'))
+regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = None))
 #regresor.add(Dropout(dropout))
@@ -157,9 +159,9 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 
 #Third Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
+#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
@@ -178,9 +180,9 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 
 #Fifth Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
+#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
@@ -189,9 +191,9 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 
 #Sixth Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
+#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
 #ANN
 #regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_c),
 #                   use_bias=False, activation = 'tanh'))
@@ -210,8 +212,8 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 #ANN
 regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
                    activation = 'tanh'))
-regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
-                   activation = 'tanh'))
+#regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
+#                   activation = 'tanh'))
 #----------------------------------------------#
 
 
@@ -231,7 +233,7 @@ regresor.add(Activation('tanh'))
 
 
 #Compile this network----------------------------------------------------------
-regresor.compile(optimizer = 'rmsprop', loss='mae', 
+regresor.compile(optimizer = Adam(lr=0.003), loss='mse', 
                  metrics=['mae', 'acc', 'mse'])
 #------------------------------------------------------------------------------
 
@@ -261,7 +263,7 @@ save_data = ModelCheckpoint('../Models/BigData_GPU_5LSTM_3ANN.\
 
 #Train the model---------------------------------------------------------------
 #Fit the data
-history = regresor.fit(x, y, epochs = 2500, validation_split = val_split,
+history = regresor.fit(x, y, epochs = 400, validation_split = val_split,
           callbacks= [], batch_size = 10000) 
 
 
@@ -301,8 +303,8 @@ if(regresor.input_shape[1] != time_step):
 
 slice_index = int(x.shape[0]*(1-val_split))
 prediction = regresor.predict(x=x[slice_index:,0:,0:])
-prediction = sc.inverse_transform(prediction)
-expected_outcome = sc.inverse_transform(y[slice_index:,:])
+prediction = out_sc.inverse_transform(prediction)
+expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 #expected_outcome = y[slice_index:,:]
 
 pyplot.plot(expected_outcome[0:, 0:1])
@@ -331,9 +333,9 @@ else:
     setup_data(time_step, test_set)
 
 slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:,0:,0:])
-prediction = sc.inverse_transform(prediction)
-expected_outcome = sc.inverse_transform(y[slice_index:,:])
+prediction = regresor.predict(x=x[slice_index:slice_index+1,0:,0:])
+prediction = out_sc.inverse_transform(prediction)
+expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 #expected_outcome = y[slice_index:,:]
 
 
