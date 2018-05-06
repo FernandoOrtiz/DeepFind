@@ -8,21 +8,22 @@
 
 import rospy
 from std_msgs.msg import *
-from deepfind_package.msg import EncodersData
+from deepfind_package.msg import EncodersData, SensorData
 from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry 
+#from nav_msgs.msg import Odometry 
 import message_filters
 
 """
 	Creates SensorData message and publishes it
 """
-def callback(lidar, encoder, pose, imu):
+def callback(lidar, imu, pose):
+	print('yaaassssss')
 	sensorData = SensorData()
 	sensorData.imu = imu;
 	sensorData.lidar = lidar
-	sensorData.encoder = encoder
+	#sensorData.encoder = encoder
 	sensorData.pose = pose
 	dataPub.publish(sensorData)
 
@@ -36,15 +37,15 @@ def synch_data():
 
 	imu = message_filters.Subscriber('vn100_yaw', Imu)
 	lidar = message_filters.Subscriber('scan', LaserScan)
-	encoders = message_filters.Subscriber('encoder', EncodersData)
+	#encoders = message_filters.Subscriber('encoder', EncodersData)
 	pose = message_filters.Subscriber('slam_out_pose', PoseStamped)
 	#odom = message_filters.Subscriber('odom', Odometry) 
 
-	ts = message_filters.ApproximateTimeSynchronizer([lidar, encoders, pose, imu], 10, 0.1, allow_headerless=True)
+	ts = message_filters.ApproximateTimeSynchronizer([lidar, imu, pose], 10, 0.1, allow_headerless=True)
 	ts.registerCallback(callback)
 
 	global dataPub
-	dataPub = rospy.Publisher('sensor_data', sensor_data, queue_size = 1000)
+	dataPub = rospy.Publisher('sensor_data', SensorData, queue_size = 1000)
 
 	rospy.spin()
 

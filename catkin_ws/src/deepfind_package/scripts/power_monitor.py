@@ -27,7 +27,7 @@ def get_input_power():
 	voltage = int(line[0]+line[1])
 	voltageDecimal = int(line[3])
 	print("Voltage = " + str( voltage) + "." + str(voltageDecimal))
-	if voltage <= 11 and voltageDecimal < 5 and enable == 1:
+	if voltage <= 10 and voltageDecimal < 5 and enable == 1:
 		print('shutting down')
 		os.system('echo %s|sudo -S %s' % (sudoPassword, command))	
 	
