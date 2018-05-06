@@ -27,7 +27,7 @@ from sklearn.preprocessing import StandardScaler
 step = 20
 val_dat = 0.2    
 
-train_set = ["20MinuteRun-M2.csv", "60MinuteRun-M1.csv"]
+train_set = ["60MinuteRun-M1.csv"]
 test_set = ["30MinuteRun-M2.csv"]
 
 def to_polar(data):
@@ -38,33 +38,11 @@ def to_polar(data):
         data[i,1] = t
   
       
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-	n_vars = 1 if type(data) is list else data.shape[1]
-	df = DataFrame(data)
-	cols, names = list(), list()
-	# input sequence (t-n, ... t-1)
-	for i in range(n_in, 0, -1):
-		cols.append(df.shift(i))
-		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-	# forecast sequence (t, t+1, ... t+n)
-	for i in range(0, n_out):
-		cols.append(df.shift(-i))
-		if i == 0:
-			names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-		else:
-			names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-	# put it all together
-	agg = pd.concat(cols, axis=1)
-	agg.columns = names
-	# drop rows with NaN values
-	if dropnan:
-		agg.dropna(inplace=True)
-	return agg
 
 
 def setup_data(time_step, dataset):
-    global x
-    global y
+    global X
+    global Y
     global sc
     dataset_copy = list(train_set)                                               #Make a copy of the list so you do not alter it
     dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
@@ -72,9 +50,7 @@ def setup_data(time_step, dataset):
         dataset_total = pd.concat((dataset_total,
                                   pd.read_csv("../Datasets/"+element)),
                                   axis=0)
-    
-    dataset_total = series_to_supervised(dataset_total, n_in=time_step, n_out = 1)
-    dataset_total = dataset_total.as_matrix()   
+    dataset_total = dataset_total.as_matrix()                                
     
     scaler = StandardScaler(copy=True, with_mean=True, with_std=True )
     dataset_total = scaler.fit_transform(dataset_total)
@@ -140,7 +116,7 @@ setup_data(step, train_set)
 #Initialization and Creation of the RNN
 
 network = Sequential()
-network.add(LSTM(units = 10, return_sequences = True, input_shape = (X.shape[1], X.shape[2]),dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
+network.add(LSTM(units = 80, return_sequences = True, input_shape = (X.shape[1], X.shape[2]),dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 #network.add(Dense(units = 30, activation = 'tanh'))
 
@@ -160,7 +136,7 @@ network.add(LSTM(units = 10, return_sequences = True, input_shape = (X.shape[1],
 #network.add(Dense(units = 20, activation = 'tanh'))
 
 # Adding a fourth LSTM layer and some Dropout regularisation
-network.add(LSTM(units = 10,dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
+network.add(LSTM(units = 80,dropout= 0.002,recurrent_dropout=0.002, activation = 'relu', recurrent_regularizer = regularizers.l2(0.01)))
 #network.add(Dropout(0.2))
 
 #network.add(Dense(units = 10, activation = 'tanh'))
