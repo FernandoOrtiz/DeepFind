@@ -27,8 +27,8 @@ from sklearn.preprocessing import StandardScaler
 step = 20
 val_dat = 0.2    
 
-train_set = ["New30MinuteRun.csv"]
-test_set = ["30MinuteRun-M2.csv"]
+train_set = ["D1-30MinuteRun-M2.csv"]
+test_set = ["D2-35MinuteRun-M2.csv"]
 
 def to_polar(data):
     for i in range(0, data.shape[0]):
