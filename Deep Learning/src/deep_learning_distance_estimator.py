@@ -76,15 +76,21 @@ def main():
     global pose_pub
     global out_scaler
     
-    model = "M1-MAE:0.00-MSE:0.03"
+    model = "M1-MAE:0.00-MSE:0.03-M2.csv"
+    polar = False
+    if(model.find('PoLR') > 0):
+        polar = True
+    input_format = model.split('-')[-1]
+    
+    
+    MODEL_DIR = ("../Models/" + model + "/" +model)
     #Import the deep learning model
-    deep_model = load_model("../Models/Models/"+model+'.h5py')
+    deep_model = load_model(MODEL_DIR + '.h5py')
     deep_model._make_predict_function()
-    out_scaler = joblib.load('../Models/Scalers/'+model+'.scl')
+    out_scaler = joblib.load(MODEL_DIR + '.scl')
     #initialize the amount of timesteps
     time_steps = deep_model.input_shape[1]
     features = deep_model.input_shape[2]
-    input_format = "M2"
     
     rnn_model_input = np.zeros((time_steps, features))
     
@@ -98,7 +104,7 @@ def main():
     print("ROS Initialized")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message("sensor_data", SensorData)
-        if(input_format == "M2"):
+        if(input_format == "F2"):
             sensor_data = np.array([data.imu.orientation.x, data.imu.orientation.y, 
                 data.imu.orientation.z, data.imu.orientation.w,
                 data.imu.angular_velocity.x, data.imu.angular_velocity.y,
@@ -121,16 +127,26 @@ def main():
         time.sleep(0.5)
         output = deep_model.predict(x=scaled_data)
         output = out_scaler.inverse_transform(output)
-        magnitud = output[0][0]
-        angle = output[0][1]
         
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = 'base_link'
         message.pose.orientation = data.pose.pose.orientation
-        message.pose.position.x = cos(angle)*magnitud
-        message.pose.position.y = sin(angle)*magnitud
-        print("x in feet = " + str(magnitud) + " y in feet = " + str(angle))
+        x , y = 0, 0
+        if(polar):
+            magnitud = output[0][0]
+            angle = output[0][1]
+            x = cos(angle)*magnitud
+            y = sin(angle)*magnitud
+            message.pose.position.x = x
+            message.pose.position.y = y
+        if(not polar):
+            x = output[0][0]
+            y = output[0][1]
+            message.pose.position.x = x
+            message.pose.position.y = y
+        print("x in meters = " + str(x) + " y in meters = " + str(y))
+       
         pose_pub.publish(message)
         
 

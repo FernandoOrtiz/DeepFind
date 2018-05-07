@@ -14,7 +14,8 @@ import numpy as np
 import os, os.path
 import pandas as pd
 import tensorflow as tf
-from matplotlib import pyplot
+import shutil
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
@@ -61,16 +62,20 @@ k.tensorflow_backend.set_session(tf.Session(config=config))
 ###################################
 
 DIR = '../Models/'
-SCALER_DIR = '../Models/Scalers/'
-MODEL_DIR = '../Models/Models/'
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 39
+time_step = 40
 val_split = 0.2    
+polar = False
+model_output = 'CaRT'
+if(polar):
+    model_output = 'PoLR'
 
-train_set = ["D3-30MinuteStillRun-M2.csv", "D1-30MinuteRun-M2.csv"]
-test_set = ["D2-30MinuteRun-M2.csv"]
+train_set = ["D3-30MinuteStillRun-F2.csv", "D1-30MinuteRun-F2.csv",
+             "D2-35MinuteRun-F2.csv"]
+test_set = ["D2-35MinuteRun-F2.csv"]
+input_format = train_set[0].split('-')[-1].split('.')[0]
                            
 def to_polar(data):
     for i in range(0, data.shape[0]):
@@ -80,10 +85,7 @@ def to_polar(data):
         data[i,1] = t
 
 def setup_data(time_step, dataset):
-    global x
-    global y
-    global out_sc
-    dataset_copy = list(train_set)                                             #Make a copy of the list so you do not alter it
+    dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
     dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
     for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
         dataset_total = pd.concat((dataset_total,
@@ -113,22 +115,24 @@ def setup_data(time_step, dataset):
     #Feature Scaling
     out_sc = MinMaxScaler(feature_range = (-1,1))
     y = out_sc.fit_transform(y)
+    
+    return x, y, out_sc
 
-setup_data(time_step, train_set)
+x, y, out_sc = setup_data(time_step, train_set)
 
 
 #%% Part 2 - Building the RNN
 ###############################################################################
-#Setup
+#Setup TODO -
 
-units = 41
+units = 40
 dropout = 0.2
-regularizer_k = 0.00001
+regularizer_k = 0.0001
 regularizer_r = 0.0001
-optimizer = 'rmsprop'
-epochs = 1000
+optimizer = 'adam'
+epochs = 3
 batch_size = 10000
-loss = 'mse'
+loss = 'mae'
 metrics = ['mae','mse', 'logcosh','acc']
 
 ###############################################################################
@@ -273,25 +277,45 @@ regresor.compile(optimizer = optimizer , loss = loss,
 
 #Train the model---------------------------------------------------------------
 #Fit the data
-try:
-    history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
-          callbacks= [], batch_size = batch_size)
-except KeyboardInterrupt:
-    print('Trying to save history from unecessarily long training')
-    
-    
+#TODO - add handling of ctrl + c
 
+history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
+          callbacks= [], batch_size = batch_size)
+
+
+#except KeyboardInterrupt:
+#    print('Trying to save history from unecessarily long training')
+
+
+#Save name for images and files
+with open(DIR + 'training_logs.txt','a+') as fh:
+    fh.seek(0)
+    run_count = fh.read().count('Training session #: ') + 1
+save_name = 'M{}-{}-MAE:{:.2f}-MSE:{:.2f}-{}'.format(run_count, model_output,
+              float(history.history['val_mean_absolute_error'][-1]), 
+              float(history.history['val_mean_squared_error'][-1]),
+              input_format)
+SAVE_DIR = DIR + save_name + '/'
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
+else:
+    while(not os.path.exists(SAVE_DIR)):
+        dir_name = input("Model Directory already exists, input new name: ")    
+        SAVE_DIR = DIR + dir_name + '/'
+    os.makedirs(SAVE_DIR)
+    
 #%%Evaluate the model
 
 #Plot this data
 
-pyplot.plot(history.history['loss'])
-pyplot.plot(history.history['val_loss'])
-pyplot.title('model train vs validation loss')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model train loss vs validation loss')
+plt.ylabel('loss: ' + loss)
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper right')
+plt.savefig(SAVE_DIR + 'Loss - ' + save_name + '.png')
+plt.show()
 
 
 print('Lowest val loss = ' + str(min(history.history['val_loss'])))
@@ -300,7 +324,7 @@ print('Lowest val loss = ' + str(min(history.history['val_loss'])))
 ####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
 
 if(regresor.input_shape[1] != time_step):
-    setup_data(regresor.input_shape[1], train_set)
+    x, y, out_sc = setup_data(regresor.input_shape[1], train_set)
 
 slice_index = int(x.shape[0]*(1-val_split))
 prediction = regresor.predict(x=x[slice_index:,0:,0:])
@@ -310,30 +334,46 @@ expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 
 train_scores = regresor.evaluate(x,y)
 
-pyplot.plot(expected_outcome[0:, 0:1])
-pyplot.plot(prediction[0:,0:1])
-pyplot.title('Validation: Magnitud')
-pyplot.ylabel('meters')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
+plt.plot(expected_outcome[0:, 0:1])
+plt.plot(prediction[0:,0:1])
+if(polar):
+    plt.title('Validation: Magnitud')
+    plt.ylabel('meters')
+else:
+    plt.title('Validation: X')
+    plt.ylabel('meters')
+plt.xlabel('measurement')
+plt.legend(['expected outcome', 'prediction'], loc='upper right')
+if(polar):
+    plt.savefig(SAVE_DIR + 'Validation - Magnitud' + save_name+ '.png')
+else:
+    plt.savefig(SAVE_DIR + 'Validation - X axis' + save_name+ '.png')
+plt.show()
 
-pyplot.plot(expected_outcome[0:, 1:2])
-pyplot.plot(prediction[0:,1:2])
-pyplot.title('Validation: Angle')
-pyplot.ylabel('radians')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
+plt.plot(expected_outcome[0:, 1:2])
+plt.plot(prediction[0:,1:2])
+if(polar):
+    plt.title('Validation: Angle')
+    plt.ylabel('radians')
+else:
+    plt.title('Validation: X')
+    plt.ylabel('meters')
+plt.xlabel('measurement')
+plt.legend(['expected outcome', 'prediction'], loc='upper right')
+if(polar):
+    plt.savefig(SAVE_DIR + 'Validation - Angles' + save_name + '.png')
+else:
+    plt.savefig(SAVE_DIR + 'Validation - Y axis' + save_name + '.png')
+plt.show()
 
 #%%
 #Test neural networks performance with entirely new dataset
 
 #Verify that the data is configures to the appropriate amount of timesteps
 if(regresor.input_shape[1] != time_step):
-    setup_data(regresor.input_shape[1], test_set)
+    x, y, out_sc = setup_data(regresor.input_shape[1], test_set)
 else:
-    setup_data(time_step, test_set)
+    x, y, out_sc = setup_data(time_step, test_set)
 
 slice_index = int(x.shape[0]*(1-val_split))
 prediction = regresor.predict(x=x[slice_index:,0:,0:])
@@ -343,58 +383,71 @@ expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 
 test_scores = regresor.evaluate(x,y)
 
-pyplot.plot(expected_outcome[0:, 0:1])
-pyplot.plot(prediction[0:,0:1])
-pyplot.title('Test X')
-pyplot.ylabel('meters')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
+plt.plot(expected_outcome[0:, 0:1])
+plt.plot(prediction[0:,0:1])
+if(polar):
+    plt.title('Test: Magnitud')
+    plt.ylabel('meters')
+else:
+    plt.title('Test: X')
+    plt.ylabel('meters')
+plt.xlabel('measurement')
+plt.legend(['expected outcome', 'prediction'], loc='upper right')
+if(polar):
+    plt.savefig(SAVE_DIR + 'Test - Magnitud' + save_name + '.png')
+else:
+    plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
+plt.show()
 
-pyplot.plot(expected_outcome[0:, 1:2])
-pyplot.plot(prediction[0:,1:2])
-pyplot.title('Test Dataset: Angle')
-pyplot.ylabel('radians')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
-#setup_data(time_step, train_set)
+plt.plot(expected_outcome[0:, 1:2])
+plt.plot(prediction[0:,1:2])
+if(polar):
+    plt.title('Test: Angle')
+    plt.ylabel('radians')
+else:
+    plt.title('Test: X')
+    plt.ylabel('meters')
+plt.xlabel('measurement')
+plt.legend(['expected outcome', 'prediction'], loc='upper right')
+if(polar):
+    plt.savefig(SAVE_DIR + 'Test - Angles' + save_name + '.png')
+else:
+    plt.savefig(SAVE_DIR + 'Test - Y axis' + save_name + '.png')
+plt.show()
+#x, y, out_sc = setup_data(time_step, train_set)
 
 
 
 #%%Save the network if it is good----------------------------------------------
-save_name = ''
+
 save_to_file = False
 inp = input("Do you want to save this model? (yes/no): ")
 if(inp.lower() == 'yes' or inp.lower() == 'y'):
-    model_number = len([name for name in os.listdir(MODEL_DIR) if os.path.isfile(os.path.join(MODEL_DIR, name))])
-    if(model_number > 1):
-        model_number = (model_number - 1)/2
-    save_name = 'M{}-MAE:{:.2f}-MSE:{:.2f}'.format(model_number,
-                  float(train_scores[metrics.index('mae')]), 
-                  float(train_scores[metrics.index('mse')]))
-    joblib.dump(out_sc,SCALER_DIR + save_name + '.scl')
-    regresor.save(MODEL_DIR  + save_name + '.h5py')
+    
+    joblib.dump(out_sc,SAVE_DIR + save_name + '.scl')
+    regresor.save(SAVE_DIR  + save_name + '.h5py')
     save_to_file = True
 
+else:
+    shutil.rmtree(SAVE_DIR)
+    
+    
 #Append to logfile inconditionally
 # Open the file
 with open(DIR + 'training_logs.txt','a+') as fh:
-    run_count = fh.read().count('Training')
     fh.write('_________________________________________________________________\\\\\n')
-    fh.write('Training session #: ' + str(run_count + 1) + '\n')
+    fh.write('Training session #: ' + str(run_count) + '\n')
     fh.write('Model Architecture:\n')
     # Pass the file handle in as a lambda function to make it callable
     regresor.summary(print_fn=lambda x: fh.write(x + '\n'))
     #validation parameters
-    for i in range(0,len(metrics)):
-        fh.write('Train ' + metrics[i] + ': ' + str(train_scores[i]) + '\n')
+    for element in history.history.keys():
+        fh.write(element + ': ' + str(history.history[element][-1]) + '\n')
+    fh.write('_______\n')
     fh.write('_______\n')
     for i in range(0,len(metrics)):
-        fh.write('Test ' + metrics[i] + ': ' + str(train_scores[i]) + '\n')
-    fh.write('_______\n')
-    for i in range(0,len(metrics)):
-        fh.write('Test ' + metrics[i] + ': ' + str(history.history[metrics[i][-1]]) + '\n')
+        fh.write('Test ' + metrics[i] + ': ' + str(test_scores[i]) + '\n')
+    
     fh.write('_______\n')
     fh.write('Hyperparameters:\n\n')
     fh.write('Loss: ' + str(loss) + '\n')
@@ -412,7 +465,8 @@ with open(DIR + 'training_logs.txt','a+') as fh:
     fh.write('_______\n')
     fh.write('Saved to file: ')
     if(save_to_file):
-        fh.write(save_name)
+        fh.write(save_name + '.h5py')
     else:
         fh.write('N/A')
     fh.write('\n_________________________________________________________________//\n')
+print("DONE")
