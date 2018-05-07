@@ -11,10 +11,13 @@ Created on Sun Apr 15 13:56:18 2018
 # Jose's Recurrent Neural Network
 #Pre-process the data
 import numpy as np
-from matplotlib import pyplot
+import os, os.path
 import pandas as pd
+import tensorflow as tf
+from matplotlib import pyplot
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
+from sklearn.externals import joblib
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.layers import CuDNNLSTM
@@ -28,6 +31,7 @@ from keras.regularizers import l1
 from keras.regularizers import l2
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import TensorBoard
+from keras import backend as k
 
 
 #Fix for kernel starting error. Provided by:
@@ -35,7 +39,6 @@ from keras.callbacks import TensorBoard
 #that-this-tensorflow-binary-was-not-compiled-to-u?utm_medium=organic&utm_
 #source=google_rich_qa&utm_campaign=google_rich_qa
 # Just disables the warning, doesn't enable AVX/FMA
-import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
@@ -46,31 +49,27 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #https://michaelblogscode.wordpress.com/2017/10/10/
 #reducing-and-profiling-gpu-memory-usage-in-keras-with-tensorflow-backend/
 ## extra imports to set GPU options
-import tensorflow as tf
-from keras import backend as k
 ###################################
 # TensorFlow wizardry
 config = tf.ConfigProto()
- 
 # Don't pre-allocate memory; allocate as-needed
 config.gpu_options.allow_growth = True
- 
 # Only allow a total of half the GPU memory to be allocated
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
- 
 # Create a session with the above options specified.
 k.tensorflow_backend.set_session(tf.Session(config=config))
 ###################################
 
-
+SCALE_DIR = '../Models/Scalers/'
+MODELS = 
 
 #%%
 #The amount of time-steps the LSTM will look back at
 time_step = 39
 val_split = 0.2    
 
-train_set = ["20MinuteRun-M2.csv", "30MinuteRun-M2.csv"]
-test_set = ["30MinuteRun-M2.csv"]
+train_set = ["D1-30MinuteRun-M2.csv"]
+test_set = ["D1-30MinuteRun-M2.csv"]
                            
 def to_polar(data):
     for i in range(0, data.shape[0]):
@@ -89,7 +88,12 @@ def setup_data(time_step, dataset):
         dataset_total = pd.concat((dataset_total,
                                   pd.read_csv("../Datasets/"+element)),
                                   axis=0)
-    dataset_total = dataset_total.as_matrix()                                  #Convert into numpy array 
+    #Convert into numpy array 
+    dataset_total = dataset_total.as_matrix()    
+    in_sc = StandardScaler()
+    dataset_total[:,2:] = in_sc.fit_transform(dataset_total[:,2:])
+    
+    
     #Reshappe the inpputt so it fits the recurrent neural network
     x = []
     for i in range(1, time_step):                                              #Pad initial values with zeros 
@@ -101,8 +105,6 @@ def setup_data(time_step, dataset):
     for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
         x.append(dataset_total[i-time_step+1 : i+1 , 2:])
     x = np.array(x)
-    in_sc = StandardScaler()
-    x = 
     
     #Extract the output of the neural network
     y = dataset_total[0:,0:2]
@@ -117,10 +119,19 @@ setup_data(time_step, train_set)
 
 #%% Part 2 - Building the RNN
 ###############################################################################
+#Setup
+
 units = 41
 dropout = 0.2
 regularizer_k = 0.00001
 regularizer_r = 0.0001
+optimizer = 'rmsprop'
+epochs = 1000
+batch_size = 10000
+loss = 'mse'
+metrics = ['mae','mse', 'logcosh','acc']
+
+###############################################################################
 
 #Initialize the model
 regresor = Sequential()
@@ -130,7 +141,7 @@ regresor = Sequential()
 #Should only use one of these
 
 #LSTM First layer
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+regresor.add(CuDNNLSTM(units = units, 
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
                        input_shape=(x.shape[1], x.shape[2])))
@@ -147,7 +158,7 @@ regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
 
 #Second Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+regresor.add(CuDNNLSTM(units = units, 
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True))
 regresor.add(Activation('tanh'))
@@ -159,7 +170,7 @@ regresor.add(Activation('tanh'))
 
 #Third Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -180,7 +191,7 @@ regresor.add(Activation('tanh'))
 
 #Fifth Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -191,7 +202,7 @@ regresor.add(Activation('tanh'))
 
 #Sixth Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -222,8 +233,7 @@ regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
 
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-regresor.add(CuDNNLSTM(units = 2, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r)))
+regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r)))
 regresor.add(Activation('tanh'))
 
 #ANN Last Layer
@@ -233,8 +243,8 @@ regresor.add(Activation('tanh'))
 
 
 #Compile this network----------------------------------------------------------
-regresor.compile(optimizer = Adam(lr=0.003), loss='mse', 
-                 metrics=['mae', 'acc', 'mse'])
+regresor.compile(optimizer = optimizer , loss = loss, 
+                 metrics = metrics)
 #------------------------------------------------------------------------------
 
 
@@ -243,9 +253,9 @@ regresor.compile(optimizer = Adam(lr=0.003), loss='mse',
 #function is provided bellow
 
 #ModelCheckpoint - saves the data when a specific value is a its best
-save_data = ModelCheckpoint('../Models/BigData_GPU_5LSTM_3ANN.\
-{epoch:02d}-{val_acc:.4f}.hdf5', 
-          monitor='val_acc',save_best_only=True)
+#save_data = ModelCheckpoint(DIR + 'BigData_GPU_5LSTM_3ANN.\
+#{epoch:02d}-{val_acc:.4f}.hdf5', 
+#          monitor='val_acc',save_best_only=True)
 
 #Tensoroard - Saves the output of the training so it can be visualized in
 #tensorboard
@@ -263,13 +273,13 @@ save_data = ModelCheckpoint('../Models/BigData_GPU_5LSTM_3ANN.\
 
 #Train the model---------------------------------------------------------------
 #Fit the data
-history = regresor.fit(x, y, epochs = 400, validation_split = val_split,
-          callbacks= [], batch_size = 10000) 
-
-
-#Save the network if it is good------------------------------------------------
-#regresor.save('Big_Data_LSTM-no-out-dense.h5py')
-
+try:
+    history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
+          callbacks= [], batch_size = batch_size)
+except KeyboardInterrupt:
+    print('Trying to save history from unecessarily long training')
+    
+    
 
 #%%Evaluate the model
 
@@ -283,20 +293,11 @@ pyplot.xlabel('epoch')
 pyplot.legend(['train', 'validation'], loc='upper right')
 pyplot.show()
 
-"""
-pyplot.plot(history.history['mean_absolute_error'])
-pyplot.plot(history.history['val_mean_absolute_error'])
-pyplot.title('model train vs validation acc')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
-"""
 
-max(history.history['val_acc'])
+print('Lowest val loss = ' + str(min(history.history['val_loss'])))
 
 #%%
-#regresor = load_model('../Models/BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
+####regresor = load_model(DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
 
 if(regresor.input_shape[1] != time_step):
     setup_data(regresor.input_shape[1], train_set)
@@ -306,6 +307,8 @@ prediction = regresor.predict(x=x[slice_index:,0:,0:])
 prediction = out_sc.inverse_transform(prediction)
 expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 #expected_outcome = y[slice_index:,:]
+
+train_scores = regresor.evaluate(x,y)
 
 pyplot.plot(expected_outcome[0:, 0:1])
 pyplot.plot(prediction[0:,0:1])
@@ -333,11 +336,12 @@ else:
     setup_data(time_step, test_set)
 
 slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:slice_index+1,0:,0:])
+prediction = regresor.predict(x=x[slice_index:,0:,0:])
 prediction = out_sc.inverse_transform(prediction)
 expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
 #expected_outcome = y[slice_index:,:]
 
+test_scores = regresor.evaluate(x,y)
 
 pyplot.plot(expected_outcome[0:, 0:1])
 pyplot.plot(prediction[0:,0:1])
@@ -357,3 +361,58 @@ pyplot.show()
 #setup_data(time_step, train_set)
 
 
+
+#%%Save the network if it is good----------------------------------------------
+save_name = ''
+save_to_file = False
+inp = input("Do you want to save this model? (yes/no): ")
+if(inp.lower() == 'yes' or inp.lower() == 'y'):
+    model_number = len([name for name in os.listdir(DIR+'/Models/') if os.path.isfile(os.path.join(DIR+'/Models/', name))])
+    if(model_number > 1):
+        model_number = (model_number - 1)/2
+    save_name = 'M{}-MAE:{:.2f}-MSE:{:.2f}'.format(model_number,
+                  float(train_scores[metrics.index('mae')]), 
+                  float(train_scores[metrics.index('mse')]))
+    joblib.dump(out_sc,DIR + '/Scalers/' + save_name + '.scl')
+    regresor.save(DIR  + save_name + '.h5py')
+    save_to_file = True
+
+#Append to logfile inconditionally
+# Open the file
+with open(DIR + 'training_logs.txt','a+') as fh:
+    run_count = fh.read().count('Training')
+    fh.write('_________________________________________________________________\\\\\n')
+    fh.write('Training session #: ' + str(run_count + 1) + '\n')
+    fh.write('Model Architecture:\n')
+    # Pass the file handle in as a lambda function to make it callable
+    regresor.summary(print_fn=lambda x: fh.write(x + '\n'))
+    #validation parameters
+    for i in range(0,len(metrics)):
+        fh.write('Train ' + metrics[i] + ': ' + str(train_scores[i]) + '\n')
+    fh.write('_______\n')
+    for i in range(0,len(metrics)):
+        fh.write('Test ' + metrics[i] + ': ' + str(train_scores[i]) + '\n')
+    fh.write('_______\n')
+    for i in range(0,len(metrics)):
+        fh.write('Test ' + metrics[i] + ': ' + str(history[metric[i][-1]]) + '\n')
+    fh.write('_______\n')
+    fh.write('Hyperparameters:\n\n')
+    fh.write('Loss: ' + str(loss) + '\n')
+    fh.write('Optimizer: ' + str(optimizer) + '\n')
+    fh.write('Timesetps: ' + str(time_step) + '\n')
+    fh.write('Batch size: ' + str(batch_size) + '\n')
+    fh.write('Dropout: ' + str(dropout) + '\n')
+    fh.write('Regularizer: ' + str(regularizer_k) + '\n')
+    fh.write('Recurrent Regularizer: ' + str(regularizer_r) + '\n')
+    fh.write('Epochs: ' + str(epochs) + '\n')
+    fh.write('Validation Split: ' + str(val_split) + '\n')
+    fh.write('_______\n')
+    fh.write('Training Sets: ' + str(train_set) + '\n')
+    fh.write('Test Sets: ' + str(test_set) + '\n')
+    fh.write('_______\n')
+    fh.write('Saved to file: ')
+    if(save_to_file):
+        fh.write(save_name)
+    else:
+        fh.write('N/A')
+    fh.write('\n_________________________________________________________________//\n')

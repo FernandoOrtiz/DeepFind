@@ -1,0 +1,48 @@
+_________________________________________________________________\\
+Training session #: 1
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_4 (CuDNNLSTM)     (None, 39, 41)            67732     
+_________________________________________________________________
+cu_dnnlstm_5 (CuDNNLSTM)     (None, 39, 41)            13776     
+_________________________________________________________________
+activation_3 (Activation)    (None, 39, 41)            0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 39, 41)            1722      
+_________________________________________________________________
+cu_dnnlstm_6 (CuDNNLSTM)     (None, 2)                 360       
+_________________________________________________________________
+activation_4 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 83,590
+Trainable params: 83,590
+Non-trainable params: 0
+_________________________________________________________________
+Train mae: 0.0186292127146
+Train mse: 0.0552285263044
+Train logcosh: 0.0178980235611
+Train acc: 0.00783598587414
+Test mae: 0.0186292127146
+Test mse: 0.0552285263044
+Test logcosh: 0.0178980235611
+Test acc: 0.00783598587414
+_______
+Hyperparameters:
+
+Loss: mse
+Optimizer: rmsprop
+Timesetps: 39
+Batch size: 10000
+Dropout: 0.2
+Regularizer: 1e-05
+Recurrent Regularizer: 0.0001
+Epochs: 1000
+Validation Split: 0.2
+_______
+Training Sets: ['D1-30MinuteRun-M2.csv']
+Test Sets: ['D1-30MinuteRun-M2.csv']
+_______
+Saved to file: M0-MAE:0.02-MSE:0.06
+_________________________________________________________________//
