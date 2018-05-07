@@ -60,8 +60,9 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.5
 k.tensorflow_backend.set_session(tf.Session(config=config))
 ###################################
 
-SCALE_DIR = '../Models/Scalers/'
-MODELS = 
+DIR = '../Models/'
+SCALER_DIR = '../Models/Scalers/'
+MODEL_DIR = '../Models/Models/'
 
 #%%
 #The amount of time-steps the LSTM will look back at
@@ -297,7 +298,7 @@ pyplot.show()
 print('Lowest val loss = ' + str(min(history.history['val_loss'])))
 
 #%%
-####regresor = load_model(DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
+####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
 
 if(regresor.input_shape[1] != time_step):
     setup_data(regresor.input_shape[1], train_set)
@@ -367,14 +368,14 @@ save_name = ''
 save_to_file = False
 inp = input("Do you want to save this model? (yes/no): ")
 if(inp.lower() == 'yes' or inp.lower() == 'y'):
-    model_number = len([name for name in os.listdir(DIR+'/Models/') if os.path.isfile(os.path.join(DIR+'/Models/', name))])
+    model_number = len([name for name in os.listdir(MODEL_DIR) if os.path.isfile(os.path.join(MODEL_DIR, name))])
     if(model_number > 1):
         model_number = (model_number - 1)/2
     save_name = 'M{}-MAE:{:.2f}-MSE:{:.2f}'.format(model_number,
                   float(train_scores[metrics.index('mae')]), 
                   float(train_scores[metrics.index('mse')]))
-    joblib.dump(out_sc,DIR + '/Scalers/' + save_name + '.scl')
-    regresor.save(DIR  + save_name + '.h5py')
+    joblib.dump(out_sc,SCALER_DIR + save_name + '.scl')
+    regresor.save(MODEL_DIR  + save_name + '.h5py')
     save_to_file = True
 
 #Append to logfile inconditionally

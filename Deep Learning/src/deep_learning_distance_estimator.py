@@ -88,13 +88,11 @@ def main():
     
     rnn_model_input = np.zeros((time_steps, features))
     
-    
-    pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
-    data_sub = rospy.Subscriber("sensor_data", SensorData, sensor_data_callback)
     rospy.init_node("neural_network")
-    rospy.spin()
+    pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
+    #data_sub = rospy.Subscriber("sensor_data", SensorData, sensor_data_callback)
     
-    
+    #rospy.spin()
     
     while not rospy.is_shutdown():
         data = rospy.wait_for_message("sensor_data", SensorData)
@@ -128,9 +126,9 @@ def main():
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = 'base_link'
         message.pose.orientation = data.pose.pose.orientation
-        message.pose.position.x = cos(angle)*magnitud*3.3
-        message.pose.position.y = sin(angle)*magnitud*3.3
-        print("magnitud = " + str(magnitud) + " angle = " + str(angle))
+        message.pose.position.x = cos(angle)*magnitud
+        message.pose.position.y = sin(angle)*magnitud
+        print("x in feet = " + str(magnitud) + " y in feet = " + str(angle))
         pose_pub.publish(message)
         
 
