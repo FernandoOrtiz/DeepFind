@@ -27,7 +27,7 @@ from sklearn.preprocessing import StandardScaler
 step = 20
 val_dat = 0.2    
 
-train_set = ["60MinuteRun-M1.csv"]
+train_set = ["New30MinuteRun.csv"]
 test_set = ["30MinuteRun-M2.csv"]
 
 def to_polar(data):
@@ -53,7 +53,7 @@ def setup_data(time_step, dataset):
     dataset_total = dataset_total.as_matrix()                                
     
     scaler = StandardScaler(copy=True, with_mean=True, with_std=True )
-    dataset_total = scaler.fit_transform(dataset_total)
+    dataset_total[:,2:] = scaler.fit_transform(dataset_total[:,2:])
     
     #Reshappe the inpputt so it fits the neural network
     X = []
@@ -74,41 +74,39 @@ def setup_data(time_step, dataset):
     sc = MinMaxScaler(feature_range = (-1,1))
     Y = sc.fit_transform(Y)
 
-def setup_Val_data(time_step):
-    global X
-    global Y
-    global sc
-    #Import the training set
-    #train_dataset = pd.read_csv("../Datasets/Training_Data - Copy2.csv")
-    #Obtain the test Data
-    #test_dataset = pd.read_csv("../Datasets/Test_Data - Copy3.csv")
-    #Merge both test and train to obtain initial values
-    #dataset_total = pd.concat((train_dataset, test_dataset), axis = 0)
-    dataset_total = pd.read_csv("../Datasets/30MinuteRun-M1.csv")
-    dataset_total = dataset_total.as_matrix()
-    
-    scaler = StandardScaler(copy=True, with_mean=True, with_std=True )
-    dataset_total = scaler.fit_transform(dataset_total)
-    
-    #Reshappe the inpputt so it fits the neural network
-    X = []
-    for i in range(1, time_step):
-        X.append(np.concatenate((np.zeros((time_step-i, dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), axis = 0))
-    
-    
-    for i in range(time_step-1, int(dataset_total.size/dataset_total.shape[1])):
-        X.append(dataset_total[i-time_step+1 : i+1 , 2:])
-    X = np.array(X)
-    
-    
-    #Extract the output of the neural network
-    #y = dataset_total.iloc[time_step-1:,0:2]
-    Y = dataset_total[0:,0:2]
-    to_polar(Y)
-    #Feature Scaling
-    sc = MinMaxScaler(feature_range = (-1,1))
-    Y = sc.fit_transform(Y)
+def setup_Val_data(time_step, dataset):
+   global X
+   global Y
+   global sc
+   dataset_copy = list(train_set)                                               #Make a copy of the list so you do not alter it
+   dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+   for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
+       dataset_total = pd.concat((dataset_total,
+                                 pd.read_csv("../Datasets/"+element)),
+                                 axis=0)
+   dataset_total = dataset_total.as_matrix()                                
 
+   scaler = StandardScaler(copy=True, with_mean=True, with_std=True )
+   dataset_total[:,2:] = scaler.fit_transform(dataset_total[:,2:])
+
+   #Reshappe the inpputt so it fits the neural network
+   X = []
+   for i in range(1, time_step):
+       X.append(np.concatenate((np.zeros((time_step-i, dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), axis = 0))
+
+
+   for i in range(time_step-1, int(dataset_total.size/dataset_total.shape[1])):
+       X.append(dataset_total[i-time_step+1 : i+1 , 2:])
+   X = np.array(X)
+
+
+   #Extract the output of the neural network
+   #y = dataset_total.iloc[time_step-1:,0:2]
+   Y = dataset_total[0:,0:2]
+   to_polar(Y)
+   #Feature Scaling
+   sc = MinMaxScaler(feature_range = (-1,1))
+   Y = sc.fit_transform(Y)
 
 setup_data(step, train_set)
 
@@ -156,7 +154,7 @@ history = network.fit(X, Y, validation_split=val_dat, epochs=150, batch_size = 6
 #print(history.history['val_loss'])
 #print(history.history['val_acc'])
 
-setup_Val_data(step)
+setup_Val_data(step, test_set)
 scores = network.evaluate(X,Y)
 print("\n%s: %.2f%%" %(network.metrics_names[1],scores[1]*100))
 #%%Evaluate the model
