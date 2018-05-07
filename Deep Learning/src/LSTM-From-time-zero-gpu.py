@@ -69,8 +69,9 @@ MODEL_DIR = '../Models/Models/'
 time_step = 39
 val_split = 0.2    
 
-train_set = ["D1-30MinuteRun-M2.csv"]
-test_set = ["D1-30MinuteRun-M2.csv"]
+train_set = ["D1-30MinuteRun-M2.csv", "D3-30MinuteStillRun-M2.csv",
+             "D2-35MinuteRun-M2.csv"]
+test_set = ["D2-30MinuteRun-M2.csv"]
                            
 def to_polar(data):
     for i in range(0, data.shape[0]):
@@ -87,8 +88,8 @@ def setup_data(time_step, dataset):
     dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
     for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
         dataset_total = pd.concat((dataset_total,
-                                  pd.read_csv("../Datasets/"+element)),
-                                  axis=0)
+                                  pd.read_csv("../Datasets/"+element, 
+                                  dtype = np.float64)), axis=0)
     #Convert into numpy array 
     dataset_total = dataset_total.as_matrix()    
     in_sc = StandardScaler()
@@ -110,7 +111,7 @@ def setup_data(time_step, dataset):
     #Extract the output of the neural network
     y = dataset_total[0:,0:2]
     #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
-    to_polar(y)
+    #to_polar(y)
     #Feature Scaling
     out_sc = MinMaxScaler(feature_range = (-1,1))
     y = out_sc.fit_transform(y)
@@ -395,7 +396,7 @@ with open(DIR + 'training_logs.txt','a+') as fh:
         fh.write('Test ' + metrics[i] + ': ' + str(train_scores[i]) + '\n')
     fh.write('_______\n')
     for i in range(0,len(metrics)):
-        fh.write('Test ' + metrics[i] + ': ' + str(history[metric[i][-1]]) + '\n')
+        fh.write('Test ' + metrics[i] + ': ' + str(history.history[metrics[i][-1]]) + '\n')
     fh.write('_______\n')
     fh.write('Hyperparameters:\n\n')
     fh.write('Loss: ' + str(loss) + '\n')

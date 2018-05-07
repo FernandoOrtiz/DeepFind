@@ -76,7 +76,7 @@ def main():
     global pose_pub
     global out_scaler
     
-    model = "M0-MAE:0.02-MSE:0.06"
+    model = "M1-MAE:0.00-MSE:0.03"
     #Import the deep learning model
     deep_model = load_model("../Models/Models/"+model+'.h5py')
     deep_model._make_predict_function()
@@ -88,12 +88,14 @@ def main():
     
     rnn_model_input = np.zeros((time_steps, features))
     
-    rospy.init_node("neural_network")
+    print("Initializing ROS")
     pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
     #data_sub = rospy.Subscriber("sensor_data", SensorData, sensor_data_callback)
-    
+    rospy.init_node("neural_network") 
     #rospy.spin()
     
+    
+    print("ROS Initialized")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message("sensor_data", SensorData)
         if(input_format == "M2"):

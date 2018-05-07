@@ -1,0 +1,6 @@
+#!/bin/bash
+ips=172.16.1.0/24
+fpings=$(fping -c 1 -t 1 $ips 2>/dev/null | sort) 
+string=$(arp -n | grep "00:04:4b:8d:02")
+IFS=' ' read -r -a array <<< "$string"
+echo "$array"
