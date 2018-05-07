@@ -208,7 +208,7 @@ pyplot.ylabel('measurement')
 pyplot.xlabel('meters')
 pyplot.legend(['prediction', 'expected outcome'], loc='upper right')
 pyplot.show()
-setup_data(step)
+
 
 #%%
 
