@@ -73,7 +73,7 @@ if(polar):
     model_output = 'PoLR'
 
 train_set = ["D3-30MinuteStillRun-F2.csv", "D1-30MinuteRun-F2.csv",
-             "D4-18MinuteRun-F2.csv"]
+             "D4-18MinuteRun-F2.csv", "D5-7MinuteRun-F2.csv"]
 test_set = ["D2-35MinuteRun-F2.csv"]
 input_format = train_set[0].split('-')[-1].split('.')[0]
                            
@@ -125,10 +125,10 @@ x, y, out_sc = setup_data(time_step, train_set)
 ###############################################################################
 #Setup TODO -
 
-units = 80
-dropout = 0.02
-regularizer_k = 0.01
-regularizer_r = 0.000001
+units = 1
+dropout = 0.0
+regularizer_k = 0.1
+regularizer_r = 0.1
 optimizer = 'adam'
 epochs = 150
 batch_size = 64
@@ -162,9 +162,9 @@ regresor.add(LSTM(units = units,
 
 #Second Layer----------------------------------#
 #LSTM
-regresor.add(LSTM(units = units, 
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
+#regresor.add(LSTM(units = units, 
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
 regresor.add(Activation('relu'))
 #ANN
 #regresor.add(Dense(units = units, activation = None))
@@ -225,8 +225,8 @@ regresor.add(Activation('relu'))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #ANN
-regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
-                   activation = 'relu'))
+#regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
+#                   activation = 'relu'))
 #regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
 #                   activation = 'tanh'))
 #----------------------------------------------#
