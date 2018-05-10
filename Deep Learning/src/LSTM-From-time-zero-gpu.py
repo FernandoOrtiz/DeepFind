@@ -61,20 +61,43 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.5
 k.tensorflow_backend.set_session(tf.Session(config=config))
 ###################################
 
+
+#%%
+
 DIR = '../Models/'
+time_step = 9
+val_split = 0.2    
+polar = False
+out_return_sequence = True
+units = 20
+dropout = 0.2
+regularizer_k = 0.0002
+regularizer_r = 0.0002
+optimizer = 'rmsprop'
+epochs = 100
+batch_size = 10000
+loss = 'logcosh'
+metrics = ['mae','mse']
+
+train_set = ["D1-30MinuteRun-F2.csv", "D3-30MinuteStillRun-F2.csv",
+             "D2-35MinuteRun-F2.csv","D4-18MinuteRun-F2.csv",
+             "D7-60MinuteRun-F2.csv"]
+test_set = ["D5-7MinuteRun-F2.csv"]
+
+###############################################################################
+
+
+
+
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 40
-val_split = 0.2    
-polar = False
+
 model_output = 'CaRT'
 if(polar):
     model_output = 'PoLR'
 
-train_set = ["D3-30MinuteStillRun-F2.csv", "D1-30MinuteRun-F2.csv",
-             "D2-35MinuteRun-F2.csv"]
-test_set = ["D2-35MinuteRun-F2.csv"]
+
 input_format = train_set[0].split('-')[-1].split('.')[0]
                            
 def to_polar(data):
@@ -109,12 +132,28 @@ def setup_data(time_step, dataset):
     x = np.array(x)
     
     #Extract the output of the neural network
-    y = dataset_total[0:,0:2]
+    y_set = dataset_total[0:,0:2]
     #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
-    #to_polar(y)
+    if(polar):
+        to_polar(y_set)
     #Feature Scaling
     out_sc = MinMaxScaler(feature_range = (-1,1))
-    y = out_sc.fit_transform(y)
+    y_set = out_sc.fit_transform(y_set)
+    
+    if(out_return_sequence):
+        y = []
+        for i in range(1, time_step):                                              #Pad initial values with zeros 
+            y.append(np.concatenate((np.zeros((time_step-i, 
+                 y_set.shape[1])), y_set[0:i, :]), 
+                 axis = 0))
+    
+    
+        for i in range(time_step-1, int(y_set.size/y_set.shape[1])):
+            y.append(y_set[i-time_step+1 : i+1 , :])
+        y = np.array(y)
+    else:
+        y = y_set
+    
     
     return x, y, out_sc
 
@@ -125,31 +164,21 @@ x, y, out_sc = setup_data(time_step, train_set)
 ###############################################################################
 #Setup TODO -
 
-units = 40
-dropout = 0.2
-regularizer_k = 0.0001
-regularizer_r = 0.0001
-optimizer = 'adam'
-epochs = 3
-batch_size = 10000
-loss = 'mae'
-metrics = ['mae','mse', 'logcosh','acc']
 
-###############################################################################
 
 #Initialize the model
 regresor = Sequential()
 
-#First Layer  -----------------------------------------------------------------
+#First Layer  ----------------------------------------------------------------
 #Note that this is the only layer with input_shape
 #Should only use one of these
 
 #LSTM First layer
-regresor.add(CuDNNLSTM(units = units, 
+regresor.add(CuDNNLSTM(units = 5, 
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
                        input_shape=(x.shape[1], x.shape[2])))
-
+#regresor.add(Activation('tanh'))
 #ANN First Layer
 #regresor.add(Dense(units = units, activation = 'tanh', 
 #                   input_shape=(x.shape[1], x.shape[2])))
@@ -162,10 +191,10 @@ regresor.add(CuDNNLSTM(units = units,
 
 #Second Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, 
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
-regresor.add(Activation('tanh'))
+#regresor.add(CuDNNLSTM(units = units, 
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
+#regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = None))
 #regresor.add(Dropout(dropout))
@@ -174,7 +203,7 @@ regresor.add(Activation('tanh'))
 
 #Third Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, 
+#regresor.add(CuDNNLSTM(units = 5, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -218,15 +247,17 @@ regresor.add(Activation('tanh'))
 
 #Additional ANN Layers----------------------------------#
 #ANN
-#regresor.add(Dense(units = units, activation = 'relu'))
+regresor.add(Dense(units = units, activation = None, 
+                   kernel_regularizer=l2(regularizer_k)))
 #regresor.add(Dropout(dropout))
 #ANN
-#regresor.add(Dense(units = int(units/2), activation = 'sigmoid'))
+#regresor.add(Dense(units = int(units), activation = 'tanh'))
 #ANN
-#regresor.add(Dense(units = units, activation = 'tanh'))
+regresor.add(Dense(units = units, activation = None, 
+                   kernel_regularizer=l2(regularizer_k)))
 #ANN
 regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
-                   activation = 'tanh'))
+                  activation = None))
 #regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
 #                   activation = 'tanh'))
 #----------------------------------------------#
@@ -237,12 +268,13 @@ regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
 
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r)))
-regresor.add(Activation('tanh'))
+#regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = out_return_sequence))
+#regresor.add(Activation('tanh'))
 
 #ANN Last Layer
-#regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_c),
-#                   activation = 'tanh', use_bias = False))
+regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
+                   activation = None, use_bias = True))
 #------------------------------------------------------------------------------
 
 
@@ -265,7 +297,7 @@ regresor.compile(optimizer = optimizer , loss = loss,
 #tensorboard
 #tensorboard_cb = TensorBoard(log_dir='../tensorboard_logs/{}'
 #.format(model_number), histogram_freq=0, batch_size=32, write_graph=True,
-# write_grads=True, write_images=False, embeddings_freq=0, 
+## write_grads=True, write_images=False, embeddings_freq=0, 
 # embeddings_layer_names=None, embeddings_metadata=None)
 #model_number += 1 
 
@@ -278,23 +310,27 @@ regresor.compile(optimizer = optimizer , loss = loss,
 #Train the model---------------------------------------------------------------
 #Fit the data
 #TODO - add handling of ctrl + c
-
-history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
+finished_training = False
+try:
+    history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
           callbacks= [], batch_size = batch_size)
-
-
-#except KeyboardInterrupt:
-#    print('Trying to save history from unecessarily long training')
-
+    finished_training = True
+except KeyboardInterrupt:
+    print('Stopped training')
+    finished_training = False
 
 #Save name for images and files
 with open(DIR + 'training_logs.txt','a+') as fh:
     fh.seek(0)
     run_count = fh.read().count('Training session #: ') + 1
-save_name = 'M{}-{}-MAE:{:.2f}-MSE:{:.2f}-{}'.format(run_count, model_output,
+try:
+    save_name = 'M{}-{}-MAE:{:.2f}-MSE:{:.2f}-{}'.format(run_count, model_output,
               float(history.history['val_mean_absolute_error'][-1]), 
               float(history.history['val_mean_squared_error'][-1]),
               input_format)
+except NameError:
+    save_name = 'M{}-{}-MAE:{}-MSE:{}-{}'.format(run_count, model_output,
+              'x','x',input_format)
 SAVE_DIR = DIR + save_name + '/'
 if not os.path.exists(SAVE_DIR):
     os.makedirs(SAVE_DIR)
@@ -307,18 +343,19 @@ else:
 #%%Evaluate the model
 
 #Plot this data
-
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model train loss vs validation loss')
-plt.ylabel('loss: ' + loss)
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper right')
-plt.savefig(SAVE_DIR + 'Loss - ' + save_name + '.png')
-plt.show()
-
-
-print('Lowest val loss = ' + str(min(history.history['val_loss'])))
+if(finished_training):
+    plt.figure(figsize=(15,15))
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model train loss vs validation loss')
+    plt.ylabel('loss: ' + loss)
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper right')
+    plt.savefig(SAVE_DIR + 'Loss - ' + save_name + '.png')
+    plt.show()
+    
+    
+    print('Lowest val loss = ' + str(min(history.history['val_loss'])))
 
 #%%
 ####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
@@ -328,14 +365,20 @@ if(regresor.input_shape[1] != time_step):
 
 slice_index = int(x.shape[0]*(1-val_split))
 prediction = regresor.predict(x=x[slice_index:,0:,0:])
+if(not out_return_sequence):
+    expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
+else:
+    expected_outcome = y[slice_index:,-1,:].reshape(prediction.shape[0], 2)
+    expected_outcome = out_sc.inverse_transform(expected_outcome)
+    prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
 prediction = out_sc.inverse_transform(prediction)
-expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
-#expected_outcome = y[slice_index:,:]
+
 
 train_scores = regresor.evaluate(x,y)
 
-plt.plot(expected_outcome[0:, 0:1])
+plt.figure(figsize=(15,15))
 plt.plot(prediction[0:,0:1])
+plt.plot(expected_outcome[0:,0:1])
 if(polar):
     plt.title('Validation: Magnitud')
     plt.ylabel('meters')
@@ -350,13 +393,14 @@ else:
     plt.savefig(SAVE_DIR + 'Validation - X axis' + save_name+ '.png')
 plt.show()
 
-plt.plot(expected_outcome[0:, 1:2])
+plt.figure(figsize=(15,15))
 plt.plot(prediction[0:,1:2])
+plt.plot(expected_outcome[0:,1:2])
 if(polar):
     plt.title('Validation: Angle')
     plt.ylabel('radians')
 else:
-    plt.title('Validation: X')
+    plt.title('Validation: Y')
     plt.ylabel('meters')
 plt.xlabel('measurement')
 plt.legend(['expected outcome', 'prediction'], loc='upper right')
@@ -375,15 +419,22 @@ if(regresor.input_shape[1] != time_step):
 else:
     x, y, out_sc = setup_data(time_step, test_set)
 
+
 slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:,0:,0:])
+prediction = regresor.predict(x=x[:,0:,0:])
+if(not out_return_sequence):
+    expected_outcome = out_sc.inverse_transform(y[:,:])
+else:
+    expected_outcome = y[:,-1,:].reshape(prediction.shape[0], 2)
+    expected_outcome = out_sc.inverse_transform(expected_outcome)
+    prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
 prediction = out_sc.inverse_transform(prediction)
-expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
-#expected_outcome = y[slice_index:,:]
+
 
 test_scores = regresor.evaluate(x,y)
-
-plt.plot(expected_outcome[0:, 0:1])
+######### PLOT X or Magnitud
+plt.figure(figsize=(15,15))
+plt.plot(expected_outcome[0:,0:1])
 plt.plot(prediction[0:,0:1])
 if(polar):
     plt.title('Test: Magnitud')
@@ -399,13 +450,16 @@ else:
     plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
 plt.show()
 
-plt.plot(expected_outcome[0:, 1:2])
+
+######### PLOT Y or ANGLE
+plt.figure(figsize=(15,15))
+plt.plot(expected_outcome[0:,1:2])
 plt.plot(prediction[0:,1:2])
 if(polar):
     plt.title('Test: Angle')
     plt.ylabel('radians')
 else:
-    plt.title('Test: X')
+    plt.title('Test: Y')
     plt.ylabel('meters')
 plt.xlabel('measurement')
 plt.legend(['expected outcome', 'prediction'], loc='upper right')
@@ -421,16 +475,23 @@ plt.show()
 #%%Save the network if it is good----------------------------------------------
 
 save_to_file = False
+valid_input = False
 inp = input("Do you want to save this model? (yes/no): ")
-if(inp.lower() == 'yes' or inp.lower() == 'y'):
-    
-    joblib.dump(out_sc,SAVE_DIR + save_name + '.scl')
-    regresor.save(SAVE_DIR  + save_name + '.h5py')
-    save_to_file = True
+while(not valid_input):
+    if(inp.lower() == 'yes' or inp.lower() == 'y' ):
+        joblib.dump(out_sc,SAVE_DIR + save_name + '.scl')
+        regresor.save(SAVE_DIR  + save_name + '.h5py')
+        save_to_file = True
+        valid_input = True
+        print("Saved to file")
+    elif (inp.lower() == 'no' or inp.lower() == 'n'):
+        shutil.rmtree(SAVE_DIR)
+        print("Did not save to file")
+        valid_input = True
+    else:
+        print('Invalid input')
+        inp = input("Do you want to save this model? (yes/no): ")
 
-else:
-    shutil.rmtree(SAVE_DIR)
-    
     
 #Append to logfile inconditionally
 # Open the file
@@ -462,6 +523,7 @@ with open(DIR + 'training_logs.txt','a+') as fh:
     fh.write('_______\n')
     fh.write('Training Sets: ' + str(train_set) + '\n')
     fh.write('Test Sets: ' + str(test_set) + '\n')
+    fh.write('Finished Training: ' + str(finished_training) + '\n')
     fh.write('_______\n')
     fh.write('Saved to file: ')
     if(save_to_file):

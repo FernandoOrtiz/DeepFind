@@ -76,14 +76,13 @@ def main():
     global pose_pub
     global out_scaler
     
-    model = "M1-MAE:0.00-MSE:0.03-M2.csv"
+    model = "M56-CaRT-MAE:0.14-MSE:0.04-F2"
     polar = False
     if(model.find('PoLR') > 0):
         polar = True
     input_format = model.split('-')[-1]
     
-    
-    MODEL_DIR = ("../Models/" + model + "/" +model)
+    MODEL_DIR = ("../Models/" + model + "/" + model)
     #Import the deep learning model
     deep_model = load_model(MODEL_DIR + '.h5py')
     deep_model._make_predict_function()
