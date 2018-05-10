@@ -65,7 +65,7 @@ DIR = '../Models/'
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 10
+time_step = 2
 val_split = 0.3    
 polar = True
 model_output = 'CaRT'
@@ -126,7 +126,7 @@ x, y, out_sc = setup_data(time_step, train_set)
 ###############################################################################
 #Setup TODO -
 
-units = 7
+units = 10
 dropout = 0.02
 regularizer_k = 0.01
 regularizer_r = 0.01

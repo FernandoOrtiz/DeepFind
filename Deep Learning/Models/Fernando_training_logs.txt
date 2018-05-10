@@ -314,3 +314,55 @@ Test Sets: ['D2-35MinuteRun-F2.csv']
 _______
 Saved to file: F6-PoLR-MAE:0.17-MSE:0.06-F2.h5py
 _________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 7
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_7 (LSTM)                (None, 10, 7)             10584     
+_________________________________________________________________
+activation_7 (Activation)    (None, 10, 7)             0         
+_________________________________________________________________
+lstm_8 (LSTM)                (None, 2)                 80        
+_________________________________________________________________
+activation_8 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 10,664
+Trainable params: 10,664
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.02057055874847219
+val_mean_absolute_error: 0.14605084862122844
+val_mean_squared_error: 0.043633732571712144
+val_logcosh: 0.020567783046032347
+val_acc: 0.8235873659808751
+loss: 0.001104243627277829
+mean_absolute_error: 0.03512563427224122
+mean_squared_error: 0.0022065422090243327
+logcosh: 0.0011011965991268718
+acc: 0.9512655555279564
+_______
+_______
+Test mae: 0.08251875837972367
+Test mse: 0.32230880225131564
+Test logcosh: 0.17910121328533554
+Test acc: 0.08251598221794462
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 10
+Batch size: 64
+Dropout: 0.02
+Regularizer: 0.01
+Recurrent Regularizer: 0.01
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv', 'D7-60MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: N/A
+_________________________________________________________________//
