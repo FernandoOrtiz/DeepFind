@@ -65,7 +65,7 @@ DIR = '../Models/'
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 20
+time_step = 10
 val_split = 0.3    
 polar = True
 model_output = 'CaRT'
@@ -73,7 +73,8 @@ if(polar):
     model_output = 'PoLR'
 
 train_set = ["D3-30MinuteStillRun-F2.csv", "D1-30MinuteRun-F2.csv",
-             "D4-18MinuteRun-F2.csv", "D5-7MinuteRun-F2.csv"]
+             "D4-18MinuteRun-F2.csv", "D5-7MinuteRun-F2.csv", 
+             "D7-60MinuteRun-F2.csv", "D8-60MinuteRun-F2.csv"]
 test_set = ["D2-35MinuteRun-F2.csv"]
 input_format = train_set[0].split('-')[-1].split('.')[0]
                            
@@ -125,10 +126,10 @@ x, y, out_sc = setup_data(time_step, train_set)
 ###############################################################################
 #Setup TODO -
 
-units = 1
-dropout = 0.0
-regularizer_k = 0.1
-regularizer_r = 0.1
+units = 7
+dropout = 0.02
+regularizer_k = 0.01
+regularizer_r = 0.01
 optimizer = 'adam'
 epochs = 150
 batch_size = 64

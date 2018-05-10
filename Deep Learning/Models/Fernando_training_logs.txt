@@ -54,3 +54,263 @@ Test Sets: ['D2-35MinuteRun-F2.csv']
 _______
 Saved to file: F1-PoLR-MAE:0.09-MSE:0.02-F2.h5py
 _________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 2
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_1 (LSTM)                (None, 20, 1)             1488      
+_________________________________________________________________
+activation_1 (Activation)    (None, 20, 1)             0         
+_________________________________________________________________
+lstm_2 (LSTM)                (None, 2)                 32        
+_________________________________________________________________
+activation_2 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 1,520
+Trainable params: 1,520
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.07658904350273862
+val_mean_absolute_error: 0.2965332833822062
+val_mean_squared_error: 0.16841237748241555
+val_logcosh: 0.07564882888570192
+val_acc: 0.6342161775506924
+loss: 0.020304089582626788
+mean_absolute_error: 0.14293253925367855
+mean_squared_error: 0.04051403809878736
+logcosh: 0.019395191024384962
+acc: 0.8329754130587537
+_______
+_______
+Test mae: 0.13450394856938
+Test mse: 0.4357576062457087
+Test logcosh: 0.2985781543881784
+Test acc: 0.13356373163584262
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 20
+Batch size: 64
+Dropout: 0.0
+Regularizer: 0.1
+Recurrent Regularizer: 0.1
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: N/A
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 3
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_1 (LSTM)                (None, 20, 1)             1488      
+_________________________________________________________________
+activation_1 (Activation)    (None, 20, 1)             0         
+_________________________________________________________________
+lstm_2 (LSTM)                (None, 2)                 32        
+_________________________________________________________________
+activation_2 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 1,520
+Trainable params: 1,520
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.5995213732737471
+val_mean_absolute_error: 1.0619167580280888
+val_mean_squared_error: 1.6162566526043098
+val_logcosh: 0.5995196444205326
+val_acc: 0.3107588117592735
+loss: 0.001335043332848711
+mean_absolute_error: 0.0364300928446169
+mean_squared_error: 0.0026749083167915775
+logcosh: 0.0013330169909232697
+acc: 1.0
+_______
+_______
+Test mae: 0.4097116774858953
+Test mse: 0.9001171886813688
+Test logcosh: 1.0034640591765416
+Test acc: 0.40970994895119683
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 20
+Batch size: 64
+Dropout: 0.02
+Regularizer: 0.01
+Recurrent Regularizer: 0.01
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv', 'D6-27MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: N/A
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 4
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_1 (LSTM)                (None, 5, 1)              1488      
+_________________________________________________________________
+activation_1 (Activation)    (None, 5, 1)              0         
+_________________________________________________________________
+lstm_2 (LSTM)                (None, 2)                 32        
+_________________________________________________________________
+activation_2 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 1,520
+Trainable params: 1,520
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.05119200098608687
+val_mean_absolute_error: 0.261392122353809
+val_mean_squared_error: 0.10755684692731061
+val_logcosh: 0.051093283987848855
+val_acc: 0.6906983483082935
+loss: 0.04016273404440832
+mean_absolute_error: 0.22501698083659807
+mean_squared_error: 0.08446072907469016
+logcosh: 0.04004676195088284
+acc: 0.6340445614645173
+_______
+_______
+Test mae: 0.13279414398259892
+Test mse: 0.4442473911736471
+Test logcosh: 0.2922098146747278
+Test acc: 0.1326954278660831
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 5
+Batch size: 64
+Dropout: 0.02
+Regularizer: 0.01
+Recurrent Regularizer: 0.01
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv', 'D7-60MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: N/A
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 5
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_3 (LSTM)                (None, 5, 3)              4488      
+_________________________________________________________________
+activation_3 (Activation)    (None, 5, 3)              0         
+_________________________________________________________________
+lstm_4 (LSTM)                (None, 2)                 48        
+_________________________________________________________________
+activation_4 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 4,536
+Trainable params: 4,536
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.03709250288232578
+val_mean_absolute_error: 0.2107822709137445
+val_mean_squared_error: 0.07823539764623871
+val_logcosh: 0.036995365659718976
+val_acc: 0.704549405976193
+loss: 0.015507024491498262
+mean_absolute_error: 0.1364549387031416
+mean_squared_error: 0.031475787582416544
+logcosh: 0.01541125266934307
+acc: 0.7521796368528678
+_______
+_______
+Test mae: 0.11113962570121101
+Test mse: 0.38613227757959184
+Test logcosh: 0.24560695357778897
+Test acc: 0.11104249005429684
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 5
+Batch size: 64
+Dropout: 0.02
+Regularizer: 0.01
+Recurrent Regularizer: 0.01
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv', 'D7-60MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: N/A
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 6
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_5 (LSTM)                (None, 8, 5)              7520      
+_________________________________________________________________
+activation_5 (Activation)    (None, 8, 5)              0         
+_________________________________________________________________
+lstm_6 (LSTM)                (None, 2)                 64        
+_________________________________________________________________
+activation_6 (Activation)    (None, 2)                 0         
+=================================================================
+Total params: 7,584
+Trainable params: 7,584
+Non-trainable params: 0
+_________________________________________________________________
+val_loss: 0.02833943555829979
+val_mean_absolute_error: 0.1693621289877745
+val_mean_squared_error: 0.060883922477260065
+val_logcosh: 0.02832903493756698
+val_acc: 0.8041147493480151
+loss: 0.003259103032601512
+mean_absolute_error: 0.05978645757201585
+mean_squared_error: 0.006541252404460809
+logcosh: 0.003250800582263967
+acc: 0.8875282545517772
+_______
+_______
+Test mae: 0.07843825277798991
+Test mse: 0.3126535479717079
+Test logcosh: 0.17061636540393071
+Test acc: 0.07842785186053065
+_______
+Hyperparameters:
+
+Loss: logcosh
+Optimizer: adam
+Timesetps: 8
+Batch size: 64
+Dropout: 0.02
+Regularizer: 0.01
+Recurrent Regularizer: 0.01
+Epochs: 150
+Validation Split: 0.3
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D1-30MinuteRun-F2.csv', 'D4-18MinuteRun-F2.csv', 'D5-7MinuteRun-F2.csv', 'D7-60MinuteRun-F2.csv']
+Test Sets: ['D2-35MinuteRun-F2.csv']
+_______
+Saved to file: F6-PoLR-MAE:0.17-MSE:0.06-F2.h5py
+_________________________________________________________________//
