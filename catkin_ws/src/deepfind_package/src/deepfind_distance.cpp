@@ -21,7 +21,7 @@ DeepFindDistance::DeepFindDistance () {
      poseSubscriber = node.subscribe("slam_out_pose", 1000, &DeepFindDistance::poseCallback, this);
 
      //Publisher setup
-     distancePublisher = node.advertise<deepfind_package::distance_traveled>("distance_traveled", 1000);
+     distancePublisher = node.advertise<deepfind_package::Distance>("distance_traveled", 1000);
 
      initialPose = true;
 }

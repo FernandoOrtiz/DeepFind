@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <deepfind_package/distance_traveled.h>
+#include <deepfind_package/Distance.h>
 #include <deepfind_package/keyboard.h>
 
 class DeepFindDistance {
@@ -29,6 +29,6 @@ class DeepFindDistance {
    ros::Subscriber poseSubscriber;
 
    //Publishers
-   deepfind_package::distance_traveled deepfindDistance;
+   deepfind_package::Distance deepfindDistance;
    ros::Publisher distancePublisher;
 };

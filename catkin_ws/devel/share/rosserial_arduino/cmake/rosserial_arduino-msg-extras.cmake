@@ -1,2 +1,2 @@
-set(rosserial_arduino_MESSAGE_FILES "/home/rathk/DeepFind/catkin_ws/src/rosserial/rosserial_arduino/msg/Adc.msg")
-set(rosserial_arduino_SERVICE_FILES "/home/rathk/DeepFind/catkin_ws/src/rosserial/rosserial_arduino/srv/Test.srv")
+set(rosserial_arduino_MESSAGE_FILES "/home/resorte/DeepFind/catkin_ws/src/rosserial/rosserial_arduino/msg/Adc.msg")
+set(rosserial_arduino_SERVICE_FILES "/home/resorte/DeepFind/catkin_ws/src/rosserial/rosserial_arduino/srv/Test.srv")

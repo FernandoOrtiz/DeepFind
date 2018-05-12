@@ -7,6 +7,8 @@
                :std_msgs-msg
 )
   :components ((:file "_package")
+    (:file "Distance" :depends-on ("_package_Distance"))
+    (:file "_package_Distance" :depends-on ("_package"))
     (:file "EncodersData" :depends-on ("_package_EncodersData"))
     (:file "_package_EncodersData" :depends-on ("_package"))
     (:file "Keyboard" :depends-on ("_package_Keyboard"))
@@ -17,6 +19,4 @@
     (:file "_package_SensorData" :depends-on ("_package"))
     (:file "Velocity" :depends-on ("_package_Velocity"))
     (:file "_package_Velocity" :depends-on ("_package"))
-    (:file "distance_traveled" :depends-on ("_package_distance_traveled"))
-    (:file "_package_distance_traveled" :depends-on ("_package"))
   ))

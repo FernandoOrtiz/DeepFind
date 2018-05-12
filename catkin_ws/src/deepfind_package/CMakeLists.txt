@@ -57,7 +57,7 @@ add_message_files(
   EncodersData.msg
   SensorData.msg
   MotorCommand.msg
-  distance_traveled.msg
+  Distance.msg
   Keyboard.msg
   Velocity.msg
 )
