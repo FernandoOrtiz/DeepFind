@@ -1,8 +1,8 @@
 TrajectoryPlannerROS:
 
 # Robot Configuration Parameters
-  max_vel_x: 2.0
-  min_vel_x: 0.50
+  max_vel_x: 1.5
+  min_vel_x: -1.5
 
   max_vel_theta: 1.0
   min_vel_theta: -1.0
@@ -24,16 +24,15 @@ TrajectoryPlannerROS:
 
 # Trajectory Scoring Paramerers
   meter_scoring: true
-  pdist_scale: 0.6
-  gdist_scale: 0.8
-#  path_distance_bias: 5.0
-#  goal_distance_bias: 0.8
-#  occdist_scale: 0.01
+#  pdist_scale: 0.6
+#  gdist_scale: 0.8
+  path_distance_bias: 32.0
+  goal_distance_bias: 24.0
+  occdist_scale: 0.01
   heading_lookahead: 0.325
   dwa: true
 
 # Oscillation Prevention Parameters
-  oscillation_timeout: 5.0
   oscillation_reset_dist: 0.01
 
 # Differential-drive robot configuration
