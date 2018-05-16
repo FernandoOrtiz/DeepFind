@@ -76,8 +76,9 @@ def main():
     global pose_pub
     global out_scaler
     
-    model = "M56-CaRT-MAE:0.14-MSE:0.04-F2"
+    model = "M64-CaRT-MAE:0.14-MSE:0.04-F2"
     polar = False
+    out_return_sequences = True
     if(model.find('PoLR') > 0):
         polar = True
     input_format = model.split('-')[-1]
@@ -90,8 +91,13 @@ def main():
     #initialize the amount of timesteps
     time_steps = deep_model.input_shape[1]
     features = deep_model.input_shape[2]
-    
-    rnn_model_input = np.zeros((time_steps, features))
+    output_timesteps = deep_model.output_shape[1]
+    return_output = False
+    if(output_timesteps > 2):
+        rnn_model_input = np.zeros((time_steps, features))
+        return_output = True
+    else:
+        rnn_model_input = np.zeros((time_steps, features))
     
     print("Initializing ROS")
     pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
@@ -123,9 +129,12 @@ def main():
         scaled_data = scaler.fit_transform(rnn_model_input)
         scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
                                           scaled_data.shape[1])
-        time.sleep(0.5)
-        output = deep_model.predict(x=scaled_data)
-        output = out_scaler.inverse_transform(output)
+        #time.sleep(0.5)
+        if(out_return_sequences):
+            output = deep_model.predict(x=scaled_data)
+        else:
+            output = deep_model.predict(x=scaled_data)
+            output = out_scaler.inverse_transform(output[:,-1,:].reshape(-1,2))
         
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
