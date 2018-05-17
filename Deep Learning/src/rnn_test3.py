@@ -65,7 +65,7 @@ DIR = '../Models/'
 
 #%%
 #The amount of time-steps the LSTM will look back at
-time_step = 2
+time_step = 7
 val_split = 0.3    
 polar = True
 model_output = 'CaRT'
@@ -74,7 +74,9 @@ if(polar):
 
 train_set = ["D3-30MinuteStillRun-F2.csv", "D1-30MinuteRun-F2.csv",
              "D4-18MinuteRun-F2.csv", "D5-7MinuteRun-F2.csv", 
-             "D7-60MinuteRun-F2.csv", "D8-60MinuteRun-F2.csv"]
+             "D7-60MinuteRun-F2.csv", "D8-60MinuteRun-F2.csv",
+             "D9-60-MinuteRun-F2.csv","D10-30MinuteRun-F2.csv",
+             "D11-30MinuteRun-F2.csv","D12-25MinuteRun-F2.csv"]
 test_set = ["D2-35MinuteRun-F2.csv"]
 input_format = train_set[0].split('-')[-1].split('.')[0]
                            
@@ -126,7 +128,7 @@ x, y, out_sc = setup_data(time_step, train_set)
 ###############################################################################
 #Setup TODO -
 
-units = 10
+units = 30
 dropout = 0.02
 regularizer_k = 0.01
 regularizer_r = 0.01
@@ -166,7 +168,7 @@ regresor.add(LSTM(units = units,
 #regresor.add(LSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
-regresor.add(Activation('relu'))
+regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = None))
 #regresor.add(Dropout(dropout))
@@ -239,7 +241,7 @@ regresor.add(Activation('relu'))
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
 regresor.add(LSTM(units = 2, recurrent_regularizer = l2(regularizer_r)))
-regresor.add(Activation('linear'))
+regresor.add(Activation('tanh'))
 
 #ANN Last Layer
 #regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_c),
