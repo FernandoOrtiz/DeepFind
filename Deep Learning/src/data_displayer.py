@@ -18,7 +18,8 @@ data_sets = ["D1-30MinuteRun-F2.csv",
              "D4-18MinuteRun-F2.csv",
              "D5-7MinuteRun-F2.csv", 
              "D6-27MinuteRun-F2.csv",
-             "D7-60MinuteRun-F2.csv"]
+             "D7-60MinuteRun-F2.csv",
+             "D8-60MinuteRun-F2.csv"]
 
 
 i = 0

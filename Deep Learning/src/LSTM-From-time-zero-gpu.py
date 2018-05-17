@@ -16,6 +16,7 @@ import pandas as pd
 import tensorflow as tf
 import shutil
 import matplotlib.pyplot as plt
+import gc
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
@@ -61,35 +62,39 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.5
 k.tensorflow_backend.set_session(tf.Session(config=config))
 ###################################
 
-
+###############################################################################
 #%%
 
 DIR = '../Models/'
-time_step = 9
+time_step = 7
 val_split = 0.2    
 polar = False
-out_return_sequence = True
-units = 20
+in_return_sequence = True
+out_return_sequence = False
+units = 50
+r_units = 50
 dropout = 0.2
-regularizer_k = 0.0002
-regularizer_r = 0.0002
-optimizer = 'rmsprop'
-epochs = 100
+regularizer_k = 0.003
+regularizer_r = 0.003
+optimizer = 'adam'
+epochs = 7000
 batch_size = 10000
-loss = 'logcosh'
+loss = 'mae'
 metrics = ['mae','mse']
+train_set = ["D8-60MinuteRun-F2.csv",
+             "D7-60MinuteRun-F2.csv",
+             "D1-30MinuteRun-F2.csv", 
+             "D3-30MinuteStillRun-F2.csv",
+             "D2-35MinuteRun-F2.csv",
+             "D4-18MinuteRun-F2.csv",
+             "D9-60-MinuteRun-F2.csv",
+             "D10-30MinuteRun-F2.csv",
+             "D11-30MinuteRun-F2.csv",
+             "D12-25MinuteRun-F2.csv"]
 
-train_set = ["D1-30MinuteRun-F2.csv", "D3-30MinuteStillRun-F2.csv",
-             "D2-35MinuteRun-F2.csv","D4-18MinuteRun-F2.csv",
-             "D7-60MinuteRun-F2.csv"]
 test_set = ["D5-7MinuteRun-F2.csv"]
 
 ###############################################################################
-
-
-
-
-
 #%%
 #The amount of time-steps the LSTM will look back at
 
@@ -121,16 +126,18 @@ def setup_data(time_step, dataset):
     
     #Reshappe the inpputt so it fits the recurrent neural network
     x = []
-    for i in range(1, time_step):                                              #Pad initial values with zeros 
-        x.append(np.concatenate((np.zeros((time_step-i, 
-                 dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), 
-                 axis = 0))
-    
-    
-    for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
-        x.append(dataset_total[i-time_step+1 : i+1 , 2:])
-    x = np.array(x)
-    
+    if(in_return_sequence):
+        for i in range(1, time_step):                                              #Pad initial values with zeros 
+            x.append(np.concatenate((np.zeros((time_step-i, 
+                     dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), 
+                     axis = 0))
+        
+        
+        for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
+            x.append(dataset_total[i-time_step+1 : i+1 , 2:])
+        x = np.array(x)
+    else:
+        x = dataset_total[0:,2:]
     #Extract the output of the neural network
     y_set = dataset_total[0:,0:2]
     #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
@@ -138,6 +145,7 @@ def setup_data(time_step, dataset):
         to_polar(y_set)
     #Feature Scaling
     out_sc = MinMaxScaler(feature_range = (-1,1))
+    #out_sc = StandardScaler()
     y_set = out_sc.fit_transform(y_set)
     
     if(out_return_sequence):
@@ -159,7 +167,7 @@ def setup_data(time_step, dataset):
 
 x, y, out_sc = setup_data(time_step, train_set)
 
-
+###############################################################################
 #%% Part 2 - Building the RNN
 ###############################################################################
 #Setup TODO -
@@ -174,14 +182,14 @@ regresor = Sequential()
 #Should only use one of these
 
 #LSTM First layer
-regresor.add(CuDNNLSTM(units = 5, 
-                       recurrent_regularizer = l2(regularizer_r),
+regresor.add(CuDNNLSTM(units = r_units, 
+                       #recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
                        input_shape=(x.shape[1], x.shape[2])))
 #regresor.add(Activation('tanh'))
 #ANN First Layer
-#regresor.add(Dense(units = units, activation = 'tanh', 
-#                   input_shape=(x.shape[1], x.shape[2])))
+#regresor.add(Dense(units = 50, activation = 'tanh', 
+#                   input_shape=(x.shape[1], )))
 #------------------------------------------------------------------------------
 
 
@@ -203,7 +211,7 @@ regresor.add(CuDNNLSTM(units = 5,
 
 #Third Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = 5, 
+#regresor.add(CuDNNLSTM(units = r_units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -227,6 +235,7 @@ regresor.add(CuDNNLSTM(units = 5,
 #regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
+#regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
@@ -247,17 +256,17 @@ regresor.add(CuDNNLSTM(units = 5,
 
 #Additional ANN Layers----------------------------------#
 #ANN
-regresor.add(Dense(units = units, activation = None, 
-                   kernel_regularizer=l2(regularizer_k)))
+#regresor.add(Dense(units = units, activation = 'tanh', 
+#                   kernel_regularizer=l2(regularizer_k)))
 #regresor.add(Dropout(dropout))
 #ANN
-#regresor.add(Dense(units = int(units), activation = 'tanh'))
+regresor.add(Dense(units = int(units), activation = 'tanh'))
 #ANN
-regresor.add(Dense(units = units, activation = None, 
-                   kernel_regularizer=l2(regularizer_k)))
+#regresor.add(Dense(units = units, activation = None, 
+#                   kernel_regularizer=l2(regularizer_k)))
 #ANN
-regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
-                  activation = None))
+#regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
+#                  activation = None))
 #regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
 #                   activation = 'tanh'))
 #----------------------------------------------#
@@ -268,17 +277,17 @@ regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
 
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-#regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
-#                       return_sequences = out_return_sequence))
+regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
+                       return_sequences = out_return_sequence))
 #regresor.add(Activation('tanh'))
 
 #ANN Last Layer
-regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
-                   activation = None, use_bias = True))
+#regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
+#                   activation = None, use_bias = True))
 #------------------------------------------------------------------------------
 
 
-#Compile this network----------------------------------------------------------
+#Compile this network---------------------------------------------------------
 regresor.compile(optimizer = optimizer , loss = loss, 
                  metrics = metrics)
 #------------------------------------------------------------------------------
@@ -313,7 +322,7 @@ regresor.compile(optimizer = optimizer , loss = loss,
 finished_training = False
 try:
     history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
-          callbacks= [], batch_size = batch_size)
+          callbacks=None, batch_size = batch_size)
     finished_training = True
 except KeyboardInterrupt:
     print('Stopped training')
@@ -324,7 +333,7 @@ with open(DIR + 'training_logs.txt','a+') as fh:
     fh.seek(0)
     run_count = fh.read().count('Training session #: ') + 1
 try:
-    save_name = 'M{}-{}-MAE:{:.2f}-MSE:{:.2f}-{}'.format(run_count, model_output,
+    save_name = 'M{}-{}-MAE:{:.3f}-MSE:{:.3f}-{}'.format(run_count, model_output,
               float(history.history['val_mean_absolute_error'][-1]), 
               float(history.history['val_mean_squared_error'][-1]),
               input_format)
@@ -335,13 +344,15 @@ SAVE_DIR = DIR + save_name + '/'
 if not os.path.exists(SAVE_DIR):
     os.makedirs(SAVE_DIR)
 else:
-    while(not os.path.exists(SAVE_DIR)):
+    dir_name = input("Model Directory already exists: {} \nInput new name: ".format(save_name))    
+    SAVE_DIR = DIR + dir_name + '/'
+    while(os.path.exists(SAVE_DIR)):
         dir_name = input("Model Directory already exists, input new name: ")    
         SAVE_DIR = DIR + dir_name + '/'
     os.makedirs(SAVE_DIR)
-    
+###############################################################################    
 #%%Evaluate the model
-
+###############################################################################
 #Plot this data
 if(finished_training):
     plt.figure(figsize=(15,15))
@@ -356,124 +367,131 @@ if(finished_training):
     
     
     print('Lowest val loss = ' + str(min(history.history['val_loss'])))
-
+    
+###############################################################################
 #%%
 ####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
-
-if(regresor.input_shape[1] != time_step):
-    x, y, out_sc = setup_data(regresor.input_shape[1], train_set)
-
-slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:,0:,0:])
-if(not out_return_sequence):
-    expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
-else:
-    expected_outcome = y[slice_index:,-1,:].reshape(prediction.shape[0], 2)
-    expected_outcome = out_sc.inverse_transform(expected_outcome)
-    prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
-prediction = out_sc.inverse_transform(prediction)
-
-
-train_scores = regresor.evaluate(x,y)
-
-plt.figure(figsize=(15,15))
-plt.plot(prediction[0:,0:1])
-plt.plot(expected_outcome[0:,0:1])
-if(polar):
-    plt.title('Validation: Magnitud')
-    plt.ylabel('meters')
-else:
-    plt.title('Validation: X')
-    plt.ylabel('meters')
-plt.xlabel('measurement')
-plt.legend(['expected outcome', 'prediction'], loc='upper right')
-if(polar):
-    plt.savefig(SAVE_DIR + 'Validation - Magnitud' + save_name+ '.png')
-else:
-    plt.savefig(SAVE_DIR + 'Validation - X axis' + save_name+ '.png')
-plt.show()
-
-plt.figure(figsize=(15,15))
-plt.plot(prediction[0:,1:2])
-plt.plot(expected_outcome[0:,1:2])
-if(polar):
-    plt.title('Validation: Angle')
-    plt.ylabel('radians')
-else:
-    plt.title('Validation: Y')
-    plt.ylabel('meters')
-plt.xlabel('measurement')
-plt.legend(['expected outcome', 'prediction'], loc='upper right')
-if(polar):
-    plt.savefig(SAVE_DIR + 'Validation - Angles' + save_name + '.png')
-else:
-    plt.savefig(SAVE_DIR + 'Validation - Y axis' + save_name + '.png')
-plt.show()
-
+try:
+    if(regresor.input_shape[1] != time_step):
+        x, y, out_sc = setup_data(regresor.input_shape[1], train_set)
+    
+    slice_index = int(x.shape[0]*(1-val_split))
+    prediction = regresor.predict(x=x[slice_index:,0:,0:])
+    if(not out_return_sequence):
+        expected_outcome = out_sc.inverse_transform(y[slice_index:,:])
+    else:
+        expected_outcome = y[slice_index:,-1,:].reshape(prediction.shape[0], 2)
+        expected_outcome = out_sc.inverse_transform(expected_outcome)
+        prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
+    prediction = out_sc.inverse_transform(prediction)
+    
+    
+    train_scores = regresor.evaluate(x,y)
+    
+    plt.figure(figsize=(15,15))
+    plt.plot(prediction[0:,0:1])
+    plt.plot(expected_outcome[0:,0:1])
+    if(polar):
+        plt.title('Validation: Magnitud')
+        plt.ylabel('meters')
+    else:
+        plt.title('Validation: X')
+        plt.ylabel('meters')
+    plt.xlabel('measurement')
+    plt.legend(['prediction', 'expected outcome'], loc='upper right')
+    if(polar):
+        plt.savefig(SAVE_DIR + 'Validation - Magnitud' + save_name+ '.png')
+    else:
+        plt.savefig(SAVE_DIR + 'Validation - X axis' + save_name+ '.png')
+    plt.show()
+    
+    plt.figure(figsize=(15,15))
+    plt.plot(prediction[0:,1:2])
+    plt.plot(expected_outcome[0:,1:2])
+    if(polar):
+        plt.title('Validation: Angle')
+        plt.ylabel('radians')
+    else:
+        plt.title('Validation: Y')
+        plt.ylabel('meters')
+    plt.xlabel('measurement')
+    plt.legend(['expected outcome', 'prediction'], loc='upper right')
+    if(polar):
+        plt.savefig(SAVE_DIR + 'Validation - Angles' + save_name + '.png')
+    else:
+        plt.savefig(SAVE_DIR + 'Validation - Y axis' + save_name + '.png')
+    plt.show()
+except MemoryError:
+    print("Memory error")
+###############################################################################
 #%%
+###############################################################################
 #Test neural networks performance with entirely new dataset
 
 #Verify that the data is configures to the appropriate amount of timesteps
-if(regresor.input_shape[1] != time_step):
-    x, y, out_sc = setup_data(regresor.input_shape[1], test_set)
-else:
-    x, y, out_sc = setup_data(time_step, test_set)
-
-
-slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[:,0:,0:])
-if(not out_return_sequence):
-    expected_outcome = out_sc.inverse_transform(y[:,:])
-else:
-    expected_outcome = y[:,-1,:].reshape(prediction.shape[0], 2)
-    expected_outcome = out_sc.inverse_transform(expected_outcome)
-    prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
-prediction = out_sc.inverse_transform(prediction)
-
-
-test_scores = regresor.evaluate(x,y)
-######### PLOT X or Magnitud
-plt.figure(figsize=(15,15))
-plt.plot(expected_outcome[0:,0:1])
-plt.plot(prediction[0:,0:1])
-if(polar):
-    plt.title('Test: Magnitud')
-    plt.ylabel('meters')
-else:
-    plt.title('Test: X')
-    plt.ylabel('meters')
-plt.xlabel('measurement')
-plt.legend(['expected outcome', 'prediction'], loc='upper right')
-if(polar):
-    plt.savefig(SAVE_DIR + 'Test - Magnitud' + save_name + '.png')
-else:
-    plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
-plt.show()
-
-
-######### PLOT Y or ANGLE
-plt.figure(figsize=(15,15))
-plt.plot(expected_outcome[0:,1:2])
-plt.plot(prediction[0:,1:2])
-if(polar):
-    plt.title('Test: Angle')
-    plt.ylabel('radians')
-else:
-    plt.title('Test: Y')
-    plt.ylabel('meters')
-plt.xlabel('measurement')
-plt.legend(['expected outcome', 'prediction'], loc='upper right')
-if(polar):
-    plt.savefig(SAVE_DIR + 'Test - Angles' + save_name + '.png')
-else:
-    plt.savefig(SAVE_DIR + 'Test - Y axis' + save_name + '.png')
-plt.show()
-#x, y, out_sc = setup_data(time_step, train_set)
-
-
-
+try:  
+    if(regresor.input_shape[1] != time_step):
+        x, y, out_sc = setup_data(regresor.input_shape[1], test_set)
+    else:
+        x, y, out_sc = setup_data(time_step, test_set)
+    slice_index = int(x.shape[0]*(1-val_split))
+    prediction = regresor.predict(x=x[:,0:,0:])
+    if(not out_return_sequence):
+        expected_outcome = out_sc.inverse_transform(y[:,:])
+    else:
+        expected_outcome = y[:,-1,:].reshape(prediction.shape[0], 2)
+        expected_outcome = out_sc.inverse_transform(expected_outcome)
+        prediction = prediction[:,-1,:].reshape(prediction.shape[0], 2)
+    prediction = out_sc.inverse_transform(prediction)
+    
+    
+    test_scores = regresor.evaluate(x,y)
+    ######### PLOT X or Magnitud
+    plt.figure(figsize=(15,15))
+    plt.plot(prediction[0:,0:1])
+    plt.plot(expected_outcome[0:,0:1])
+    if(polar):
+        plt.title('Test: Magnitud')
+        plt.ylabel('meters')
+    else:
+        plt.title('Test: X')
+        plt.ylabel('meters')
+    plt.xlabel('measurement')
+    plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
+    if(polar):
+        plt.savefig(SAVE_DIR + 'Test - Magnitud' + save_name + '.png')
+    else:
+        plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
+    plt.show()
+    
+    
+    ######### PLOT Y or ANGLE
+    plt.figure(figsize=(15,15))
+    plt.plot(prediction[0:,1:2])
+    plt.plot(expected_outcome[0:,1:2])
+   
+    if(polar):
+        plt.title('Test: Angle')
+        plt.ylabel('radians')
+    else:
+        plt.title('Test: Y')
+        plt.ylabel('meters')
+    plt.xlabel('measurement')
+    plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
+    if(polar):
+        plt.savefig(SAVE_DIR + 'Test - Angles' + save_name + '.png')
+    else:
+        plt.savefig(SAVE_DIR + 'Test - Y axis' + save_name + '.png')
+    plt.show()
+    #x, y, out_sc = setup_data(time_step, train_set)
+except MemoryError:
+    del x
+    del y
+    
+    
+###############################################################################
 #%%Save the network if it is good----------------------------------------------
-
+###############################################################################
 save_to_file = False
 valid_input = False
 inp = input("Do you want to save this model? (yes/no): ")
@@ -502,12 +520,16 @@ with open(DIR + 'training_logs.txt','a+') as fh:
     # Pass the file handle in as a lambda function to make it callable
     regresor.summary(print_fn=lambda x: fh.write(x + '\n'))
     #validation parameters
-    for element in history.history.keys():
-        fh.write(element + ': ' + str(history.history[element][-1]) + '\n')
+    if(finished_training):
+        for element in history.history.keys():
+            fh.write(element + ': ' + str(history.history[element][-1]) + '\n')
     fh.write('_______\n')
     fh.write('_______\n')
-    for i in range(0,len(metrics)):
-        fh.write('Test ' + metrics[i] + ': ' + str(test_scores[i]) + '\n')
+    try:
+        for i in range(0,len(metrics)):
+            fh.write('Test ' + metrics[i] + ': ' + str(test_scores[i]) + '\n')
+    except NameError:
+        pass
     
     fh.write('_______\n')
     fh.write('Hyperparameters:\n\n')
@@ -532,3 +554,4 @@ with open(DIR + 'training_logs.txt','a+') as fh:
         fh.write('N/A')
     fh.write('\n_________________________________________________________________//\n')
 print("DONE")
+###############################################################################
