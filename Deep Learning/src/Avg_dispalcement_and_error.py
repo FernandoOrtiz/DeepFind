@@ -6,14 +6,16 @@ Created on Thu May 17 18:52:51 2018
 @author: fernando
 """
 import math
-
+import rospy
+import message_filters
+from geometry_msgs.msg import PoseStamped
 #**********************variable declaration***********************************
 
 float64 neural_pose_x 
 float64 neural_pose_y
 float64 actual_pose_x
 float64 actual_pose_y
-n_values = 0
+n_values = 1
 x_i = 0
 avg = 0
 next_avg = 0
@@ -81,6 +83,22 @@ def get_next_average(average,xi,n_values):
     
 
 
+
+def callback(slam, neural):
+    print("inside callback")
+    n_values+=1
+    try:
+        print("inside try")
+        x_i = calculate_difference(neural.pose.position.x, neural.pose.position.y, slam.pose.position.x, slam.pose.position.y)
+        print("The Euclidean displacement is " + str(x_i))
+        avg = get_avg(avg, x_i, n_values)
+        print("The regular average is " + str(avg))
+       
+    except:
+        print("Done")
+        
+    
+
 """
 main definition that displays the average error
 
@@ -89,19 +107,15 @@ def get_error_values():
     global avg
     global n_values
     global next_avg
+    
+    rospy.init_node('pose_error')
+    
+    neural_pose = message_filters.Subscriber('neural_pose', PoseStamped)
+    slam_pose = message_filters.Subscriber('slam_out_pose',PoseStamped)
+    
+    ts = message_filters.ApproximateTimeSynchronizer([neural_pose, slam_pose], 10, 0.1, allow_headerless=True)
+    ts.registerCallback(callback)
  
-    try:
-        while(1):
-            x_i = calculate_difference(neural_pose_x, neural_pose_y, actual_pose_x, actual_pose_y)
-            print("The Euclidean displacement is " + str(x_i))
-            avg = get_avg(avg, x_i, n_values)
-            print("The regular average is " + str(avg))
-            next_avg = get_next_average(avg,x_i,n_values)
-            print("The next value average is " + str(next_avg))
-    except:
-        print("Done")
-
-
 
 if __name__ == '__main__':
    get_error_values()
