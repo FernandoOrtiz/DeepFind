@@ -7150,3 +7150,132 @@ Finished Training: True
 _______
 Saved to file: N/A
 _________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 154
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_1 (CuDNNLSTM)     (None, 12, 8)             12160     
+_________________________________________________________________
+activation_1 (Activation)    (None, 12, 8)             0         
+_________________________________________________________________
+cu_dnnlstm_2 (CuDNNLSTM)     (None, 8)                 576       
+_________________________________________________________________
+dense_1 (Dense)              (None, 1)                 9         
+=================================================================
+Total params: 12,745
+Trainable params: 12,745
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test X mae: 0.384085276205
+Test Y mae: 0.0134279425581
+Test X mse: 0.497249093241
+Test Y mse: 0.0855339420841
+_______
+Hyperparameters:
+
+Loss: mse
+Optimizer: adam
+Timesetps: 12
+Batch size: 16536
+Dropout: 0.2
+Regularizer: 0.0
+Recurrent Regularizer: 0.0
+Epochs: 150
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: False
+_______
+Saved to file: N/A
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 155
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_1 (CuDNNLSTM)     (None, 6, 48)             80640     
+_________________________________________________________________
+activation_1 (Activation)    (None, 6, 48)             0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 6, 54)             2646      
+_________________________________________________________________
+cu_dnnlstm_2 (CuDNNLSTM)     (None, 2)                 464       
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 6         
+=================================================================
+Total params: 83,756
+Trainable params: 83,756
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.0282065262927
+Test mse: 0.0696420932565
+_______
+Hyperparameters:
+
+Loss: mse
+Optimizer: adam
+Timesetps: 6
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.0
+Recurrent Regularizer: 0.0
+Epochs: 3000
+Validation Split: 0.2
+_______
+Training Sets: ['D1-30MinuteRun-F2.csv', 'D3-30MinuteStillRun-F2.csv', 'D13-60MinuteStillRun-F2.csv', 'D2-35MinuteRun-F2.csv', 'D9-60-MinuteRun-F2.csv', 'D10-30MinuteRun-F2.csv', 'D11-30MinuteRun-F2.csv', 'D12-25MinuteRun-F2.csv', 'D8-60MinuteRun-F2.csv', 'D7-60MinuteRun-F2.csv']
+Test Sets: ['D4-18MinuteRun-F2.csv']
+Finished Training: False
+_______
+Saved to file: M155-PoLR-MAE:x-MSE:x-F2.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 156
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_1 (CuDNNLSTM)     (None, 13, 48)            80640     
+_________________________________________________________________
+activation_1 (Activation)    (None, 13, 48)            0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 13, 54)            2646      
+_________________________________________________________________
+cu_dnnlstm_2 (CuDNNLSTM)     (None, 5)                 1220      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 12        
+=================================================================
+Total params: 84,518
+Trainable params: 84,518
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.185556963792
+Test mse: 0.32440424873
+_______
+Hyperparameters:
+
+Loss: mse
+Optimizer: adam
+Timesetps: 13
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 1e-05
+Recurrent Regularizer: 1e-05
+Epochs: 3000
+Validation Split: 0.2
+_______
+Training Sets: ['D3-30MinuteStillRun-F2.csv', 'D13-60MinuteStillRun-F2.csv', 'D11-30MinuteRun-F2.csv', 'D12-25MinuteRun-F2.csv', 'D8-60MinuteRun-F2.csv']
+Test Sets: ['D4-18MinuteRun-F2.csv']
+Finished Training: False
+_______
+YPR: FalseIn scaler: TrueSaved to file: M156-CaRT-MAE:x-MSE:x-F2.h5py
+_________________________________________________________________//

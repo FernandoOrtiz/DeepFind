@@ -9,21 +9,25 @@ Created on Wed May  9 20:07:28 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from tf.transformations import euler_from_quaternion 
+#from tf.transformations import euler_from_quaternion 
 
-view = False
+view = True
 
 
-dataset = ["D8-60MinuteRun-F2.csv",
-             "D3-30MinuteStillRun-F2.csv",
-             "D2-35MinuteRun-F2.csv",
-             "D9-60-MinuteRun-F2.csv",
-             "D13-60MinuteStillRun-F2.csv",
-             "D10-30MinuteRun-F2.csv",
-             "D11-30MinuteRun-F2.csv",
-             "D1-30MinuteRun-F2.csv",
-             "D12-25MinuteRun-F2.csv",
-             "D7-60MinuteRun-F2.csv"]
+dataset = ["D1-30MinuteRun-F2.csv",
+           "D2-35MinuteRun-F2.csv",
+           "D3-30MinuteStillRun-F2.csv",
+           "D4-18MinuteRun-F2.csv",
+           "D5-7MinuteRun-F2.csv",
+           "D6-27MinuteRun-F2.csv",
+           "D7-60MinuteRun-F2.csv",
+           "D8-60MinuteRun-F2.csv",
+           "D9-60-MinuteRun-F2.csv",
+           "D10-30MinuteRun-F2.csv",
+           "D11-30MinuteRun-F2.csv",         
+           "D12-25MinuteRun-F2.csv",
+           "D13-60MinuteStillRun-F2.csv",
+         ]
 
 #dataset = ["D4-18MinuteRun-F2.csv"]
 
@@ -50,7 +54,7 @@ if __name__ == '__main__':
             plt.plot(data[:,0:1])
             plt.subplot(212)
             plt.plot(data[:,1:2])
-            plt.title('Dataset number ' + str(i))
+            plt.title('Dataset number ' + element.split('-')[0].split('D')[-1])
             plt.ylabel('Meters')
             plt.xlabel('sample')
             plt.show()

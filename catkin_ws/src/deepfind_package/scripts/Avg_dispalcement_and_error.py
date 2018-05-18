@@ -10,11 +10,6 @@ import rospy
 import message_filters
 from geometry_msgs.msg import PoseStamped
 #**********************variable declaration***********************************
-
-float64 neural_pose_x 
-float64 neural_pose_y
-float64 actual_pose_x
-float64 actual_pose_y
 n_values = 1
 x_i = 0
 avg = 0
@@ -33,6 +28,7 @@ float64 actual_y = Pose y component extracted from the navigation pose
 return difference between the the given pose messages
 
 """
+
 def calculate_difference(neural_x, neural_y, actual_x, actual_y):
 
     difference_x = 0
@@ -57,41 +53,24 @@ n_values = number of data values extracted from the system
 return average error of displacement
 
 """
-def get_avg(prev_average, xi, n_values):
+def get_avg(xi):
+    global avg
+    global n_values
+    n_values += 1
+    avg = ((avg*n_values-1) + xi)/n_values
     
-    average = ((prev_average*n_values-1) + xi)/n_values
-    
-    return average
-
-
-"""
-calculates the average error of the n+1 displacement 
- 
-average = the n average calculated for value followup
-xi = the calculated difference from calculate_difference()
-n_values = number of data values extracted from the system
-
-return the n+1 average error of displacement
-
-"""
-
-def get_next_average(average,xi,n_values):
-    
-    next_average = ((prev_average*n_values) + xi)/n_values+1
-    
-    return next_average
-    
+    return avg
 
 
 
-def callback(slam, neural):
+def callback(neural, slam):
     print("inside callback")
-    n_values+=1
+    
     try:
         print("inside try")
         x_i = calculate_difference(neural.pose.position.x, neural.pose.position.y, slam.pose.position.x, slam.pose.position.y)
         print("The Euclidean displacement is " + str(x_i))
-        avg = get_avg(avg, x_i, n_values)
+        avg = get_avg(x_i)
         print("The regular average is " + str(avg))
        
     except:
@@ -104,9 +83,6 @@ main definition that displays the average error
 
 """
 def get_error_values():
-    global avg
-    global n_values
-    global next_avg
     
     rospy.init_node('pose_error')
     
@@ -115,7 +91,7 @@ def get_error_values():
     
     ts = message_filters.ApproximateTimeSynchronizer([neural_pose, slam_pose], 10, 0.1, allow_headerless=True)
     ts.registerCallback(callback)
- 
+    rospy.spin() 
 
 if __name__ == '__main__':
    get_error_values()

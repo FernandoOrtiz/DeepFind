@@ -19,7 +19,7 @@ def np_callback(pose_stamped):
     message.header.stamp = rospy.Time.now()
     message.header.frame_id = 'base_link'
     message.poses = message.poses + [pose_stamped]
-    print("publishing" + str(message.poses))
+    print("publishing: " + str(message.poses.__len__))
     path_pub.publish(message)
 
 rospy.init_node("neural_path_plotter")

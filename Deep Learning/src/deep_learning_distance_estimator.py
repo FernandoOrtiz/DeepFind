@@ -16,29 +16,29 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
 import numpy as np
 from keras.models import load_model
-import time
-
-#%%
 
 
-#%%
+
+
 def main():
-    global index
-    global rnn_model_input
-    global input_format
-    global deep_model
-    global pose_pub
-    global out_scaler
     
-    model = "M1-MAE:0.00-MSE:0.03"
+    
+    #This is the name of the trained model
+    model = "M144-YpR0-DuAL-MAE:0.070-MSE:0.008-F3"
+    
+    #Defines whether the output is polar or not
     polar = False
+    #Defines whether it has one neural network or two
     dual_nets = False
+    
+    #Extract information from the name of the model
     if(model.find('PoLR') > 0):
         polar = True
     if(model.find('DuAL') > 0):
         dual_nets = True
-    
     input_format = model.split('-')[-1]
+    
+    
     MODEL_DIR = ("../Models/" + model + "/")
     if(not dual_nets): 
         #Import the deep learning model
@@ -58,17 +58,22 @@ def main():
         deep_model_y = load_model(MODEL_DIR + model.split(input_format)[0] + 
                         'Y-' + input_format + '.h5py')
         deep_model_y._make_predict_function()
-        
         out_scaler = joblib.load(MODEL_DIR + model + '.scl')
         
         #initialize the amount of timesteps
         time_steps = deep_model_x.input_shape[1]
         features = deep_model_x.input_shape[2]
         output_timesteps = deep_model_x.output_shape[1]
-
-    out_scaler = False
-    if(out_scaler.get_params['feature_range'][0] == '-1'):
-        out_scaler = True
+    
+    #Verify if the scaler was initialized to be used
+    out_scaling = False
+    try:
+        out_scaler.data_max_
+        out_scaling = True
+    except AttributeError:
+        pass
+    
+    
     
     out_return_sequences = False
     if(output_timesteps > 2):
@@ -102,10 +107,15 @@ def main():
         rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
     
         #print("The values are: {}".format(rnn_model_input))
+        
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(rnn_model_input)
         scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
                                           scaled_data.shape[1])
+        
+        #scaled_data = rnn_model_input.reshape(1, rnn_model_input.shape[0],
+        #                                  rnn_model_input.shape[1])
+        
         if(not dual_nets):
             if(not out_return_sequences):
                 output = deep_model.predict(x=scaled_data)
@@ -120,13 +130,13 @@ def main():
                 output = deep_model.predict(x=scaled_data)
                 output = output[:,-1,:].reshape(-1,2)
         
-        if(out_scaler):
+        if(out_scaling):
             output = out_scaler.inverse_transform(output)
         
         
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
-        message.header.frame_id = 'base_link'
+        message.header.frame_id = 'map'
         message.pose.orientation = data.pose.pose.orientation
         x , y = 0, 0
         if(polar):

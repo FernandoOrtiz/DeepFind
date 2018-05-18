@@ -66,39 +66,42 @@ k.tensorflow_backend.set_session(tf.Session(config=config))
 #%%
 
 DIR = '../Models/'
-time_step = 26
+time_step = 13
 val_split = 0.2    
-ypr = True
-polar = True
+ypr = False
+polar = False
 in_return_sequence = True
 out_return_sequence = False
+in_scaler = True
+scale_output = True
 units = 54
 r_units = 48
 dropout = 0.0
-regularizer_k = 0.0000
-regularizer_r = 0.0000
-optimizer = 'rmsprop'
-epochs = 500
+regularizer_k = 0.00001
+regularizer_r = 0.00001
+optimizer = 'adam'
+epochs = 3000
 batch_size = 10000
 loss = 'mse'
 metrics = ['mae','mse']
 
-train_set = ["D1-MegaSetyes-F3.csv"]
-"""
-train_set = ["D1-30MinuteRun-F2.csv", 
+#train_set = ["D1-MegaSetyes-F3.csv"]
+
+train_set = [#"D1-30MinuteRun-F2.csv", 
              "D3-30MinuteStillRun-F2.csv",
              "D13-60MinuteStillRun-F2.csv",
-             "D2-35MinuteRun-F2.csv",          
-             "D9-60-MinuteRun-F2.csv",
-             "D10-30MinuteRun-F2.csv",
+             #"D2-35MinuteRun-F2.csv",          
+             #"D9-60-MinuteRun-F2.csv",
+             #"D10-30MinuteRun-F2.csv",
              "D11-30MinuteRun-F2.csv",
              "D12-25MinuteRun-F2.csv",
              "D8-60MinuteRun-F2.csv",
-             "D7-60MinuteRun-F2.csv",]
+             #"D7-60MinuteRun-F2.csv"
+             ]
 
 test_set = ["D4-18MinuteRun-F2.csv"]
-"""
-test_set = ["D2-TestSet-F3.csv"]
+
+#test_set = ["D2-TestSet-F3.csv"]
 
 ###############################################################################
 #%%
@@ -132,8 +135,9 @@ def setup_data(time_step, dataset):
     y_set = dataset_total[0:,0:2]
     x_set = dataset_total[0:,2:]
     
-    #in_sc = StandardScaler()
-    #x_set = in_sc.fit_transform(x_set)
+    in_sc = StandardScaler()
+    if(in_scaler):
+        x_set = in_sc.fit_transform(x_set)
     
     
     #Reshappe the inpputt so it fits the recurrent neural network
@@ -157,7 +161,8 @@ def setup_data(time_step, dataset):
     #Feature Scaling
     out_sc = MinMaxScaler(feature_range = (-1,1))
     #out_sc = StandardScaler()
-    y_set = out_sc.fit_transform(y_set)
+    if(scale_output):
+        y_set = out_sc.fit_transform(y_set)
     
     if(out_return_sequence):
         y = []
@@ -290,13 +295,13 @@ regresor.add(Dense(units = units, activation = 'tanh',
 
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
+regresor.add(CuDNNLSTM(units = 5, recurrent_regularizer = l2(regularizer_r),
                        return_sequences = out_return_sequence))
 #regresor.add(Activation('tanh'))
 
 #ANN Last Layer
 regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
-                   activation = None, use_bias = True))
+                   activation = 'linear', use_bias = True))
 #------------------------------------------------------------------------------
 
 
@@ -470,12 +475,12 @@ try:
         plt.ylabel('meters')
     plt.xlabel('measurement')
     plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
-    """
+    
     if(polar):
         plt.savefig(SAVE_DIR + 'Test - Magnitud' + save_name + '.png')
     else:
         plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
-    """
+    
     plt.show()
     
     
@@ -494,12 +499,12 @@ try:
     
     plt.xlabel('measurement')
     plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
-    """
+    
     if(polar):
         plt.savefig(SAVE_DIR + 'Test - Angles' + save_name + '.png')
     else:
         plt.savefig(SAVE_DIR + 'Test - Y axis' + save_name + '.png')
-    """
+    
     plt.show()
     #x, y, out_sc = setup_data(time_step, train_set)
 except MemoryError:
@@ -565,6 +570,9 @@ with open(DIR + 'training_logs.txt','a+') as fh:
     fh.write('Test Sets: ' + str(test_set) + '\n')
     fh.write('Finished Training: ' + str(finished_training) + '\n')
     fh.write('_______\n')
+    fh.write('YPR: ' + str(ypr))
+    fh.write('In scaler: ' + str(in_scaler))
+    fh.write('scale_output: ' + str(scale_output))
     fh.write('Saved to file: ')
     if(save_to_file):
         fh.write(save_name + '.h5py')
