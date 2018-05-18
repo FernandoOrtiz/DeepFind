@@ -107,14 +107,14 @@ def main():
         rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
     
         #print("The values are: {}".format(rnn_model_input))
-        
+        """
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(rnn_model_input)
         scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
                                           scaled_data.shape[1])
-        
-        #scaled_data = rnn_model_input.reshape(1, rnn_model_input.shape[0],
-        #                                  rnn_model_input.shape[1])
+        """
+        scaled_data = rnn_model_input.reshape(1, rnn_model_input.shape[0],
+                                          rnn_model_input.shape[1])
         
         if(not dual_nets):
             if(not out_return_sequences):
@@ -125,9 +125,10 @@ def main():
         if(dual_nets):
             if(not out_return_sequences):
                 output = deep_model_x.predict(x=scaled_data)
-                output = np.append(output, deep_model_y.predict(x=scaled_data))
+                output = np.append(output, deep_model_y.predict(x=scaled_data), axis = 1)
             else:
-                output = deep_model.predict(x=scaled_data)
+                output = deep_model_x.predict(x=scaled_data)
+                output = np.append(output, deep_model_y.predict(x=scaled_data), axis = 1)
                 output = output[:,-1,:].reshape(-1,2)
         
         if(out_scaling):
