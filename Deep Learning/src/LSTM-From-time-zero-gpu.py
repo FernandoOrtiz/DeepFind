@@ -66,33 +66,39 @@ k.tensorflow_backend.set_session(tf.Session(config=config))
 #%%
 
 DIR = '../Models/'
-time_step = 7
+time_step = 26
 val_split = 0.2    
-polar = False
+ypr = True
+polar = True
 in_return_sequence = True
 out_return_sequence = False
-units = 50
-r_units = 50
-dropout = 0.2
-regularizer_k = 0.003
-regularizer_r = 0.003
-optimizer = 'adam'
-epochs = 7000
+units = 54
+r_units = 48
+dropout = 0.0
+regularizer_k = 0.0000
+regularizer_r = 0.0000
+optimizer = 'rmsprop'
+epochs = 500
 batch_size = 10000
-loss = 'mae'
+loss = 'mse'
 metrics = ['mae','mse']
-train_set = ["D8-60MinuteRun-F2.csv",
-             "D7-60MinuteRun-F2.csv",
-             "D1-30MinuteRun-F2.csv", 
+
+train_set = ["D1-MegaSetyes-F3.csv"]
+"""
+train_set = ["D1-30MinuteRun-F2.csv", 
              "D3-30MinuteStillRun-F2.csv",
-             "D2-35MinuteRun-F2.csv",
-             "D4-18MinuteRun-F2.csv",
+             "D13-60MinuteStillRun-F2.csv",
+             "D2-35MinuteRun-F2.csv",          
              "D9-60-MinuteRun-F2.csv",
              "D10-30MinuteRun-F2.csv",
              "D11-30MinuteRun-F2.csv",
-             "D12-25MinuteRun-F2.csv"]
+             "D12-25MinuteRun-F2.csv",
+             "D8-60MinuteRun-F2.csv",
+             "D7-60MinuteRun-F2.csv",]
 
-test_set = ["D5-7MinuteRun-F2.csv"]
+test_set = ["D4-18MinuteRun-F2.csv"]
+"""
+test_set = ["D2-TestSet-F3.csv"]
 
 ###############################################################################
 #%%
@@ -101,7 +107,8 @@ test_set = ["D5-7MinuteRun-F2.csv"]
 model_output = 'CaRT'
 if(polar):
     model_output = 'PoLR'
-
+    if(ypr):
+        model_output = 'YpR0'
 
 input_format = train_set[0].split('-')[-1].split('.')[0]
                            
@@ -112,6 +119,7 @@ def to_polar(data):
         data[i,0] = r 
         data[i,1] = t
 
+
 def setup_data(time_step, dataset):
     dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
     dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
@@ -120,8 +128,12 @@ def setup_data(time_step, dataset):
                                   pd.read_csv("../Datasets/"+element)), axis=0)
     #Convert into numpy array
     dataset_total = dataset_total.as_matrix()    
-    in_sc = StandardScaler()
-    dataset_total[:,2:] = in_sc.fit_transform(dataset_total[:,2:])
+    #Extract the output of the neural network
+    y_set = dataset_total[0:,0:2]
+    x_set = dataset_total[0:,2:]
+    
+    #in_sc = StandardScaler()
+    #x_set = in_sc.fit_transform(x_set)
     
     
     #Reshappe the inpputt so it fits the recurrent neural network
@@ -129,17 +141,16 @@ def setup_data(time_step, dataset):
     if(in_return_sequence):
         for i in range(1, time_step):                                              #Pad initial values with zeros 
             x.append(np.concatenate((np.zeros((time_step-i, 
-                     dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), 
+                     x_set.shape[1])), x_set[0:i, :]), 
                      axis = 0))
         
         
         for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
-            x.append(dataset_total[i-time_step+1 : i+1 , 2:])
+            x.append(x_set[i-time_step+1 : i+1 , :])
         x = np.array(x)
     else:
-        x = dataset_total[0:,2:]
-    #Extract the output of the neural network
-    y_set = dataset_total[0:,0:2]
+        x = x_set
+    
     #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
     if(polar):
         to_polar(y_set)
@@ -183,10 +194,10 @@ regresor = Sequential()
 
 #LSTM First layer
 regresor.add(CuDNNLSTM(units = r_units, 
-                       #recurrent_regularizer = l2(regularizer_r),
+                       recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
                        input_shape=(x.shape[1], x.shape[2])))
-#regresor.add(Activation('tanh'))
+regresor.add(Activation('tanh'))
 #ANN First Layer
 #regresor.add(Dense(units = 50, activation = 'tanh', 
 #                   input_shape=(x.shape[1], )))
@@ -199,7 +210,7 @@ regresor.add(CuDNNLSTM(units = r_units,
 
 #Second Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, 
+#regresor.add(CuDNNLSTM(units = r_units*5, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #regresor.add(Activation('tanh'))
@@ -211,7 +222,7 @@ regresor.add(CuDNNLSTM(units = r_units,
 
 #Third Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = r_units, 
+#regresor.add(CuDNNLSTM(units = r_units*5, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -256,11 +267,11 @@ regresor.add(CuDNNLSTM(units = r_units,
 
 #Additional ANN Layers----------------------------------#
 #ANN
-#regresor.add(Dense(units = units, activation = 'tanh', 
-#                   kernel_regularizer=l2(regularizer_k)))
+regresor.add(Dense(units = units, activation = 'tanh', 
+                   kernel_regularizer=l2(regularizer_k)))
 #regresor.add(Dropout(dropout))
 #ANN
-regresor.add(Dense(units = int(units), activation = 'tanh'))
+#regresor.add(Dense(units = int(units), activation = 'tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = None, 
 #                   kernel_regularizer=l2(regularizer_k)))
@@ -275,6 +286,8 @@ regresor.add(Dense(units = int(units), activation = 'tanh'))
 #------------------------------------------------------------------------------
 
 
+
+
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
 regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
@@ -282,8 +295,8 @@ regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
 #regresor.add(Activation('tanh'))
 
 #ANN Last Layer
-#regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
-#                   activation = None, use_bias = True))
+regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
+                   activation = None, use_bias = True))
 #------------------------------------------------------------------------------
 
 
@@ -373,7 +386,7 @@ if(finished_training):
 ####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
 try:
     if(regresor.input_shape[1] != time_step):
-        x, y, out_sc = setup_data(regresor.input_shape[1], train_set)
+        x, y = setup_data(regresor.input_shape[1], train_set)
     
     slice_index = int(x.shape[0]*(1-val_split))
     prediction = regresor.predict(x=x[slice_index:,0:,0:])
@@ -431,11 +444,10 @@ except MemoryError:
 #Verify that the data is configures to the appropriate amount of timesteps
 try:  
     if(regresor.input_shape[1] != time_step):
-        x, y, out_sc = setup_data(regresor.input_shape[1], test_set)
+        x, y, _ = setup_data(regresor.input_shape[1], test_set)
     else:
-        x, y, out_sc = setup_data(time_step, test_set)
-    slice_index = int(x.shape[0]*(1-val_split))
-    prediction = regresor.predict(x=x[:,0:,0:])
+        x, y, _ = setup_data(time_step, test_set)
+    prediction = regresor.predict(x=x[:,:,:])
     if(not out_return_sequence):
         expected_outcome = out_sc.inverse_transform(y[:,:])
     else:
@@ -458,10 +470,12 @@ try:
         plt.ylabel('meters')
     plt.xlabel('measurement')
     plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
+    """
     if(polar):
         plt.savefig(SAVE_DIR + 'Test - Magnitud' + save_name + '.png')
     else:
         plt.savefig(SAVE_DIR + 'Test - X axis' + save_name + '.png')
+    """
     plt.show()
     
     
@@ -470,18 +484,22 @@ try:
     plt.plot(prediction[0:,1:2])
     plt.plot(expected_outcome[0:,1:2])
    
+    
     if(polar):
         plt.title('Test: Angle')
         plt.ylabel('radians')
     else:
         plt.title('Test: Y')
         plt.ylabel('meters')
+    
     plt.xlabel('measurement')
     plt.legend([ 'prediction', 'expected outcome'], loc='upper right')
+    """
     if(polar):
         plt.savefig(SAVE_DIR + 'Test - Angles' + save_name + '.png')
     else:
         plt.savefig(SAVE_DIR + 'Test - Y axis' + save_name + '.png')
+    """
     plt.show()
     #x, y, out_sc = setup_data(time_step, train_set)
 except MemoryError:
