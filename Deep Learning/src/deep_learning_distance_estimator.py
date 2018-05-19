@@ -8,7 +8,6 @@ Created on Wed May  2 15:27:51 2018
 
 import rospy
 
-from math import cos, sin
 
 from geometry_msgs.msg import PoseStamped
 from deepfind_package.msg import SensorData
@@ -16,78 +15,62 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
 import numpy as np
 from keras.models import load_model
-
+import dl_utils as dl
 
 
 
 def main():
     
-    
     #This is the name of the trained model
-    model = "M144-YpR0-DuAL-MAE:0.070-MSE:0.008-F3"
-    
-    #Defines whether the output is polar or not
-    polar = False
-    #Defines whether it has one neural network or two
-    dual_nets = False
+    model = "M1-PoLR-OTIT-MAE:0.347-MSE:0.255-F2"
     
     #Extract information from the name of the model
+    
+    #Defines whether the output is polar or not
     if(model.find('PoLR') > 0):
-        polar = True
-    if(model.find('DuAL') > 0):
-        dual_nets = True
+        polar_output = True
+    else:
+        polar_output = False
+    
+    #Extract whether or not to scale input
+    if(model.find('IT') > 0):
+        scale_input = True
+    else:
+        scale_input = False
+    
+    
+    #Extract whether or not to scale output
+    if(model.find('OT') > 0):
+        scale_output = True
+    else:
+        scale_output = False
+    
+    #Extract output type from name
     input_format = model.split('-')[-1]
     
     
-    MODEL_DIR = ("../Models/" + model + "/")
-    if(not dual_nets): 
-        #Import the deep learning model
-        deep_model = load_model(MODEL_DIR + model + '.h5py')
-        deep_model._make_predict_function()
-        out_scaler = joblib.load(MODEL_DIR + model + '.scl')
-        
-        #initialize the amount of timesteps
-        time_steps = deep_model.input_shape[1]
-        features = deep_model.input_shape[2]
-        output_timesteps = deep_model.output_shape[1]
-    else:
-        #Import the deep learning model
-        deep_model_x = load_model(MODEL_DIR + model.split(input_format)[0] + 
-                        'X-' + input_format + '.h5py')
-        deep_model_x._make_predict_function()
-        deep_model_y = load_model(MODEL_DIR + model.split(input_format)[0] + 
-                        'Y-' + input_format + '.h5py')
-        deep_model_y._make_predict_function()
-        out_scaler = joblib.load(MODEL_DIR + model + '.scl')
-        
-        #initialize the amount of timesteps
-        time_steps = deep_model_x.input_shape[1]
-        features = deep_model_x.input_shape[2]
-        output_timesteps = deep_model_x.output_shape[1]
+    MODEL_DIR = ("../Models/" + 'M1.5-MAE:0.01-MSE:0.04' + "/")
+    #if(not dual_nets): 
+    #Import the deep learning model
+    deep_model = load_model(MODEL_DIR + model + '.h5py')
+    deep_model._make_predict_function()
+    out_scaler = joblib.load(MODEL_DIR + model + '.scl')
     
-    #Verify if the scaler was initialized to be used
-    out_scaling = False
-    try:
-        out_scaler.data_max_
-        out_scaling = True
-    except AttributeError:
-        pass
-    
-    
-    
-    out_return_sequences = False
-    if(output_timesteps > 2):
-        out_return_sequences  = True
-    
+    #initialize the amount of timesteps and features
+    time_steps = deep_model.input_shape[1]
+    features = deep_model.input_shape[2]
+   
+  
+   
     rnn_model_input = np.zeros((time_steps, features))
     
     print("Initializing ROS")
     pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
-    #data_sub = rospy.Subscriber("sensor_data", SensorData, sensor_data_callback)
     rospy.init_node("neural_network") 
-    #rospy.spin()
     
-    
+    if(scale_input):
+        input_scaler = StandardScaler()
+        
     print("ROS Initialized")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message("sensor_data", SensorData)
@@ -96,8 +79,7 @@ def main():
                 data.imu.orientation.z, data.imu.orientation.w,
                 data.imu.angular_velocity.x, data.imu.angular_velocity.y,
                 data.imu.angular_velocity.z, data.imu.linear_acceleration.x,
-                data.imu.linear_acceleration.y, data.imu.linear_acceleration.z,
-                data.pose.pose.orientation.z, data.pose.pose.orientation.w])
+                data.imu.linear_acceleration.y, data.imu.linear_acceleration.z])
             sensor_data = np.append(sensor_data, data.lidar.ranges)
             sensor_data[sensor_data == np.inf] = 0
             
@@ -107,31 +89,19 @@ def main():
         rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
     
         #print("The values are: {}".format(rnn_model_input))
-        """
-        scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(rnn_model_input)
+        
+        
+        if(scale_input):
+            scaled_data = input_scaler.fit_transform(rnn_model_input)
+        else:
+            scaled_data = rnn_model_input
+            
         scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
-                                          scaled_data.shape[1])
-        """
-        scaled_data = rnn_model_input.reshape(1, rnn_model_input.shape[0],
                                           rnn_model_input.shape[1])
-        
-        if(not dual_nets):
-            if(not out_return_sequences):
-                output = deep_model.predict(x=scaled_data)
-            else:
-                output = deep_model.predict(x=scaled_data)
-                output = output[:,-1,:].reshape(-1,2)
-        if(dual_nets):
-            if(not out_return_sequences):
-                output = deep_model_x.predict(x=scaled_data)
-                output = np.append(output, deep_model_y.predict(x=scaled_data), axis = 1)
-            else:
-                output = deep_model_x.predict(x=scaled_data)
-                output = np.append(output, deep_model_y.predict(x=scaled_data), axis = 1)
-                output = output[:,-1,:].reshape(-1,2)
-        
-        if(out_scaling):
+   
+        output = deep_model.predict(x=scaled_data)
+   
+        if(scale_output):
             output = out_scaler.inverse_transform(output)
         
         
@@ -140,14 +110,13 @@ def main():
         message.header.frame_id = 'map'
         message.pose.orientation = data.pose.pose.orientation
         x , y = 0, 0
-        if(polar):
-            magnitud = output[0][0]
+        if(polar_output):
+            magnitude = output[0][0]
             angle = output[0][1]
-            x = cos(angle)*magnitud
-            y = sin(angle)*magnitud
+            x, y = dl.to_cartesian_scalar(magnitude, angle)
             message.pose.position.x = x
             message.pose.position.y = y
-        if(not polar):
+        if(not polar_output):
             x = output[0][0]
             y = output[0][1]
             message.pose.position.x = x

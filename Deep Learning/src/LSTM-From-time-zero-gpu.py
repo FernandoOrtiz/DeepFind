@@ -7,7 +7,10 @@ Created on Sun Apr 15 13:56:18 2018
 #model_number = 0
 
 
+###############################################################################
 #%%
+###############################################################################
+
 # Jose's Recurrent Neural Network
 #Pre-process the data
 import numpy as np
@@ -16,7 +19,6 @@ import pandas as pd
 import tensorflow as tf
 import shutil
 import matplotlib.pyplot as plt
-import gc
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
@@ -64,9 +66,10 @@ k.tensorflow_backend.set_session(tf.Session(config=config))
 
 ###############################################################################
 #%%
+###############################################################################
 
 DIR = '../Models/'
-time_step = 13
+time_step = 40
 val_split = 0.2    
 ypr = False
 polar = False
@@ -74,29 +77,29 @@ in_return_sequence = True
 out_return_sequence = False
 in_scaler = True
 scale_output = True
-units = 54
-r_units = 48
+units = 40
+r_units = 40
 dropout = 0.0
 regularizer_k = 0.00001
 regularizer_r = 0.00001
 optimizer = 'adam'
-epochs = 3000
-batch_size = 10000
+epochs = 500
+batch_size = 1500
 loss = 'mse'
 metrics = ['mae','mse']
 
 #train_set = ["D1-MegaSetyes-F3.csv"]
 
-train_set = [#"D1-30MinuteRun-F2.csv", 
+train_set = ["D1-30MinuteRun-F2.csv", 
              "D3-30MinuteStillRun-F2.csv",
              "D13-60MinuteStillRun-F2.csv",
-             #"D2-35MinuteRun-F2.csv",          
-             #"D9-60-MinuteRun-F2.csv",
-             #"D10-30MinuteRun-F2.csv",
+             "D2-35MinuteRun-F2.csv",          
+             "D9-60-MinuteRun-F2.csv",
+             "D10-30MinuteRun-F2.csv",
              "D11-30MinuteRun-F2.csv",
              "D12-25MinuteRun-F2.csv",
              "D8-60MinuteRun-F2.csv",
-             #"D7-60MinuteRun-F2.csv"
+             "D7-60MinuteRun-F2.csv"
              ]
 
 test_set = ["D4-18MinuteRun-F2.csv"]
@@ -105,6 +108,8 @@ test_set = ["D4-18MinuteRun-F2.csv"]
 
 ###############################################################################
 #%%
+###############################################################################
+
 #The amount of time-steps the LSTM will look back at
 
 model_output = 'CaRT'
@@ -181,7 +186,54 @@ def setup_data(time_step, dataset):
     
     return x, y, out_sc
 
-x, y, out_sc = setup_data(time_step, train_set)
+
+def prepare_model_inputs(dataset, batch_size=1500, num_timesteps=50):
+    dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
+    dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+    for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
+        dataset_total = pd.concat((dataset_total,
+        pd.read_csv("../Datasets/"+element)), axis=0)
+    dataset_total = dataset_total.as_matrix()    
+    out_sc = MinMaxScaler(feature_range = (-1,1))
+    dataset_total[:,0:2] = out_sc.fit_transform(dataset_total[:,0:2])
+    n = dataset_total.shape[0]
+    while True:
+        inputs, outputs =[], []
+        for i in range(0, batch_size, int(n/batch_size)):
+            inputs, outputs =[], []
+            for j in range(i, i+batch_size):
+                inputs.append(dataset_total[i:i+num_timesteps,2:])
+                outputs.append(dataset_total[i+num_timesteps-1,0:2])
+                # split your inputs, and outputs as you wish
+                               
+            yield np.array(inputs), np.array(outputs)
+
+
+
+def get_out_sc(dataset):
+    dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
+    dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+    for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
+        dataset_total = pd.concat((dataset_total,
+                                  pd.read_csv("../Datasets/"+element)), axis=0)
+    #Convert into numpy array
+    dataset_total = dataset_total.as_matrix()    
+    #Extract the output of the neural network
+    y_set = dataset_total[0:,0:2]
+    out_sc = MinMaxScaler(feature_range = (-1,1))
+    #out_sc = StandardScaler()
+    y_set = out_sc.fit_transform(y_set)
+    return out_sc, dataset_total.shape[0]
+
+out_sc, dataset_size = get_out_sc(train_set)
+_, val_data, _ = setup_data(time_step, test_set)
+generator = prepare_model_inputs(train_set, batch_size=batch_size, 
+                                 num_timesteps=time_step)
+
+
+
+
+#x, y, out_sc = setup_data(time_step, train_set)
 
 ###############################################################################
 #%% Part 2 - Building the RNN
@@ -201,7 +253,7 @@ regresor = Sequential()
 regresor.add(CuDNNLSTM(units = r_units, 
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
-                       input_shape=(x.shape[1], x.shape[2])))
+                       input_shape=(time_step, 370)))
 regresor.add(Activation('tanh'))
 #ANN First Layer
 #regresor.add(Dense(units = 50, activation = 'tanh', 
@@ -295,13 +347,13 @@ regresor.add(Dense(units = units, activation = 'tanh',
 
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-regresor.add(CuDNNLSTM(units = 5, recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = out_return_sequence))
-#regresor.add(Activation('tanh'))
+regresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
+                       return_sequences = False))
+regresor.add(Activation('tanh'))
 
 #ANN Last Layer
-regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
-                   activation = 'linear', use_bias = True))
+#regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
+#                   activation = 'tanh'))
 #------------------------------------------------------------------------------
 
 
@@ -339,14 +391,16 @@ regresor.compile(optimizer = optimizer , loss = loss,
 #TODO - add handling of ctrl + c
 finished_training = False
 try:
-    history = regresor.fit(x, y, epochs = epochs, validation_split = val_split,
-          callbacks=None, batch_size = batch_size)
+    history = regresor.fit_generator(generator, epochs = epochs, 
+          #validation_data = val_data,
+          steps_per_epoch = int(dataset_size/batch_size),
+          callbacks=None)
     finished_training = True
 except KeyboardInterrupt:
     print('Stopped training')
     finished_training = False
 
-#Save name for images and files
+#%%Save name for images and files
 with open(DIR + 'training_logs.txt','a+') as fh:
     fh.seek(0)
     run_count = fh.read().count('Training session #: ') + 1
@@ -355,7 +409,7 @@ try:
               float(history.history['val_mean_absolute_error'][-1]), 
               float(history.history['val_mean_squared_error'][-1]),
               input_format)
-except NameError:
+except (NameError, KeyError) as e:
     save_name = 'M{}-{}-MAE:{}-MSE:{}-{}'.format(run_count, model_output,
               'x','x',input_format)
 SAVE_DIR = DIR + save_name + '/'
@@ -389,6 +443,7 @@ if(finished_training):
 ###############################################################################
 #%%
 ####regresor = load_model(MODEL_DIR + 'BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
+"""
 try:
     if(regresor.input_shape[1] != time_step):
         x, y = setup_data(regresor.input_shape[1], train_set)
@@ -511,7 +566,7 @@ except MemoryError:
     del x
     del y
     
-    
+"""    
 ###############################################################################
 #%%Save the network if it is good----------------------------------------------
 ###############################################################################
@@ -525,7 +580,7 @@ while(not valid_input):
         save_to_file = True
         valid_input = True
         print("Saved to file")
-    elif (inp.lower() == 'no' or inp.lower() == 'n'):
+    elif (inp.lower() == 'yesno' or inp.lower() == 'n'):
         shutil.rmtree(SAVE_DIR)
         print("Did not save to file")
         valid_input = True
