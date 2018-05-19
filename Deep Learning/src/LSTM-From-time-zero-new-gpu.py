@@ -4,16 +4,21 @@ Created on Sun Apr 15 13:56:18 2018
 @author: Rathk
 """
 
-#model_number = 0
 
+#%% Impport and cofigure environment variables---------------------------------
+###############################################################################
 
-#%%
 # Jose's Recurrent Neural Network
 #Pre-process the data
 import numpy as np
-from matplotlib import pyplot
+import os, os.path
 import pandas as pd
+import tensorflow as tf
+import dl_utils
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.externals import joblib
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.layers import CuDNNLSTM
@@ -27,6 +32,7 @@ from keras.regularizers import l1
 from keras.regularizers import l2
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import TensorBoard
+from keras import backend as k
 
 
 #Fix for kernel starting error. Provided by:
@@ -34,190 +40,172 @@ from keras.callbacks import TensorBoard
 #that-this-tensorflow-binary-was-not-compiled-to-u?utm_medium=organic&utm_
 #source=google_rich_qa&utm_campaign=google_rich_qa
 # Just disables the warning, doesn't enable AVX/FMA
-import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #os.environ["CUDA_VISIBLE_DEVICES"]="0"
-
-
- 
-
+#------------------------------------------------------------------------------
 #Fix to limit gpu memory usage. Provided by:
 #https://michaelblogscode.wordpress.com/2017/10/10/
 #reducing-and-profiling-gpu-memory-usage-in-keras-with-tensorflow-backend/
 ## extra imports to set GPU options
-import tensorflow as tf
-from keras import backend as k
-###################################
 # TensorFlow wizardry
 config = tf.ConfigProto()
- 
 # Don't pre-allocate memory; allocate as-needed
 config.gpu_options.allow_growth = True
- 
 # Only allow a total of half the GPU memory to be allocated
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
- 
 # Create a session with the above options specified.
 k.tensorflow_backend.set_session(tf.Session(config=config))
-###################################
 
 
-
-#%%
-#The amount of time-steps the LSTM will look back at
-time_step = 39
-val_split = 0.2    
-
-train_set = ["20MinuteRun-M2.csv", "30MinuteRun-M2.csv"]
-test_set = ["30MinuteRun-M2.csv"]
-                           
-def to_polar(data):
-    for i in range(0, data.shape[0]):
-        r = np.sqrt((data[i,0]**2) + (data[i,1]**2))
-        t = np.arctan2(data[i,0], data[i,1])
-        data[i,0] = r 
-        data[i,1] = t
-        
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-	n_vars = 1 if type(data) is list else data.shape[1]
-	df = DataFrame(data)
-	cols, names = list(), list()
-	# input sequence (t-n, ... t-1)
-	for i in range(n_in, 0, -1):
-		cols.append(df.shift(i))
-		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-	# forecast sequence (t, t+1, ... t+n)
-	for i in range(0, n_out):
-		cols.append(df.shift(-i))
-		if i == 0:
-			names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-		else:
-			names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-	# put it all together
-	agg = pd.concat(cols, axis=1)
-	agg.columns = names
-	# drop rows with NaN values
-	if dropnan:
-		agg.dropna(inplace=True)
-	return agg
-
-
-def setup_data(time_step, dataset):
-    global x
-    global y
-    global sc
-    dataset_copy = list(train_set)                                               #Make a copy of the list so you do not alter it
-    dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
-    for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
-        dataset_total = pd.concat((dataset_total,
-                                  pd.read_csv("../Datasets/"+element)),
-                                  axis=0)
-    
-    dataset_total = series_to_supervised(dataset_total, n_in=time_step, n_out = 1)
-    dataset_total = dataset_total.as_matrix()                                  #Convert into numpy array 
-    #Reshappe the inpputt so it fits the recurrent neural network
-    x = []
-    for i in range(1, time_step):
-        x.append(np.concatenate((np.zeros((time_step-i, 
-                 dataset_total.shape[1]-2)), dataset_total[0:i, 2:]), 
-                 axis = 0))
-    
-    
-    for i in range(time_step-1,int(dataset_total.size/dataset_total.shape[1])):
-        x.append(dataset_total[i-time_step+1 : i+1 , 2:])
-    x = np.array(x)
-    
-    
-    #Extract the output of the neural network
-    y = dataset_total[0:,0:2]
-    #y = np.subtract(y, np.array([y[0,0], y[0,1]]))
-    to_polar(y)
-    #Feature Scaling
-    sc = MinMaxScaler(feature_range = (-1,1))
-    y = sc.fit_transform(y)
-
-
-
-setup_data(time_step, train_set)
-
-
-#%% Part 2 - Building the RNN
+#%%Parameter configuration-----------------------------------------------------
 ###############################################################################
-units = 41
-dropout = 0.2
-regularizer_k = 0.00001
-regularizer_r = 0.0001
+
+DIR = '../Models/'
+time_step = 1
+val_split = 0.2    
+polar_output = True
+scale_input = False
+scale_output = True
+units = 17
+r_units = 100
+dropout = 0.0
+regularizer_k = 0.001
+regularizer_r = 0.001
+optimizer = 'adam'
+epochs = 750
+batch_size = 10000
+loss = 'mae'
+metrics = ['mae','mse']
+input_format = "F3"
+zero_pad = False
+
+#%% Variable Setup colllection-------------------------------------------------
+###############################################################################
+
+#Next two help to define the save name of the model
+#What the system outputs
+model_output = 'CaRT'
+if(polar_output):
+    model_output = 'PoLR'
+ 
+#Determine what is being scaled
+if(scale_output):
+    out_sc_name = 'OT'
+else:
+    out_sc_name = 'OF'
+if(scale_input):
+    in_sc_name = 'IT'
+else:
+    in_sc_name = 'IF'
+
+#Choose dataset based on desired input format
+if(input_format == "F3"):
+    train_set = ["D1-MegaSet-F3.csv"]
+    test_set = ["D2-TestSet-F3.csv"]
+
+elif(input_format == "F2"):    
+    train_set = ["D1-30MinuteRun-F2.csv", 
+                 "D3-30MinuteStillRun-F2.csv",
+                 "D13-60MinuteStillRun-F2.csv",
+                 "D2-35MinuteRun-F2.csv",          
+                 "D9-60-MinuteRun-F2.csv",
+                 "D10-30MinuteRun-F2.csv",
+                 "D11-30MinuteRun-F2.csv",
+                 "D12-25MinuteRun-F2.csv",
+                 "D8-60MinuteRun-F2.csv",
+                 "D7-60MinuteRun-F2.csv"]  
+    test_set = [#"D2-35MinuteRun-F2.csv"]
+                "D4-18MinuteRun-F2.csv"]
+
+else:
+    raise ValueError("Invalid format: " + input_format)
+    
+#Prepare the validation dataset
+val_data_x, val_data_y, val_out_sc = dl_utils.setup_data(time_step, test_set, 
+                                     scale_output=scale_output,
+                                     scale_input= scale_input,
+                                     polar_output=polar_output,
+                                     zero_pad=zero_pad)
+
+#Prepare the generator of the training dataset
+data_generator = dl_utils.setup_data_generator(train_set, batch_size=batch_size, 
+                                 time_step=time_step,
+                                 scale_output=scale_output,
+                                 scale_input= scale_input,
+                                 polar_output=polar_output,
+                                 zero_pad=zero_pad)
+
+#Retrieve scalers for data set, also retrieve train set sixe
+if(scale_output):
+    out_sc, train_dataset_size = dl_utils.get_out_sc(train_set, polar_output,
+                                                     zero_pad, time_step)
+else:
+    out_sc = MinMaxScaler(feature_range=(-1,1))
+    _, train_dataset_size = dl_utils.get_out_sc(train_set, polar_output,
+                                                zero_pad, time_step)
+
+
+#%% Configure the model--------------------------------------------------------
+###############################################################################
 
 #Initialize the model
 regresor = Sequential()
 
-#First Layer  -----------------------------------------------------------------
+#First Layer  ----------------------------------------------------------------
 #Note that this is the only layer with input_shape
-#Should only use one of these
-
 #LSTM First layer
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+regresor.add(CuDNNLSTM(units = r_units, 
                        recurrent_regularizer = l2(regularizer_r),
                        return_sequences = True, 
-                       input_shape=(x.shape[1], x.shape[2])))
-
+                       input_shape=(time_step, val_data_x.shape[2])))
+#regresor.add(Activation('tanh'))
 #ANN First Layer
-#regresor.add(Dense(units = units, activation = 'tanh', 
-#                   input_shape=(x.shape[1], x.shape[2])))
+#regresor.add(Dense(units = 50, activation = 'tanh', 
+#                   input_shape=(x.shape[1], )))
 #------------------------------------------------------------------------------
-
-
 #Middle layers-----------------------------------------------------------------
 #They are connected in sequence, ordered in tuples of LSTM, ANN
-
-
 #Second Layer----------------------------------#
 #LSTM
-regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r),
-                       return_sequences = True))
-regresor.add(Activation('tanh'))
+#regresor.add(CuDNNLSTM(units = r_units*5, 
+#                       recurrent_regularizer = l2(regularizer_r),
+#                       return_sequences = True))
+#regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = None))
 #regresor.add(Dropout(dropout))
 #----------------------------------------------#
-
-
 #Third Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = r_units*5, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
 #----------------------------------------------#
-
-
-#Fourth Layer----------------------------------#
+#Fourth Layer---------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units,  
-#                  return_sequences = True))
+regresor.add(CuDNNLSTM(units = r_units,  
+                  return_sequences = False))
+regresor.add(Activation('relu'))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
 #----------------------------------------------#
-
-
 #Fifth Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
+#regresor.add(Activation('tanh'))
 #ANN
 #regresor.add(Dense(units = units, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
 #----------------------------------------------#
-
-
 #Sixth Layer----------------------------------#
 #LSTM
-#regresor.add(CuDNNLSTM(units = units, unit_forget_bias=False,
+#regresor.add(CuDNNLSTM(units = units, 
 #                       recurrent_regularizer = l2(regularizer_r),
 #                       return_sequences = True))
 #ANN
@@ -225,161 +213,97 @@ regresor.add(Activation('tanh'))
 #                   use_bias=False, activation = 'tanh'))
 #regresor.add(Dropout(dropout))
 #----------------------------------------------#
-
-
-#Additional ANN Layers----------------------------------#
+#Additional ANN Layers------------------------#
 #ANN
-#regresor.add(Dense(units = units, activation = 'relu'))
+#regresor.add(Dense(units = units, activation = None, 
+#                   kernel_regularizer=l2(regularizer_k)))
 #regresor.add(Dropout(dropout))
 #ANN
-#regresor.add(Dense(units = int(units/2), activation = 'sigmoid'))
+#regresor.add(Dense(units = int(units), activation = 'tanh'))
 #ANN
-#regresor.add(Dense(units = units, activation = 'tanh'))
+#regresor.add(Dense(units = units, activation = None, 
+#                   kernel_regularizer=l2(regularizer_k)))
 #ANN
 regresor.add(Dense(units = units, kernel_regularizer=l2(regularizer_k),
-                   activation = 'tanh'))
+                  activation = 'linear'))
 #regresor.add(Dense(units = units*2, kernel_regularizer=l2(regularizer_k),
 #                   activation = 'tanh'))
-#----------------------------------------------#
-
-
 #------------------------------------------------------------------------------
-
-
 #Output Layer------------------------------------------------------------------
 #LSTM last layer
-regresor.add(CuDNNLSTM(units = 2, unit_forget_bias=False,
-                       recurrent_regularizer = l2(regularizer_r)))
-regresor.add(Activation('tanh'))
+#egresor.add(CuDNNLSTM(units = 2, recurrent_regularizer = l2(regularizer_r),
+#                      return_sequences = False))
+#regresor.add(Activation('tanh'))
 
 #ANN Last Layer
-#regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_c),
-#                   activation = 'tanh', use_bias = False))
-#------------------------------------------------------------------------------
+regresor.add(Dense(units = 2, kernel_regularizer=l2(regularizer_k),
+                   activation = 'linear'))
 
 
-#Compile this network----------------------------------------------------------
-regresor.compile(optimizer = Adam(lr=0.003), loss='mse', 
-                 metrics=['mae', 'acc', 'mse'])
-#------------------------------------------------------------------------------
 
+#Compile this network
+regresor.compile(optimizer = optimizer , loss = loss, 
+                 metrics = metrics)
 
-#Callback Declarations---------------------------------------------------------
-#Calbacks are used to alter the behaviour of the training. Descriptions of each
-#function is provided bellow
+#%%Train the model-------------------------------------------------------------
+###############################################################################
 
-#ModelCheckpoint - saves the data when a specific value is a its best
-save_data = ModelCheckpoint('../Models/BigData_GPU_5LSTM_3ANN.\
-{epoch:02d}-{val_acc:.4f}.hdf5', 
-          monitor='val_acc',save_best_only=True)
-
-#Tensoroard - Saves the output of the training so it can be visualized in
-#tensorboard
-#tensorboard_cb = TensorBoard(log_dir='../tensorboard_logs/{}'
-#.format(model_number), histogram_freq=0, batch_size=32, write_graph=True,
-# write_grads=True, write_images=False, embeddings_freq=0, 
-# embeddings_layer_names=None, embeddings_metadata=None)
-#model_number += 1 
-
-#ReduceLROnPlateau - lowers the 
-#plateau_cb = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=10, 
-#verbose=0, mode='auto', cooldown=0, min_lr=0)   
-#------------------------------------------------------------------------------
-
-
-#Train the model---------------------------------------------------------------
 #Fit the data
-history = regresor.fit(x, y, epochs = 400, validation_split = val_split,
-          callbacks= [], batch_size = 10000) 
+finished_training = False
+try:
+    history = regresor.fit_generator(data_generator, epochs = epochs, 
+          validation_data = (val_data_x, val_data_y),
+          steps_per_epoch = int(train_dataset_size/batch_size),
+          callbacks=None)
+    finished_training = True
+except KeyboardInterrupt:
+    print('Stopped training')
+    finished_training = False
+#%%Create directories for it---------------------------------------------------
+###############################################################################
+#Get run count
+with open(DIR + 'training_logs.txt','a+') as fh:
+    fh.seek(0)
+    run_count = fh.read().count('Training session #: ') + 1
 
-
-#Save the network if it is good------------------------------------------------
-#regresor.save('Big_Data_LSTM-no-out-dense.h5py')
-
-
-#%%Evaluate the model
-
-#Plot this data
-
-pyplot.plot(history.history['loss'])
-pyplot.plot(history.history['val_loss'])
-pyplot.title('model train vs validation loss')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
-
-"""
-pyplot.plot(history.history['mean_absolute_error'])
-pyplot.plot(history.history['val_mean_absolute_error'])
-pyplot.title('model train vs validation acc')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['train', 'validation'], loc='upper right')
-pyplot.show()
-"""
-
-max(history.history['val_acc'])
-
-#%%
-#regresor = load_model('../Models/BigData_GPU_5LSTM_3ANN.16-0.8915.hdf5')
-
-if(regresor.input_shape[1] != time_step):
-    setup_data(regresor.input_shape[1], train_set)
-
-slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:,0:,0:])
-prediction = sc.inverse_transform(prediction)
-expected_outcome = sc.inverse_transform(y[slice_index:,:])
-#expected_outcome = y[slice_index:,:]
-
-pyplot.plot(expected_outcome[0:, 0:1])
-pyplot.plot(prediction[0:,0:1])
-pyplot.title('Validation: Magnitud')
-pyplot.ylabel('meters')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
-
-pyplot.plot(expected_outcome[0:, 1:2])
-pyplot.plot(prediction[0:,1:2])
-pyplot.title('Validation: Angle')
-pyplot.ylabel('radians')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
-
-#%%
-#Test neural networks performance with entirely new dataset
-
-#Verify that the data is configures to the appropriate amount of timesteps
-if(regresor.input_shape[1] != time_step):
-    setup_data(regresor.input_shape[1], test_set)
+#Set save name
+try:
+    save_name = 'M{}-{}-{}-MAE:{:.3f}-MSE:{:.3f}-{}'.format(run_count,
+              model_output, out_sc_name+in_sc_name,
+              float(history.history['val_mean_absolute_error'][-1]), 
+              float(history.history['val_mean_squared_error'][-1]),
+              input_format)
+except (NameError, KeyError) as e:
+    save_name = 'M{}-{}-{}-MAE:{}-MSE:{}-{}'.format(run_count, 
+              model_output, out_sc_name+in_sc_name,
+              'x','x',input_format)
+SAVE_DIR = DIR + save_name + '/'
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
 else:
-    setup_data(time_step, test_set)
+    dir_name = input("Model Directory already exists: {} \nInput new name: ".format(save_name))    
+    SAVE_DIR = DIR + dir_name + '/'
+    while(os.path.exists(SAVE_DIR)):
+        dir_name = input("Model Directory already exists, input new name: ")    
+        SAVE_DIR = DIR + dir_name + '/'
+    os.makedirs(SAVE_DIR)
 
-slice_index = int(x.shape[0]*(1-val_split))
-prediction = regresor.predict(x=x[slice_index:slice_index+1,0:,0:])
-prediction = sc.inverse_transform(prediction)
-expected_outcome = sc.inverse_transform(y[slice_index:,:])
-#expected_outcome = y[slice_index:,:]
+#%%
 
+if(finished_training):
+    dl_utils.plot_history(history, SAVE_DIR, save_name, loss)
 
-pyplot.plot(expected_outcome[0:, 0:1])
-pyplot.plot(prediction[0:,0:1])
-pyplot.title('Test X')
-pyplot.ylabel('meters')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
+test_scores = dl_utils.plot_validation(regresor, validation_x=val_data_x, 
+                         validation_y=val_data_y, directory=SAVE_DIR,
+                         save_name=save_name, polar_output=polar_output,
+                         out_sc=out_sc, out_scaler=scale_output)
+save_to_file = dl_utils.save_model_to_file(regresor, out_sc, SAVE_DIR, 
+                                           save_name)
+dl_utils.save_log(DIR, regresor, run_count, optimizer, metrics, test_scores,
+                  time_step, batch_size, dropout, regularizer_k, regularizer_r,
+                  loss, epochs, val_split, train_set, test_set, False,
+                  scale_input, scale_output, save_name, save_to_file, 
+                  finished_training, history=None)
 
-pyplot.plot(expected_outcome[0:, 1:2])
-pyplot.plot(prediction[0:,1:2])
-pyplot.title('Test Dataset: Angle')
-pyplot.ylabel('radians')
-pyplot.xlabel('measurement')
-pyplot.legend(['expected outcome', 'prediction'], loc='upper right')
-pyplot.show()
-#setup_data(time_step, train_set)
 
 

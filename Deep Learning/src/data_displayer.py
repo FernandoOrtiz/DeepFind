@@ -9,17 +9,17 @@ Created on Wed May  9 20:07:28 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#from tf.transformations import euler_from_quaternion 
+from tf.transformations import euler_from_quaternion 
 
-view = True
-
-
-dataset = ["D1-30MinuteRun-F2.csv",
+view = False
+zero_pad=False
+time_step = 3
+train_dataset = ["D1-30MinuteRun-F2.csv",
            "D2-35MinuteRun-F2.csv",
            "D3-30MinuteStillRun-F2.csv",
-           "D4-18MinuteRun-F2.csv",
-           "D5-7MinuteRun-F2.csv",
-           "D6-27MinuteRun-F2.csv",
+           #"D4-18MinuteRun-F2.csv",
+           #"D5-7MinuteRun-F2.csv",
+           #"D6-27MinuteRun-F2.csv",
            "D7-60MinuteRun-F2.csv",
            "D8-60MinuteRun-F2.csv",
            "D9-60-MinuteRun-F2.csv",
@@ -29,7 +29,7 @@ dataset = ["D1-30MinuteRun-F2.csv",
            "D13-60MinuteStillRun-F2.csv",
          ]
 
-#dataset = ["D4-18MinuteRun-F2.csv"]
+test_dataset = ["D4-18MinuteRun-F2.csv"]
 
 def to_ypr(data):
     for i in range(0, data.shape[0]):
@@ -59,17 +59,52 @@ if __name__ == '__main__':
             plt.xlabel('sample')
             plt.show()
     else: 
-        dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
+        #Create a copy so you dont alter the original
+        dataset_copy = list(train_dataset)                                             #Make a copy of the list so you do not alter it
+        #Pop the first item in the list
         dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+        #If desired, add zero pad
+        if(zero_pad):
+            zeros_df = pd.DataFrame(0, index=range(time_step-1), 
+                                    columns= dataset_total.columns)
+            dataset_total = pd.concat((zeros_df, dataset_total), axis = 0)
+        
+        #Iterate through the list appending each dataset
         for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
+            if(zero_pad):
+                dataset_total = pd.concat((dataset_total, zeros_df), axis = 0)
             dataset_total = pd.concat((dataset_total,
-                                      pd.read_csv("../Datasets/"+element)), axis=0)
-        #Convert into numpy array
+            pd.read_csv("../Datasets/"+element)), axis=0)
+        
+        #Convert to numpy array
         dataset_total = dataset_total.as_matrix()    
         #Extract the output of the neural network
         to_ypr(dataset_total)
         np.savetxt("../Datasets/D1-MegaSet-F3.csv", dataset_total,
                               delimiter = ",")
+            
+        #Create a copy so you dont alter the original
+        dataset_copy = list(test_dataset)                                             #Make a copy of the list so you do not alter it
+        #Pop the first item in the list
+        dataset_total = pd.read_csv("../Datasets/"+dataset_copy.pop(0))            #Pop the first element out
+        #If desired, add zero pad
+        if(zero_pad):
+            zeros_df = pd.DataFrame(0, index=range(time_step-1), 
+                                    columns= dataset_total.columns)
+            dataset_total = pd.concat((zeros_df, dataset_total), axis = 0)
         
+        #Iterate through the list appending each dataset
+        for element in dataset_copy:                                               #If you have additional datasets, keep adding them 
+            if(zero_pad):
+                dataset_total = pd.concat((dataset_total, zeros_df), axis = 0)
+            dataset_total = pd.concat((dataset_total,
+            pd.read_csv("../Datasets/"+element)), axis=0)
         
+        #Convert to numpy array
+        dataset_total = dataset_total.as_matrix()    
+        #Extract the output of the neural network
+        to_ypr(dataset_total)
+        np.savetxt("../Datasets/D2-TestSet-F3.csv", dataset_total,
+                              delimiter = ",")
+            
       
