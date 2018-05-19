@@ -22,11 +22,15 @@ from keras.models import load_model
 
 def main():
     
+<<<<<<< Updated upstream
     
     #This is the name of the trained model
     model = "M144-YpR0-DuAL-MAE:0.070-MSE:0.008-F3"
     
     #Defines whether the output is polar or not
+=======
+    model = "M89-CaRT-MAE:0.067-MSE:0.010-F2"
+>>>>>>> Stashed changes
     polar = False
     #Defines whether it has one neural network or two
     dual_nets = False
