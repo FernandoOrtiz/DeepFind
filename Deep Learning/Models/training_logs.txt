@@ -2090,3 +2090,325 @@ In scaler: False
 scale_output: True
 Saved to file: N/A
 _________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 45
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_3 (CuDNNLSTM)     (None, 3, 100)            188800    
+_________________________________________________________________
+cu_dnnlstm_4 (CuDNNLSTM)     (None, 100)               80800     
+_________________________________________________________________
+activation_2 (Activation)    (None, 100)               0         
+_________________________________________________________________
+dense_3 (Dense)              (None, 17)                1717      
+_________________________________________________________________
+dense_4 (Dense)              (None, 2)                 36        
+=================================================================
+Total params: 271,353
+Trainable params: 271,353
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.149768000917
+Test mse: 0.142108933665
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 3
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: False
+Saved to file: M45-PoLR-OFIF-MAE:0.142-MSE:0.410-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 46
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_5 (CuDNNLSTM)     (None, 3, 100)            188800    
+_________________________________________________________________
+cu_dnnlstm_6 (CuDNNLSTM)     (None, 100)               80800     
+_________________________________________________________________
+activation_3 (Activation)    (None, 100)               0         
+_________________________________________________________________
+dense_5 (Dense)              (None, 17)                1717      
+_________________________________________________________________
+dense_6 (Dense)              (None, 2)                 36        
+=================================================================
+Total params: 271,353
+Trainable params: 271,353
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.0683037725271
+Test mse: 0.0644887073211
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 3
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: True
+Saved to file: M46-PoLR-OTIF-MAE:0.064-MSE:0.041-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 47
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_7 (CuDNNLSTM)     (None, 2, 55)             93940     
+_________________________________________________________________
+cu_dnnlstm_8 (CuDNNLSTM)     (None, 55)                24640     
+_________________________________________________________________
+activation_4 (Activation)    (None, 55)                0         
+_________________________________________________________________
+dense_7 (Dense)              (None, 17)                952       
+_________________________________________________________________
+dense_8 (Dense)              (None, 2)                 36        
+=================================================================
+Total params: 119,568
+Trainable params: 119,568
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.138679193086
+Test mse: 0.128108747695
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 2
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: False
+Saved to file: M47-PoLR-OFIF-MAE:0.128-MSE:0.307-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 48
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_9 (CuDNNLSTM)     (None, 2, 100)            188800    
+_________________________________________________________________
+cu_dnnlstm_10 (CuDNNLSTM)    (None, 100)               80800     
+_________________________________________________________________
+activation_5 (Activation)    (None, 100)               0         
+_________________________________________________________________
+dense_9 (Dense)              (None, 17)                1717      
+_________________________________________________________________
+dense_10 (Dense)             (None, 2)                 36        
+=================================================================
+Total params: 271,353
+Trainable params: 271,353
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.125901935818
+Test mse: 0.117511362212
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 2
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: False
+Saved to file: M48-PoLR-OFIF-MAE:0.118-MSE:0.306-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 49
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_11 (CuDNNLSTM)    (None, 2, 10)             15280     
+_________________________________________________________________
+cu_dnnlstm_12 (CuDNNLSTM)    (None, 10)                880       
+_________________________________________________________________
+activation_6 (Activation)    (None, 10)                0         
+_________________________________________________________________
+dense_11 (Dense)             (None, 17)                187       
+_________________________________________________________________
+dense_12 (Dense)             (None, 2)                 36        
+=================================================================
+Total params: 16,383
+Trainable params: 16,383
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.332652372712
+Test mse: 0.316105613499
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 2
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: False
+Saved to file: M49-PoLR-OFIF-MAE:0.316-MSE:0.627-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 50
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_1 (LSTM)                (None, 2, 40)             65760     
+_________________________________________________________________
+lstm_2 (LSTM)                (None, 40)                12960     
+_________________________________________________________________
+activation_1 (Activation)    (None, 40)                0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 40)                1640      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 82        
+=================================================================
+Total params: 80,442
+Trainable params: 80,442
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.0665788490337
+Test mse: 0.0644550965208
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 2
+Batch size: 1000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: True
+Saved to file: M50-PoLR-OTIF-CPU-MAE:0.064-MSE:0.040-F3.h5py
+_________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 50
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_1 (CuDNNLSTM)     (None, 2, 40)             65920     
+_________________________________________________________________
+cu_dnnlstm_2 (CuDNNLSTM)     (None, 40)                13120     
+_________________________________________________________________
+activation_1 (Activation)    (None, 40)                0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 40)                1640      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 82        
+=================================================================
+Total params: 80,762
+Trainable params: 80,762
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.0671505643998
+Test mse: 0.0637344093142
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 2
+Batch size: 1000
+Dropout: 0.0
+Regularizer: 0.001
+Recurrent Regularizer: 0.001
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: True
+_______
+YPR Input: False
+In scaler: False
+scale_output: True
+Saved to file: M50-PoLR-OTIF-MAE:0.064-MSE:0.038-F3.h5py
+_________________________________________________________________//
