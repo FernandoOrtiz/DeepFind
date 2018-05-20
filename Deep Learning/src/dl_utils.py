@@ -48,7 +48,8 @@ def to_cartesian(data):
         data[1] = y
 
 def to_cartesian_scalar (magnitude, angle):
-    arr = to_cartesian(np.array([magnitude, angle]))
+    arr = np.array([magnitude, angle])
+    to_cartesian(arr)
     x = arr[0]
     y = arr[1]
     return x, y
@@ -141,12 +142,14 @@ def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
         dataset_total[:,0:2] = out_sc.fit_transform(dataset_total[:,0:2])
         print('out_sc data range' + str(out_sc.data_range_[0]))
         print('out_sc data min' + str(out_sc.data_min_[0]))
-        
+    
+       
     if(time_step > batch_size):
         r_max = time_step
     else:
         r_max = batch_size
-        
+    
+    
     n = dataset_total.shape[0]
     while True:
         inputs, outputs =[], []
@@ -171,6 +174,8 @@ def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
                 # split your inputs, and outputs as you wish
                                
             yield np.array(inputs), np.array(outputs)
+        
+
 
 def get_out_sc(dataset, polar_output, zero_pad, time_step):
     #Create a copy so you dont alter the original
