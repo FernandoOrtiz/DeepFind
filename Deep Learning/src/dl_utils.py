@@ -55,7 +55,7 @@ def to_cartesian_scalar (magnitude, angle):
     return x, y
 
 def setup_data(time_step, dataset, scale_output=True, scale_input=True,
-               polar_output = False, zero_pad = True):
+               polar_output = False, zero_pad = True, recurrent = True):
     #Create a copy so you dont alter the original
     dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
     #Pop the first item in the list
@@ -76,8 +76,11 @@ def setup_data(time_step, dataset, scale_output=True, scale_input=True,
     #Convert to numpy array
     dataset_total = dataset_total.as_matrix()    
     #Extract the output of the neural network
-    y_set = dataset_total[0:-1*time_step,0:2]
-    x_set = dataset_total[0:,2:]
+    if(recurrent):
+        y_set = dataset_total[0:-1*time_step,0:2]
+    else:
+        y_set = dataset_total[0:,0:2]
+    x_set = dataset_total[0:,12:]
     
     in_sc = StandardScaler()
     if(scale_input):
@@ -85,11 +88,14 @@ def setup_data(time_step, dataset, scale_output=True, scale_input=True,
     
     
     #Reshappe the inpputt so it fits the recurrent neural network
-    x = []
-    for i in range(0,int(dataset_total.shape[0]-time_step)):
-        x.append(x_set[i : i+time_step , :])
-    x = np.array(x)
-   
+    if(recurrent):
+        x = []
+        for i in range(0,int(dataset_total.shape[0]-time_step)):
+            x.append(x_set[i : i+time_step , :])
+        x = np.array(x)
+    else:
+        x = x_set
+        
     if(polar_output):
         to_polar(y_set)
     #Feature Scaling
@@ -104,7 +110,7 @@ def setup_data(time_step, dataset, scale_output=True, scale_input=True,
 
 def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
                          scale_output=True, scale_input=True, 
-                         polar_output=False, zero_pad = True):
+                         polar_output=False, zero_pad = True, recurrent = True):
     #Create a copy so you dont alter the original
     dataset_copy = list(dataset)                                             #Make a copy of the list so you do not alter it
     #Pop the first item in the list
@@ -139,10 +145,7 @@ def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
     out_sc = MinMaxScaler(feature_range = (-1,1))
     
     if(scale_output):
-        dataset_total[:,0:2] = out_sc.fit_transform(dataset_total[:,0:2])
-        print('out_sc data range' + str(out_sc.data_range_[0]))
-        print('out_sc data min' + str(out_sc.data_min_[0]))
-    
+        dataset_total[:,0:2] = out_sc.fit_transform(dataset_total[:,0:2])    
        
     if(time_step > batch_size):
         r_max = time_step
@@ -155,26 +158,30 @@ def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
         inputs, outputs =[], []
         for i in np.random.permutation(range(0, batch_size, int(n/batch_size))):
             inputs, outputs =[], []
-            
-            for j in np.random.permutation(range(i, i+batch_size)):
-                inputs.append(dataset_total[j:j+time_step,2:])
-                outputs.append(dataset_total[j+time_step-1,0:2])
-                # split your inputs, and outputs as you wish
-                               
-            yield np.array(inputs), np.array(outputs)
-            
-            
+            if(recurrent):
+                for j in np.random.permutation(range(i, i+batch_size)):
+                    inputs.append(dataset_total[j:j+time_step,12:])
+                    outputs.append(dataset_total[j+time_step-1,0:2])
+                    # split your inputs, and outputs as you wish
+                                   
+                yield np.array(inputs), np.array(outputs)
+            if(not recurrent):
+                yield dataset_total[i:i+batch_size,12:], dataset_total[i:i+batch_size,0:2]
+        """
         inputs, outputs =[], []
         for k in np.random.permutation(range(0, batch_size, int(n/batch_size))):
             inputs, outputs =[], []
-            i = np.random.randint(n - r_max - 1)
-            for j in np.random.permutation(range(i, i+batch_size)):
-                inputs.append(dataset_total[j:j+time_step,2:])
-                outputs.append(dataset_total[j+time_step-1,0:2])
-                # split your inputs, and outputs as you wish
-                               
-            yield np.array(inputs), np.array(outputs)
-        
+            i = np.random.randint(n - r_max - 10)
+            if(recurrent):
+                for j in np.random.permutation(range(i, i+batch_size)):
+                    inputs.append(dataset_total[j:j+time_step,2:])
+                    outputs.append(dataset_total[j+time_step-1,0:2])
+                    # split your inputs, and outputs as you wish
+                                   
+                yield np.array(inputs), np.array(outputs)
+            if(not recurrent):
+                yield dataset_total[i:i+batch_size,2:], dataset_total[i:i+batch_size,0:2]
+         """
 
 
 def get_out_sc(dataset, polar_output, zero_pad, time_step):
@@ -275,7 +282,7 @@ def save_log(directory, deep_model, run_count,  optimizer,  metrics, test_scores
              time_step, batch_size, dropout, regularizer_k, regularizer_r, loss,
              epochs, val_split, train_set, test_set, yaw_pitch_roll_input,
              scale_input, scale_output, save_name, save_to_file, finished_training,
-             history = None):
+             recurrent, history = None):
     
     with open(directory + 'training_logs.txt','a+') as fh:
         fh.write('_________________________________________________________________\\\\\n')
@@ -314,6 +321,7 @@ def save_log(directory, deep_model, run_count,  optimizer,  metrics, test_scores
         fh.write('YPR Input: ' + str(yaw_pitch_roll_input) + '\n')
         fh.write('In scaler: ' + str(scale_input) + '\n')
         fh.write('scale_output: ' + str(scale_output) + '\n')
+        fh.write('Recurrent: ' + str(recurrent) + '\n')
         fh.write('Saved to file: ')
         if(save_to_file):
             fh.write(save_name + '.h5py')
@@ -332,7 +340,7 @@ def save_model_to_file(deep_model, out_sc, directory, save_name):
             deep_model.save(directory  + save_name + '.h5py')
             save_to_file = True
             valid_input = True
-            print("Saved to file")
+            print("Saved to file: " + save_name)
         elif (inp.lower() == 'no' or inp.lower() == 'n'):
             shutil.rmtree(directory)
             print("Did not save to file")

@@ -16,13 +16,20 @@ from sklearn.externals import joblib
 import numpy as np
 from keras.models import load_model
 import dl_utils as dl
+import sys
+
+
 
 #%%
 
 def main():
     
 #%%
-    model = "M46-PoLR-OTIF-MAE:0.064-MSE:0.041-F3"
+    if(sys.argv != 2):
+        print('invalid number of arguments: ' + len(sys.argv) + '. Expected two')
+        exit()
+    else:
+        model = sys.argv[1]
     
     #Defines whether it has one neural network or two
     #dual_nets = False
@@ -36,6 +43,10 @@ def main():
     else:
         polar_output = False
     
+    if(model.find('LiN') > 0):
+        recurrent = False
+    else:
+        recurrent = True
     #Extract whether or not to scale input
     if(model.find('IT') > 0):
         scale_input = True
@@ -61,12 +72,15 @@ def main():
     out_scaler = joblib.load(MODEL_DIR + model + '.scl')
     
     #initialize the amount of timesteps and features
-    time_steps = deep_model.input_shape[1]
+    if(recurrent):
+        time_steps = deep_model.input_shape[1]
     features = deep_model.input_shape[2]
    
   
-   
-    rnn_model_input = np.zeros((time_steps, features))
+    if(recurrent):
+        rnn_model_input = np.zeros((time_steps, features))
+    else:
+        rnn_model_input = np.zeros(features))
     
     print("Initializing ROS")
     pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
@@ -89,22 +103,28 @@ def main():
             sensor_data = np.append(sensor_data, data.lidar.ranges)
             sensor_data[sensor_data == np.inf] = 0
             
-            np.put(rnn_model_input,range(0, rnn_model_input.shape[1]), sensor_data, mode = 'raise')
         else:
             raise TypeError('no valid format for data found')
-        rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
-    
-        #print("The values are: {}".format(rnn_model_input))
+        
+        if(recurent):
+            np.put(rnn_model_input,range(0, rnn_model_input.shape[1]), sensor_data, mode = 'raise')
+            rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
+        else:
+            rnn_model_input = sensor_data
         
         
         if(scale_input):
             scaled_data = input_scaler.fit_transform(rnn_model_input)
         else:
             scaled_data = rnn_model_input
-            
-        scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
+        
+        
+        if(recurrent):
+            scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
                                           rnn_model_input.shape[1])
-   
+        else:
+            scaled_data = scaled_data.reshape(1, scaled_data.shape[0])
+            
         output = deep_model.predict(x=scaled_data)
    
         if(scale_output):
@@ -114,11 +134,12 @@ def main():
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = 'map'
-        message.pose.orientation = data.imu.orientation
+        message.pose.orientation = data.pose.orientation
         x , y = 0, 0
         if(polar_output):
             magnitude = output[0][0]
-            angle = output[0][1]
+            #angle = output[0][1]
+            angle = np.arctan2(sensor_data.pose.pose.y, sensor_data.pose.pose.x)
             print("magnitud in meters = " + str(magnitude) + " angle in radians = " + str(angle*180/3.1415))
             x, y = dl.to_cartesian_scalar(magnitude, angle)
             message.pose.position.x = x
