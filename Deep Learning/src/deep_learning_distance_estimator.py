@@ -5,7 +5,7 @@ Created on Wed May  2 15:27:51 2018
 
 @author: rathk
 """
-
+#%%
 import rospy
 
 
@@ -17,15 +17,15 @@ import numpy as np
 from keras.models import load_model
 import dl_utils as dl
 
-
+#%%
 
 def main():
     
-
-    model = "M89-CaRT-MAE:0.067-MSE:0.010-F2"
-    polar = False
+#%%
+    model = "M46-PoLR-OTIF-MAE:0.064-MSE:0.041-F3"
+    
     #Defines whether it has one neural network or two
-    dual_nets = False
+    #dual_nets = False
 
     
     #Extract information from the name of the model
@@ -76,7 +76,9 @@ def main():
         input_scaler = StandardScaler()
         
     print("ROS Initialized")
+#%%
     while not rospy.is_shutdown():
+#%%
         data = rospy.wait_for_message("sensor_data", SensorData)
         if(input_format == "F2" or input_format == 'F3'):
             sensor_data = np.array([data.imu.orientation.x, data.imu.orientation.y, 
@@ -112,11 +114,12 @@ def main():
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = 'map'
-        message.pose.orientation = data.pose.pose.orientation
+        message.pose.orientation = data.imu.orientation
         x , y = 0, 0
         if(polar_output):
             magnitude = output[0][0]
             angle = output[0][1]
+            print("magnitud in meters = " + str(magnitude) + " angle in radians = " + str(angle*180/3.1415))
             x, y = dl.to_cartesian_scalar(magnitude, angle)
             message.pose.position.x = x
             message.pose.position.y = y
@@ -128,7 +131,7 @@ def main():
         print("x in meters = " + str(x) + " y in meters = " + str(y))
        
         pose_pub.publish(message)
-        
+#%%        
 
 if __name__ == '__main__':
     main()
