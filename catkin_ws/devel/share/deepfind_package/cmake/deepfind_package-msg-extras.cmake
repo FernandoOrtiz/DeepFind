@@ -1,2 +1,0 @@
-set(deepfind_package_MESSAGE_FILES "/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/EncodersData.msg;/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/SensorData.msg;/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/MotorCommand.msg;/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/Distance.msg;/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/Keyboard.msg;/home/rathk/DeepFind/catkin_ws/src/deepfind_package/msg/Velocity.msg")
-set(deepfind_package_SERVICE_FILES "")

@@ -21,8 +21,12 @@ import dl_utils as dl
 
 def main():
     
-    #This is the name of the trained model
-    model = "M1-PoLR-OTIT-MAE:0.347-MSE:0.255-F2"
+
+    model = "M89-CaRT-MAE:0.067-MSE:0.010-F2"
+    polar = False
+    #Defines whether it has one neural network or two
+    dual_nets = False
+
     
     #Extract information from the name of the model
     

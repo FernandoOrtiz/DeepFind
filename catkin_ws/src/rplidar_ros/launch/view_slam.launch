@@ -8,5 +8,6 @@
   <include file="$(find rplidar_ros)/launch/hectormapping.launch" />
   <include file="$(find hector_geotiff)/launch/geotiff_mapper.launch" />
   <include file="$(find deepfind_navigation)/launch/move_base.launch" />
+  <include file="$(find deepfind_navigation)/launch/follow_waypoints.launch" />
   <include file="$(find deepfind_package)/launch/deepfind_robot.launch" />
 </launch>

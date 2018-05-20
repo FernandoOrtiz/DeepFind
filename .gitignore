@@ -186,6 +186,5 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
-catkin_ws/devel/
 # End of https://www.gitignore.io/api/ros,c++,python
 
