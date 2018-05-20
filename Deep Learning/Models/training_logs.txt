@@ -2044,3 +2044,49 @@ In scaler: False
 scale_output: True
 Saved to file: M43-PoLR-OTIF-MAE:0.055-MSE:0.031-F3.h5py
 _________________________________________________________________//
+_________________________________________________________________\\
+Training session #: 44
+Model Architecture:
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+cu_dnnlstm_15 (CuDNNLSTM)    (None, 1, 1000)           5488000   
+_________________________________________________________________
+cu_dnnlstm_16 (CuDNNLSTM)    (None, 1000)              8008000   
+_________________________________________________________________
+activation_8 (Activation)    (None, 1000)              0         
+_________________________________________________________________
+dense_15 (Dense)             (None, 3500)              3503500   
+_________________________________________________________________
+dense_16 (Dense)             (None, 2)                 7002      
+=================================================================
+Total params: 17,006,502
+Trainable params: 17,006,502
+Non-trainable params: 0
+_________________________________________________________________
+_______
+_______
+Test mae: 0.0745282605334
+Test mse: 0.0688609713663
+_______
+Hyperparameters:
+
+Loss: mae
+Optimizer: adam
+Timesetps: 1
+Batch size: 10000
+Dropout: 0.0
+Regularizer: 0.0007
+Recurrent Regularizer: 0.0007
+Epochs: 750
+Validation Split: 0.2
+_______
+Training Sets: ['D1-MegaSet-F3.csv']
+Test Sets: ['D2-TestSet-F3.csv']
+Finished Training: False
+_______
+YPR Input: False
+In scaler: False
+scale_output: True
+Saved to file: N/A
+_________________________________________________________________//
