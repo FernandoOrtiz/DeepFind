@@ -34,19 +34,10 @@ def talker():
         message.header.frame_id = 'base_link'
         values = vn100.next_data()
        
-        if(values.yaw_pitch_roll.x < 0):
-            values.yaw_pitch_roll.x += 360
-
-        if(values.yaw_pitch_roll.y < 0):
-            values.yaw_pitch_roll.y += 360
-
-        if(values.yaw_pitch_roll.z < 0):
-            values.yaw_pitch_roll.z += 360
-
         message.orientation.w = 0
-        message.orientation.x = values.yaw_pitch_roll.x
-        message.orientation.y = values.yaw_pitch_roll.y
-        message.orientation.z = values.yaw_pitch_roll.z
+        message.orientation.x = values.yaw_pitch_roll.x*np.pi/180
+        message.orientation.y = values.yaw_pitch_roll.y*np.pi/180
+        message.orientation.z = values.yaw_pitch_roll.z*np.pi/180
 
         message.linear_acceleration.x = values.acceleration.x
         message.linear_acceleration.y = values.acceleration.y
