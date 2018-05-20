@@ -49,7 +49,7 @@ def main():
     input_format = model.split('-')[-1]
     
     
-    MODEL_DIR = ("../Models/" + 'M1.5-MAE:0.01-MSE:0.04' + "/")
+    MODEL_DIR = ("../Models/" + model + "/")
     #if(not dual_nets): 
     #Import the deep learning model
     deep_model = load_model(MODEL_DIR + model + '.h5py')
