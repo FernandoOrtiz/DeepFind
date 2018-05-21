@@ -77,10 +77,10 @@ def setup_data(time_step, dataset, scale_output=True, scale_input=True,
     dataset_total = dataset_total.as_matrix()    
     #Extract the output of the neural network
     if(recurrent):
-        y_set = dataset_total[0:-1*time_step,0:2]
+        y_set = dataset_total[0:-1*time_step,0:1]
     else:
-        y_set = dataset_total[0:,0:2]
-    x_set = dataset_total[0:,12:]
+        y_set = dataset_total[0:,0:1]
+    x_set = dataset_total[0:,2:]
     
     in_sc = StandardScaler()
     if(scale_input):
@@ -160,13 +160,13 @@ def setup_data_generator(dataset, batch_size=1500, time_step=50, shuffle = True,
             inputs, outputs =[], []
             if(recurrent):
                 for j in np.random.permutation(range(i, i+batch_size)):
-                    inputs.append(dataset_total[j:j+time_step,12:])
-                    outputs.append(dataset_total[j+time_step-1,0:2])
+                    inputs.append(dataset_total[j:j+time_step,2:])
+                    outputs.append(dataset_total[j+time_step-1,0:1])
                     # split your inputs, and outputs as you wish
                                    
                 yield np.array(inputs), np.array(outputs)
             if(not recurrent):
-                yield dataset_total[i:i+batch_size,12:], dataset_total[i:i+batch_size,0:2]
+                yield dataset_total[i:i+batch_size,2:], dataset_total[i:i+batch_size,0:1]
         """
         inputs, outputs =[], []
         for k in np.random.permutation(range(0, batch_size, int(n/batch_size))):
