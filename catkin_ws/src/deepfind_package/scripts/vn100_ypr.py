@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 
 import rospy
+import numpy as np
 from sensor_msgs.msg import Imu
 from vnpy import *
 
 
-__vn100_path = '/dev/ttyUSB0'
+__vn100_path = '/dev/ttyUSB1'
 __vn100_baud_rate = 115200
 
 

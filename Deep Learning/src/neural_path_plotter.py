@@ -17,7 +17,7 @@ def np_callback(pose_stamped):
     global message
     global path_pub 
     message.header.stamp = rospy.Time.now()
-    message.header.frame_id = 'base_link'
+    message.header.frame_id = 'map'
     message.poses = message.poses + [pose_stamped]
     print("publishing: " + str(message.poses.__len__))
     path_pub.publish(message)
