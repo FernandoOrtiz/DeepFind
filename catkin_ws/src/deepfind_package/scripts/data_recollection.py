@@ -14,18 +14,28 @@ from sensor_msgs.msg import Imu
 from geometry_msgs.msg import PoseStamped
 #from nav_msgs.msg import Odometry 
 import message_filters
+import datetime
+
+count = 0
+
+def counter():
+	global count
+        count = (count + 1)%11
+        return str(count)
 
 """
 	Creates SensorData message and publishes it
 """
 def callback(lidar, imu, pose):
-	print('yaaassssss')
+        
+        print ('Working ' + counter())
 	sensorData = SensorData()
 	sensorData.imu = imu;
 	sensorData.lidar = lidar
 	#sensorData.encoder = encoder
 	sensorData.pose = pose
 	dataPub.publish(sensorData)
+
 
 """
 	Start data recollection node. Set the data subcribers to accept data when

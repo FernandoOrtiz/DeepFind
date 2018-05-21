@@ -8,7 +8,7 @@ Created on Fri May 18 16:03:50 2018
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.externals import joblib
 import shutil
 

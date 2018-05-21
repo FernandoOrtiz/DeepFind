@@ -57,21 +57,18 @@ def get_avg(xi):
     global avg
     global n_values
     n_values += 1
-    avg = ((avg*n_values-1) + xi)/n_values
+    avg = ((avg*(n_values-1)) + xi)/n_values
     
     return avg
 
 
 
 def callback(neural, slam):
-    print("inside callback")
-    
+ 
     try:
-        print("inside try")
         x_i = calculate_difference(neural.pose.position.x, neural.pose.position.y, slam.pose.position.x, slam.pose.position.y)
-        print("The Euclidean displacement is " + str(x_i))
         avg = get_avg(x_i)
-        print("The regular average is " + str(avg))
+        print("The immediate error is: " + str(x_i*3.3) + "The average error is " + str(avg*3.3))
        
     except:
         print("Done")

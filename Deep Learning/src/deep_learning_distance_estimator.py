@@ -25,8 +25,8 @@ import sys
 def main():
     
 #%%
-    if(sys.argv != 2):
-        print('invalid number of arguments: ' + len(sys.argv) + '. Expected two')
+    if(len(sys.argv) != 2):
+        print('invalid number of arguments: ' + str(len(sys.argv)) + '. Expected two')
         exit()
     else:
         model = sys.argv[1]
@@ -74,13 +74,14 @@ def main():
     #initialize the amount of timesteps and features
     if(recurrent):
         time_steps = deep_model.input_shape[1]
-    features = deep_model.input_shape[2]
-   
+        features = deep_model.input_shape[2]
+    else:
+        features = deep_model.input_shape[0]
   
     if(recurrent):
         rnn_model_input = np.zeros((time_steps, features))
     else:
-        rnn_model_input = np.zeros(features))
+        rnn_model_input = np.zeros(features)
     
     print("Initializing ROS")
     pose_pub = rospy.Publisher("neural_pose", PoseStamped, queue_size = 10)
@@ -106,24 +107,21 @@ def main():
         else:
             raise TypeError('no valid format for data found')
         
-        if(recurent):
+        if(recurrent):
             np.put(rnn_model_input,range(0, rnn_model_input.shape[1]), sensor_data, mode = 'raise')
             rnn_model_input = np.roll(rnn_model_input, -1, axis=0)
         else:
-            rnn_model_input = sensor_data
+            rnn_model_input = sensor_data.reshape(1,-1)
         
         
         if(scale_input):
             scaled_data = input_scaler.fit_transform(rnn_model_input)
         else:
             scaled_data = rnn_model_input
-        
-        
+
         if(recurrent):
-            scaled_data = scaled_data.reshape(1, scaled_data.shape[0],
+            scaled_data = scaled_data.reshape(1, rnn_model_input.shape[0],
                                           rnn_model_input.shape[1])
-        else:
-            scaled_data = scaled_data.reshape(1, scaled_data.shape[0])
             
         output = deep_model.predict(x=scaled_data)
    
@@ -134,12 +132,12 @@ def main():
         message = PoseStamped()
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = 'map'
-        message.pose.orientation = data.pose.orientation
+        message.pose.orientation = data.pose.pose.orientation
         x , y = 0, 0
         if(polar_output):
             magnitude = output[0][0]
-            #angle = output[0][1]
-            angle = np.arctan2(sensor_data.pose.pose.y, sensor_data.pose.pose.x)
+            angle = output[0][1]
+            #angle = np.arctan2(data.pose.pose.position.y, data.pose.pose.position.x)
             print("magnitud in meters = " + str(magnitude) + " angle in radians = " + str(angle*180/3.1415))
             x, y = dl.to_cartesian_scalar(magnitude, angle)
             message.pose.position.x = x
